@@ -17,6 +17,6 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        return this.userRepository.findFirstByUsername(s);
+        return null;// this.userRepository.findFirstByUsername(s);
     }
 }
