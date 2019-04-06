@@ -1,0 +1,2 @@
+# z-shop-vue
+A DEMO PROJECT, DO NOT FOLLOW OR STAR!!!
