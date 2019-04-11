@@ -3,15 +3,22 @@ package com.oldlie.zshop.zshopvue.config;
 import com.oldlie.zshop.zshopvue.service.UserService;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.util.AntPathMatcher;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class RoleBasedVoter implements AccessDecisionVoter<Object> {
 
     private UserService userService;
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public RoleBasedVoter(UserService userService) {
         this.userService = userService;
@@ -37,7 +44,7 @@ public class RoleBasedVoter implements AccessDecisionVoter<Object> {
         String url = fi.getRequestUrl();
 
         int result = ACCESS_ABSTAIN;
-        Collection<? extends GrantedAuthority> authorities = extractAuthorities(authentication);
+        Collection<? extends GrantedAuthority> authorities = extractAuthorities(authentication, url);
 
         for (ConfigAttribute attribute : attributes) {
             if(attribute.getAttribute()==null){
@@ -59,7 +66,22 @@ public class RoleBasedVoter implements AccessDecisionVoter<Object> {
     }
 
     private Collection<? extends GrantedAuthority> extractAuthorities(
-            Authentication authentication) {
+            Authentication authentication, String url) {
+        Collection collection = authentication.getAuthorities();
+
+        Map<String, String> urlRoleMap = this.userService.loadUrlMap();
+        for (Map.Entry<String, String> entry : urlRoleMap.entrySet()) {
+            if (antPathMatcher.match(entry.getKey(), url)) {
+                SecurityConfig.createList();
+                String[] roles = entry.getValue().split(",");
+                for (String role : roles) {
+                    collection.add(new SimpleGrantedAuthority(role));
+                }
+                break;
+            }
+        }
+
         return authentication.getAuthorities();
     }
 }
+
