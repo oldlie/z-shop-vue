@@ -14,7 +14,7 @@
         </a-breadcrumb>
       </a-col>
       <a-col :span="24">
-        <a-tabs defaultActiveKey="4" @change="onTabChange">
+        <a-tabs defaultActiveKey="3" @change="onTabChange">
           <a-tab-pane tab="概述" key="1">
             <img src="http://localhost/resoucres/images/blue.jpg" alt width="100%">
 
@@ -66,7 +66,9 @@
               </a-list-item>
             </a-list>
           </a-tab-pane>
-          <a-tab-pane tab="用户评价" key="3"></a-tab-pane>
+          <a-tab-pane tab="用户评价" key="3">
+            <product-comment></product-comment>
+          </a-tab-pane>
           <a-tab-pane tab="立即购买" key="4" forceRender>
             <a-row>
               <a-col :span="12">

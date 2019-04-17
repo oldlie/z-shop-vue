@@ -6,9 +6,11 @@ import 'ant-design-vue/dist/antd.css'
 
 import ArticleList from './components/ArticleList'
 import ProductCard from './components/ProductCard'
+import ProductComment from './components/ProductComment'
 
 Vue.component('article-list', ArticleList);
 Vue.component('product-card', ProductCard);
+Vue.component('product-comment', ProductComment);
 
 Vue.config.productionTip = false
 
