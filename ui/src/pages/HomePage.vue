@@ -1,29 +1,16 @@
 <template>
   <div id="homePage">
+    
+    <home-carousel></home-carousel>
 
-    <div style="width: 100%; display: inline-block;position:relative;margin: 20px 0">
-      <a-carousel arrows :afterChange="onChange" dotsClass="slick-dots slick-thumb">
-        <a slot="customPaging" slot-scope="props">
-          <img :src="getImgUrl(props.i)" :style="{height:'20px',width:'60px'}">
-        </a>
-        <div v-for="item in 4" :key="item">
-          <img
-            :src="baseUrl+'abstract0'+item+'.jpg'"
-            :style="{height:'400px',width:'1200px','min-width':'247px','min-height':'186px'}"
-          >
-        </div>
-      </a-carousel>
-    </div>
+    <product-card :title="topProduct['title']" :products="topProduct['list']"></product-card>
 
-    <div :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '30px 0' }">
-      <product-card :title="topProduct['title']" :products="topProduct['list']"></product-card>
-      <product-card
-        v-for="product in products"
-        :key="product['title']"
-        :title="product['title']"
-        :products="product['list']"
-      ></product-card>
-    </div>
+    <product-card
+      v-for="product in products"
+      :key="product['title']"
+      :title="product['title']"
+      :products="product['list']"
+    ></product-card>
 
     <div :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '20px 0' }">
       <a-tabs defaultActiveKey="1" @change="onTabChange">
@@ -205,7 +192,6 @@ export default {
       return `${baseUrl}abstract0${i + 1}.jpg`;
     },
     onChange(a, b, c) {
-      console.log(a, b, c);
     },
     onTabChange() {}
   }

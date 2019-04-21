@@ -14,7 +14,7 @@
         </a-breadcrumb>
       </a-col>
       <a-col :span="24">
-        <a-tabs defaultActiveKey="3" @change="onTabChange">
+        <a-tabs defaultActiveKey="4" @change="onTabChange">
           <a-tab-pane tab="概述" key="1">
             <img src="http://localhost/resoucres/images/blue.jpg" alt width="100%">
 
@@ -215,7 +215,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.id);
   },
   methods: {
     onTabChange() {}
