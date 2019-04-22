@@ -8,7 +8,7 @@
         <a-list-item slot="renderItem" slot-scope="item">
           <a-row style="width:100%;margin: 20px 0;">
             <a-col :span="3">
-              <a-avatar shape="square" :size="64" icon="user"/>
+              <a-avatar :src="item.thumb" shape="square" :size="64" icon="user"/>
             </a-col>
             <a-col :span="6">
               <router-link :to="{ path: '/product/' + item['id']}">{{item.title}}</router-link>
@@ -61,7 +61,7 @@
 const data = [
   {
     id: 0,
-    thumb: "",
+    thumb: "http://localhost/zshop/img/pms.jpg",
     title: "小米手机9",
     specification: "暗夜黑",
     count: 2,
@@ -70,7 +70,7 @@ const data = [
   },
   {
     id: 0,
-    thumb: "",
+    thumb: "http://localhost/zshop/img/pms.jpg",
     title: "小米手机9",
     specification: "暗夜黑",
     count: 2,
@@ -79,7 +79,7 @@ const data = [
   },
   {
     id: 0,
-    thumb: "",
+    thumb: "http://localhost/zshop/img/pms.jpg",
     title: "小米手机9",
     specification: "暗夜黑",
     count: 2,

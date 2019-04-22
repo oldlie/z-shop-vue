@@ -20,7 +20,7 @@
         <a-list-item slot="renderItem" slot-scope="item">
           <a-row style="width:100%;margin: 20px 0;">
             <a-col :span="3">
-              <a-avatar shape="square" :size="64" icon="user"/>
+              <a-avatar :src="item.thumb" shape="square" :size="64" icon="user"/>
             </a-col>
             <a-col :span="6">
               <router-link :to="{ path: '/product/' + item['id']}">{{item.title}}</router-link>
@@ -55,7 +55,7 @@
           <span style="font-size:.8rem;color:rgb(136, 136, 136)">/12020</span>
         </a-col>
         <a-col :span="6">
-          <button class="fav-button active">
+          <button class="fav-button active" @click="onSubmitOrder">
             <span>提交订单</span>
           </button>
         </a-col>
@@ -67,7 +67,7 @@
 const data = [
   {
     id: 0,
-    thumb: "",
+    thumb: "http://localhost/zshop/img/pms.jpg",
     title: "小米手机9",
     specification: "暗夜黑",
     count: 2,
@@ -76,7 +76,7 @@ const data = [
   },
   {
     id: 0,
-    thumb: "",
+    thumb: "http://localhost/zshop/img/pms.jpg",
     title: "小米手机9",
     specification: "暗夜黑",
     count: 2,
@@ -85,7 +85,7 @@ const data = [
   },
   {
     id: 0,
-    thumb: "",
+    thumb: "http://localhost/zshop/img/pms.jpg",
     title: "小米手机9",
     specification: "暗夜黑",
     count: 2,
@@ -128,6 +128,9 @@ export default {
   methods: {
     onAddrViewModelChange(model) {
       this.addrViewModel = model;
+    },
+    onSubmitOrder () {
+      this.$router.push("/order");
     }
   }
 };

@@ -26,6 +26,7 @@ import CartPage from './pages/CartPage'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import ProductsPage from './pages/ProductsPage'
+import OrderPage from './pages/OrderPage'
 
 const routes = [
   { path: '/', component: HomePage },
@@ -37,6 +38,7 @@ const routes = [
   { path: '/home', component: HomePage },
   { path: '/product/:id', component: ProductPage},
   { path: '/products', component: ProductsPage },
+  { path: '/order', component: OrderPage}
 ]
 
 const router = new VueRouter({
