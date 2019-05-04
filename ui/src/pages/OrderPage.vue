@@ -53,13 +53,11 @@
                   <p>完成时间: 2019年4月22日</p>
                 </a-col>
                 <a-col :span="10">
-                  <a-button v-if="item.id === 1">评价订单</a-button>
-                  &nbsp;
+                  <a-button v-if="item.id === 1" @click="onComment">评价订单</a-button>&nbsp;
                   <a-tag v-if="item.id === 0" color="red">
                     <a-icon v-for="item in [1,2,3,4,5]" :key="item" type="star"/>
-                  </a-tag>
-                  &nbsp;
-                  <a-button >申请售后</a-button>
+                  </a-tag>&nbsp;
+                  <a-button @click="onAfterSale">申请售后</a-button>
                 </a-col>
               </a-row>
             </a-list-item>
@@ -77,25 +75,35 @@
                   <a-avatar :src="item.thumb" shape="square" :size="64" icon="user"/>
                 </a-col>
                 <a-col :span="4">
-                  <router-link :to="{ path: '/product/' + item['id']}">{{item.title}}</router-link> <p>{{item.specification}}</p>
+                  <router-link :to="{ path: '/product/' + item['id']}">{{item.title}}</router-link>
+                  <p>{{item.specification}}</p>
                 </a-col>
                 <a-col :span="8">
                   <p>售后理由：快递损坏，申请换货</p>
                   <p>
-                    <img style="margin: 1px;" width="64px" height="64px" src="http://localhost/zshop/img/pms.jpg" v-for="item in [1,2,3,4,5]" :key="item">
+                    <img
+                      style="margin: 1px;"
+                      width="64px"
+                      height="64px"
+                      src="http://localhost:8080/zshop/img/pms.jpg"
+                      v-for="item in [1,2,3,4,5]"
+                      :key="item"
+                    >
                   </p>
                 </a-col>
                 <a-col :span="8">
                   <p v-if="item.id === 0">
-                    <ul>
-                      <li>2019年4月23日 换货已经发出，请注意查收</li>
-                      <li>2019年4月22日 已确认可以更换</li>
-                    </ul>
+                    <a-timeline>
+                      <a-timeline-item color="green">2019年4月22日 已确认损坏，直接赔付</a-timeline-item>
+                      <a-timeline-item>2019年4月18日 拍照上传，申请赔偿</a-timeline-item>
+                    </a-timeline>
                   </p>
-                  <p v-if="item.id === 1">
-                    <ul>
-                      <li>2019年4月22日 已确认损坏，直接赔付</li>
-                    </ul>
+                  <p v-else>
+                    <a-timeline>
+                      <a-timeline-item color="red">2019年4月22日 已发货，请注意查收</a-timeline-item>
+                      <a-timeline-item color="green">2019年4月20日 确认损坏，准备换货</a-timeline-item>
+                      <a-timeline-item>2019年4月18日 拍照上传，申请赔偿</a-timeline-item>
+                    </a-timeline>
                   </p>
                 </a-col>
               </a-row>
@@ -138,7 +146,13 @@ export default {
     };
   },
   methods: {
-    onTabsChange() {}
+    onTabsChange() {},
+    onAfterSale() {
+      this.$router.push("/after-sale");
+    },
+    onComment() {
+      this.$router.push("/order/comment");
+    }
   }
 };
 </script>

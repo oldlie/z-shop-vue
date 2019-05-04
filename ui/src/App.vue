@@ -3,17 +3,7 @@
     <a-layout id="components-layout-demo-top" class="layout">
       <a-layout-header>
         <div class="user-panel-left"></div>
-        <div class="user-panel">
-          <div>
-            <a href="#">登录</a>
-            <a-divider type="vertical"/>
-            <a href="#">注册</a>
-            <a-divider type="vertical"/>
-            <router-link to="/cart">
-              <a-icon type="shopping-cart"/>购物车
-            </router-link>
-          </div>
-        </div>
+        <user-panel-links :username="username" :isAdmin="true"></user-panel-links>
         <a-menu
           mode="horizontal"
           :defaultSelectedKeys="['2']"
@@ -86,7 +76,7 @@
               <img
                 width="128px"
                 height="128px"
-                src="http://localhost/resoucres/images/wd.jpg"
+                src="http://localhost:8080/resoucres/images/wd.jpg"
                 alt="知人甄选"
               >
             </p>
@@ -119,8 +109,12 @@ export default {
   name: "app",
   data() {
     return {
-      current: ["home"]
+      current: ["home"],
+      username: ''
     };
+  },
+  mounted () {
+    this.username = 'admin';
   },
   methods: {
     onChange(a, b, c) {}
@@ -136,7 +130,7 @@ export default {
   margin: 16px 24px 16px 0;
   float: left;
   background-repeat: no-repeat;
-  background-image: url(http://localhost/resoucres/images/logo.png);
+  background-image: url(http://localhost:8080/resoucres/images/logo.png);
   background-size: 100% 100%;
   -moz-background-size: 100% 100%;
   margin-left: 5px;
