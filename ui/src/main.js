@@ -18,6 +18,12 @@ Vue.component('product-card', ProductCard);
 Vue.component('product-comment', ProductComment);
 Vue.component('user-panel-links', UserPanelLinks);
 
+import AdminMenu from './components/AdminMenu'
+import AddTag from './components/AddTag'
+
+Vue.component('admin-menu', AdminMenu);
+Vue.component('add-tag', AddTag);
+
 Vue.config.productionTip = false
 
 import AddressPage from './pages/AddressPage'
@@ -35,6 +41,7 @@ import OrderPage from './pages/OrderPage'
 import UserProfilePage from './pages/UserProfilePage'
 
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
+import AdminProductsPage from './pages/admin/AdminProductsPage'
 
 const routes = [
   { path: '/', component: HomePage },
@@ -51,7 +58,8 @@ const routes = [
   { path: '/order/comment', component: CommentOrderPage },
   { path: '/order', component: OrderPage },
   { path: '/profile', component: UserProfilePage},
-  { path: '/admin/dashboard', component: AdminDashboardPage}
+  { path: '/admin/dashboard', component: AdminDashboardPage},
+  { path: '/admin/products', component: AdminProductsPage}
 ]
 
 const router = new VueRouter({
