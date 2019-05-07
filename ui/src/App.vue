@@ -2,65 +2,44 @@
   <div id="app">
     <a-layout id="components-layout-demo-top" class="layout">
       <a-layout-header>
-        <div class="user-panel">
-          <div>
-            <a href="#">登录</a>
-            <a-divider type="vertical"/>
-            <a href="#">注册</a>
-            <a-divider type="vertical"/>
-            <a href="#">
-              <a-icon type="shopping-cart"/>购物车
-            </a>
-          </div>
-        </div>
+        <div class="user-panel-left"></div>
+        <user-panel-links :username="username" :isAdmin="true"></user-panel-links>
         <a-menu
           mode="horizontal"
           :defaultSelectedKeys="['2']"
-          :style="{ lineHeight: '64px'}"
+          :style="{ lineHeight: '40px', 'background': '#333'}"
         >
-          <a-menu v-model="current" mode="horizontal" >
+          <a-menu v-model="current" mode="horizontal">
             <a-menu-item key="home">
               <router-link to="/">首页</router-link>
             </a-menu-item>
-            <a-sub-menu>
-              <span slot="title" class="submenu-title-wrapper">
-                <router-link to="/products" style="color:rgba(0, 0, 0, 0.65)">产品</router-link>
-              </span>
-              <a-sub-menu>
-                <span slot="title" class="submenu-title-wrapper">水产品</span>
-                <a-menu-item key="setting:3">螃蟹</a-menu-item>
-              </a-sub-menu>
-              <a-menu-item key="setting:1">水产品</a-menu-item>
-              <a-menu-item key="setting:2">地标产品</a-menu-item>
-            </a-sub-menu>
-            <a-sub-menu>
-              <span slot="title" class="submenu-title-wrapper">
-                <router-link to="/articles" style="color:rgba(0, 0, 0, 0.65)">资讯</router-link>
-              </span>
-              <a-menu-item key="article:1">重要通知</a-menu-item>
-              <a-menu-item key="article:2">最新文章</a-menu-item>
-            </a-sub-menu>
+            <a-menu-item key="products">
+              <router-link to="/products">产品</router-link>
+            </a-menu-item>
+            <a-menu-item key="articles">
+              <router-link to="/articles">资讯</router-link>
+            </a-menu-item>
           </a-menu>
         </a-menu>
       </a-layout-header>
-      <a-layout-content style="padding: 0 50px">
+      <a-layout-content style="padding: 0;width: 1200px;margin:0 auto;">
         <a-row class="all-categories">
           <a-col :span="4">
             <div class="logo"/>
           </a-col>
-          <a-col :span="16" :style="{'text-align': 'left', 'padding': '20px 0 0 0'}">
+          <a-col :span="14" :style="{'text-align': 'left', 'padding': '20px 0 0 0'}">
             <span>全部产品分类</span>
             <a-divider type="vertical"/>
-            <a href="#">商标局</a>
+            <a href="#">水产品</a>
             <a-divider type="vertical"/>
-            <a href="#">农业部</a>
+            <a href="#">水果</a>
             <a-divider type="vertical"/>
-            <a href="#">知识产权出版社</a>
+            <a href="#">零食</a>
             <a-divider type="vertical"/>
-            <a href="#">海中地标平台</a>
+            <a href="#">生活用品</a>
           </a-col>
-          <a-col :span="4" :style="{'padding': '20px 10px 0 0'}">
-            <a-input-search placeholder="input search text" style="width: 100%"/>
+          <a-col :span="6" :style="{'padding': '20px 0 0 0'}">
+            <a-input-search placeholder="请输入产品名称" style="width: 100%"/>
           </a-col>
         </a-row>
 
@@ -97,7 +76,7 @@
               <img
                 width="128px"
                 height="128px"
-                src="http://localhost/resoucres/images/wd.jpg"
+                src="http://localhost:8080/resoucres/images/wd.jpg"
                 alt="知人甄选"
               >
             </p>
@@ -118,6 +97,8 @@
         </a-row>
       </a-layout-footer>
     </a-layout>
+
+    <a-back-top/>
   </div>
 </template>
 
@@ -126,18 +107,17 @@ import HelloWorld from "./components/HelloWorld.vue";
 
 export default {
   name: "app",
-  components: {
-    HelloWorld
-  },
   data() {
     return {
-      current: ["home"]
+      current: ["home"],
+      username: ''
     };
   },
+  mounted () {
+    this.username = 'admin';
+  },
   methods: {
-    onChange(a, b, c) {
-      console.log(a, b, c);
-    }
+    onChange(a, b, c) {}
   }
 };
 </script>
@@ -150,14 +130,18 @@ export default {
   margin: 16px 24px 16px 0;
   float: left;
   background-repeat: no-repeat;
-  background-image: url(http://localhost/resoucres/images/logo.png);
+  background-image: url(http://localhost:8080/resoucres/images/logo.png);
   background-size: 100% 100%;
   -moz-background-size: 100% 100%;
   margin-left: 5px;
 }
 
 #components-layout-demo-top .ant-layout-header {
-  background: #f0f2f5;
+  padding: 0;
+  height: 40px;
+  color: #b0b0b0;
+  font-size: 12px;
+  margin-bottom: 24px;
 }
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
@@ -169,7 +153,14 @@ export default {
   margin: 0 auto;
   background: #f0f2f5;
 }
-
+.user-panel-left {
+  width: 180px;
+  float: left;
+  margin-top: 1px;
+  line-height: 46px;
+  margin: 0;
+  box-sizing: border-box;
+}
 .user-panel {
   width: 180px;
   float: right;
@@ -195,35 +186,6 @@ export default {
   /*line-height: 410px;*/
   background: #f0f2f5;
   overflow: hidden;
-}
-
-.ant-carousel .slick-slide h3 {
-  color: #ff6700;
-}
-
-.ant-carousel .slick-dots {
-  height: auto;
-}
-.ant-carousel .slick-slide img {
-  border: 5px solid #fff;
-  display: block;
-  margin: auto;
-  max-width: 100%;
-}
-.ant-carousel .slick-thumb {
-  bottom: -45px;
-}
-.ant-carousel .slick-thumb li {
-  width: 60px;
-  height: 45px;
-}
-.ant-carousel .slick-thumb li img {
-  width: 100%;
-  height: 100%;
-  filter: grayscale(100%);
-}
-.ant-carousel .slick-thumb li.slick-active img {
-  filter: grayscale(0%);
 }
 
 .footer h3 {

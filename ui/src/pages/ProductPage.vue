@@ -66,7 +66,9 @@
               </a-list-item>
             </a-list>
           </a-tab-pane>
-          <a-tab-pane tab="用户评价" key="3"></a-tab-pane>
+          <a-tab-pane tab="用户评价" key="3">
+            <product-comment></product-comment>
+          </a-tab-pane>
           <a-tab-pane tab="立即购买" key="4" forceRender>
             <a-row>
               <a-col :span="12">
@@ -213,7 +215,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.id);
   },
   methods: {
     onTabChange() {}

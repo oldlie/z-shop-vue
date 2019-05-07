@@ -55,7 +55,7 @@ public class InitService {
     }
 
     private void initUsers() {
-        Role role = this.roleRepository.findFirstByRole("ADMIN");
+        Role role = this.roleRepository.findFirstByName("ADMIN");
         if (role == null) {
             role = this.roleRepository.save(
                     Role.builder()
@@ -63,7 +63,7 @@ public class InitService {
                             .title("管理员")
                             .build());
         }
-        Role userRole = this.roleRepository.findFirstByRole("USER");
+        Role userRole = this.roleRepository.findFirstByName("USER");
         if (userRole == null) {
             userRole = this.roleRepository.save(
                     Role.builder()
