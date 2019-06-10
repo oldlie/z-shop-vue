@@ -1,5 +1,7 @@
 package com.oldlie.zshop.zshopvue.config;
 
+import com.oldlie.zshop.zshopvue.filter.JWTAuthenticationFilter;
+import com.oldlie.zshop.zshopvue.filter.JWTLoginFilter;
 import com.oldlie.zshop.zshopvue.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDecisionManager;
@@ -44,9 +46,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/").permitAll()
                 // 自定义accessDecisionManager
                 .accessDecisionManager(accessDecisionManager())
-                .antMatchers("/").permitAll();
+                .anyRequest().authenticated()
+                .and()
+                .addFilter(new JWTLoginFilter(authenticationManager()))
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(), this.userService));
+        http.logout().logoutSuccessUrl("/");
     }
 
     @Bean

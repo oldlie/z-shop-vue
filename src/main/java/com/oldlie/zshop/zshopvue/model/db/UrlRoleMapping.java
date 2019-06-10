@@ -1,9 +1,6 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,9 +34,11 @@ import java.util.Date;
  * @author 陈列
  */
 @Entity(name = "t_url_role_mapping")
+@AllArgsConstructor
 @Builder
 @Data
 @EqualsAndHashCode
+@NoArgsConstructor
 @ToString
 public class UrlRoleMapping {
     @Id

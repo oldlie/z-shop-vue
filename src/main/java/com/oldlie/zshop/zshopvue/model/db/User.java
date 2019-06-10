@@ -1,13 +1,9 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -15,9 +11,11 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity(name = "t_user")
+@AllArgsConstructor
 @Builder
 @Data
 @EqualsAndHashCode
+@NoArgsConstructor
 @ToString
 public class User implements UserDetails {
 
