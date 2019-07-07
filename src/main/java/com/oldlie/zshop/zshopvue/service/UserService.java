@@ -2,17 +2,21 @@ package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.db.UrlRoleMapping;
 import com.oldlie.zshop.zshopvue.model.db.UrlRoleMappingRepository;
+import com.oldlie.zshop.zshopvue.model.db.User;
 import com.oldlie.zshop.zshopvue.model.db.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class UserService implements UserDetailsService {
 
@@ -25,9 +29,14 @@ public class UserService implements UserDetailsService {
         this.urlRoleMappingRepository = urlRoleMappingRepository;
     }
 
+    @Transactional
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        return this.userRepository.findFirstByUsername(s);
+        UserDetails details = this.userRepository.findFirstByUsername(s);
+        ((User) details).getRoles().forEach(x -> {
+            log.debug(x.getName());
+        });
+        return details;
     }
 
     private Map<String, String> urlRoleMap = null;

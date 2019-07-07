@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Entity(name = "t_user")
+@Entity
+@Table(name = "t_user", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"username"})
+})
 @AllArgsConstructor
 @Builder
 @Data

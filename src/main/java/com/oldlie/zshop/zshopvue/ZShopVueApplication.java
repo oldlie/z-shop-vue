@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @SpringBootApplication
 @EnableTransactionManagement
+@EnableSwagger2
 public class ZShopVueApplication implements ApplicationListener<ContextRefreshedEvent> {
 
 	public static void main(String[] args) {
