@@ -14,6 +14,7 @@ import javax.persistence.Table;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public class CommodityProfile extends BaseEO {
+    private Long commodityId;
     @Column(columnDefinition = "VARCHAR(4000) COMMENT 'json格式规格'")
     private String specification;
     @Column(columnDefinition = "VARCHAR(1000) COMMENT '展示图片路径，用英文逗号分隔'")
