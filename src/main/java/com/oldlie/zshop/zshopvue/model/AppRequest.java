@@ -5,6 +5,6 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class ComRequest<T> implements Serializable {
+public class AppRequest<T> implements Serializable {
     private T body;
 }

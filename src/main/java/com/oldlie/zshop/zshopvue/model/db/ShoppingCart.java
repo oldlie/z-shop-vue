@@ -6,24 +6,23 @@ import org.joda.money.Money;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.io.Serializable;
 
-/**
- * 商品套餐
- */
-@Entity
-@Table(name = "t_commodity_formula")
+@AllArgsConstructor
 @Builder
 @Data
+@Entity
 @EqualsAndHashCode(callSuper = false)
-@ToString
 @NoArgsConstructor
-@AllArgsConstructor
-public class CommodityFormula extends BaseEO implements Serializable {
+@Table(name = "t_shopping_cart")
+@ToString
+public class ShoppingCart extends BaseEO {
+    private Long uid;
     private Long commodityId;
-    private String title;
+    private String commoditySummary;
+    private Long formulaId;
+    private String formulaTitle;
+    private int count;
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
          parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
     private Money price;
-    private int inventory;
 }

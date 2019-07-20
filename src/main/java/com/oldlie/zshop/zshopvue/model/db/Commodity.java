@@ -1,6 +1,5 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
-import com.sun.xml.internal.ws.developer.Serialization;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -13,7 +12,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "t_commodity")
 @Data
-@Serialization
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Commodity extends BaseEO {

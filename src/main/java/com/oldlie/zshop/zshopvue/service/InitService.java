@@ -1,6 +1,9 @@
 package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.db.*;
+import com.oldlie.zshop.zshopvue.model.db.repository.RoleRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.UrlRoleMappingRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
