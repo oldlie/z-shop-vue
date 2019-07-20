@@ -25,5 +25,6 @@ public class Address extends BaseEO {
     private String address;
     private String contactName;
     private String contactPhone;
-
+    @Column(columnDefinition = "varchar(1000) comment '地址信息，将各个字段组装成一行'")
+    private String info;
 }

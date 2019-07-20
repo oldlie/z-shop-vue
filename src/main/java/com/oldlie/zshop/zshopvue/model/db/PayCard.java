@@ -21,7 +21,7 @@ import java.util.Date;
 public class PayCard extends BaseEO {
 
     @Column(columnDefinition = "varchar(255) comment '卡片序列号，尾号避免4'")
-    private String number;
+    private String serialNumber;
     @Column(columnDefinition = "tinyint default 1 comment '卡是否有效，默认有效为1，0后台无效，2兑换后无效'")
     private int isValid;
     @Column(columnDefinition = "bigint comment '卡片发行人/卡片制作人'")
