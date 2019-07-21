@@ -3,10 +3,7 @@ package com.oldlie.zshop.zshopvue.service;
 import com.oldlie.zshop.zshopvue.model.AppRequest;
 import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
 import com.oldlie.zshop.zshopvue.model.db.*;
-import com.oldlie.zshop.zshopvue.model.db.repository.CommodityFormulaRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.CommodityProfileRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.CommodityRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.CommoditySpecificationTemplateRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.*;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
@@ -18,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,6 +39,7 @@ public class CommodityService {
     private CommodityFormulaRepository commodityFormulaRepository;
     private CommodityProfileRepository commodityProfileRepository;
     private CommoditySpecificationTemplateRepository commoditySpecificationTemplateRepository;
+    private CommodityTagRepository commodityTagRepository;
 
     @Autowired
     public void setCommodityRepository(CommodityRepository commodityRepository) {
@@ -59,8 +58,10 @@ public class CommodityService {
             CommoditySpecificationTemplateRepository commoditySpecificationTemplateRepository) {
         this.commoditySpecificationTemplateRepository = commoditySpecificationTemplateRepository;
     }
-
-
+    @Autowired
+    public void setCommodityTagRepository(CommodityTagRepository commodityTagRepository) {
+        this.commodityTagRepository = commodityTagRepository;
+    }
     // region 商品规格模板
     /**
      * 添加商品规格模板
@@ -143,11 +144,13 @@ public class CommodityService {
         return response;
     }
 
+    @Transactional
     public BaseResponse deleteCommodity(AppRequest<Long> request) {
         BaseResponse response = new BaseResponse();
         Long id = request.getBody();
 
         try {
+            this.commodityTagRepository.deleteAllByCommodityId(id);
             this.commodityFormulaRepository.deleteByCommodityId(id);
             this.commodityProfileRepository.deleteByCommodityProfileByCommodityId(id);
             this.commodityRepository.deleteById(id);
@@ -169,6 +172,44 @@ public class CommodityService {
         Page<Commodity> commodities = this.commodityRepository.findAll(pageable);
         response.setTotal(commodities.getTotalElements());
         response.setList(commodities.getContent());
+        return response;
+    }
+
+    public SimpleResponse<Long> storeCommodityTag(AppRequest<CommodityTag> request) {
+        SimpleResponse<Long> response = new SimpleResponse<>();
+        CommodityTag commodityTag = request.getBody();
+        CommodityTag target = null;
+
+        target = this.commodityTagRepository
+                .findFirstByCommodityIdAndTagId(
+                        commodityTag.getCommodityId(),
+                        commodityTag.getTagId());
+
+        if (target == null) {
+            target = new CommodityTag();
+        }
+
+        target.setCommodityId(commodityTag.getCommodityId());
+        target.setTagId(commodityTag.getTagId());
+
+        target = this.commodityTagRepository.save(target);
+        response.setItem(target.getId());
+
+        return response;
+    }
+
+    public BaseResponse deleteCommodityTag(Long id) {
+        BaseResponse response = new BaseResponse();
+        CommodityTag commodityTag = this.commodityTagRepository.findById(id).orElse(null);
+        if (commodityTag != null) {
+            this.commodityTagRepository.delete(commodityTag);
+        }
+        return response;
+    }
+
+    public BaseResponse deleteCommodityTag(Long commodityId, Long tagId) {
+        BaseResponse response = new BaseResponse();
+        this.commodityTagRepository.deleteByCommodityIdAndTagId(commodityId, tagId);
         return response;
     }
     // endregion
@@ -255,4 +296,5 @@ public class CommodityService {
         return response;
     }
     // endregion
+
 }
