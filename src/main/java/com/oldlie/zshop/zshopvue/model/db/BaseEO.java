@@ -24,6 +24,4 @@ public class BaseEO {
     @UpdateTimestamp
     protected Date updateDate;
 
-    public static interface CommodityRepository extends JpaRepository<Commodity, Long> {
-    }
 }

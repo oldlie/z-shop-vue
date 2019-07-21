@@ -11,6 +11,7 @@ import javax.persistence.Table;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
 @Table(name = "t_tag")
 @ToString
 public class Tag extends BaseEO {
@@ -19,5 +20,7 @@ public class Tag extends BaseEO {
     @Column(columnDefinition = "int comment '标签顺序'")
     private int order;
     @Column(columnDefinition = "int default 0 comment '上级标签'")
-    private int parentId;
+    private Long parentId;
+    @Column(columnDefinition = "int default 0 comment '子标签数量'")
+    private int childCount;
 }

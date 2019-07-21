@@ -5,6 +5,7 @@ import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityFormulaRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityProfileRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.CommodityRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommoditySpecificationTemplateRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
@@ -36,13 +37,13 @@ import java.util.List;
 @Service
 public class CommodityService {
 
-    private BaseEO.CommodityRepository commodityRepository;
+    private CommodityRepository commodityRepository;
     private CommodityFormulaRepository commodityFormulaRepository;
     private CommodityProfileRepository commodityProfileRepository;
     private CommoditySpecificationTemplateRepository commoditySpecificationTemplateRepository;
 
     @Autowired
-    public void setCommodityRepository(BaseEO.CommodityRepository commodityRepository) {
+    public void setCommodityRepository(CommodityRepository commodityRepository) {
         this.commodityRepository = commodityRepository;
     }
     @Autowired
