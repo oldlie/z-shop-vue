@@ -16,6 +16,7 @@
       <a-menu-item key="3">Products Setting</a-menu-item>
       <a-menu-item key="4">Aritcles Setting</a-menu-item>
     </a-sub-menu>
+    <a-menu-item key="tags"><router-link to="/admin/tags">目录/标签</router-link></a-menu-item>
     <a-menu-item key="sub2"><router-link to="/admin/products">Products</router-link></a-menu-item>
     <a-sub-menu key="sub4">
       <span slot="title">
@@ -41,9 +42,14 @@ export default {
   methods: {
     handleClick(e) {
       console.log("click", e);
+      console.log("click", e.key);
+      if (this.activeIndex !== e.key) {
+        this.activeIndex = e.key;
+        this.$emit('menuChangeEvent', e.key);
+      }
     },
     titleClick(e) {
-      console.log("titleClick", e);
+
     }
   },
   watch: {

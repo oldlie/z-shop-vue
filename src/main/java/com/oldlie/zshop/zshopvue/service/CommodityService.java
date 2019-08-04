@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * 商品相关操作服务
@@ -151,8 +152,7 @@ public class CommodityService {
 
         try {
             this.commodityTagRepository.deleteAllByCommodityId(id);
-            this.commodityFormulaRepository.deleteByCommodityId(id);
-            this.commodityProfileRepository.deleteByCommodityProfileByCommodityId(id);
+            this.commodityFormulaRepository.deleteAllByCommodityId(id);
             this.commodityRepository.deleteById(id);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -291,7 +291,10 @@ public class CommodityService {
     public SimpleResponse<CommodityProfile> listCommodityProle(AppRequest<Long> request) {
         SimpleResponse<CommodityProfile> response = new SimpleResponse<>();
         Long commodityId = request.getBody();
-        CommodityProfile profile = this.commodityProfileRepository.findFirstByCommodityId(commodityId);
+        SpecificationFactory<CommodityProfile> factory = new SpecificationFactory<>();
+        CommodityProfile profile =
+                this.commodityProfileRepository.findOne(factory.equal("commodityId", commodityId))
+                        .orElse(null);
         response.setItem(profile);
         return response;
     }

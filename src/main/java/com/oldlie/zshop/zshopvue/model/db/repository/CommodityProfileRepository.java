@@ -2,10 +2,10 @@ package com.oldlie.zshop.zshopvue.model.db.repository;
 
 import com.oldlie.zshop.zshopvue.model.db.CommodityProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface CommodityProfileRepository extends JpaRepository<CommodityProfile, Long> {
+public interface CommodityProfileRepository extends JpaRepository<CommodityProfile, Long>,
+        JpaSpecificationExecutor<CommodityProfile> {
 
-    void deleteByCommodityProfileByCommodityId(Long cid);
-
-    CommodityProfile findFirstByCommodityId(Long cid);
+    void deleteByCommodityId(Long commodityId);
 }

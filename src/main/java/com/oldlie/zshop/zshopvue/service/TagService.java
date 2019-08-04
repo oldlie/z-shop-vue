@@ -57,7 +57,7 @@ public class TagService {
             target = new Tag();
         }
         target.setCategory(tag.getCategory());
-        target.setOrder(tag.getOrder());
+        target.setTagOrder(tag.getTagOrder());
         target.setParentId(tag.getParentId());
         target.setTitle(tag.getTitle());
 

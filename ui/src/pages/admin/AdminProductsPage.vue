@@ -110,7 +110,5 @@ export default {
 };
 </script>
 <style scoped>
-.inner-row {
-  margin: 20px 0;
-}
+
 </style>

@@ -1,6 +1,8 @@
 (function (win) {
     var G = function () {};
 
+    console.log('axios', axios);
+
     G.prototype.postForm = function (url, params, target) {
         win.G.submitForm(url, 'post', params, target);
     };
@@ -82,30 +84,32 @@
     G.prototype.request = function(url, method, params, callback, finalCallback) {
         var rx;
         method = !!method ? method : 'get';
-        if (!!params) {
-            if ('get' === method) {
-                var encodeParams = {};
-                for(var key in params) {
-                    if (params.hasOwnProperty(key)) {
-                        encodeParams[key] = encodeURI(params[key]);
-                    }
+
+        if ('get' === method) {
+            var encodeParams = {};
+
+            for(var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    encodeParams[key] = encodeURI(params[key]);
                 }
-                rx = axios.get(url, {
-                    params: encodeParams,
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    }
-                });
-            } else if ('post' === method){
-                rx = axios.post(url, params);
-            } else if ('delete' === method) {
-                rx = axios.delete(url, {
-                    data: params
-                });
-            } else if ('put' === method) {
-                rx = axios.put(url, params);
             }
+            rx = axios.get(url, {
+                params: encodeParams,
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                }
+            });
+ 
+        } else if ('post' === method){
+            rx = axios.post(url, params);
+        } else if ('delete' === method) {
+            rx = axios.delete(url, {
+                data: params
+            });
+        } else if ('put' === method) {
+            rx = axios.put(url, params);
         }
+ 
         rx.then(function (value) {
             if (value['status']) {
                 if (!!callback && typeof callback === 'function') {
@@ -160,11 +164,36 @@
         this.obj = obj;
         return this;
     };
-    G.prototype.http = new Http();
-    G.prototype.get = new Http().method('get');
-    G.prototype.post = new Http().method('post');
-    G.prototype.delete = new Http().method('delete');
-    G.prototype.put = new Http().method('put');
+
+    G.prototype.get = function (url, params) {
+        var http = new Http();
+        http.method('get').url(url);
+        if (!!params) {
+            http.params(params);
+        }
+        return http;
+    };
+    G.prototype.post = function (url, params) {
+        var http = new Http();
+        http.method('post').url(url);
+        if (!!params) {
+            http.params(params);
+        }
+        return http;
+    }
+    G.prototype.delet = function(url, params) {
+        var http = new Http();
+        http.method('delete').url(url);
+        if (!!params) {
+            http.params(params);
+        }
+        return http;
+    }
+    // G.prototype.http = new Http();
+    // G.prototype.get = new Http().method('get');
+    // G.prototype.post = new Http().method('post');
+    // G.prototype.delete = new Http().method('delete');
+    // G.prototype.put = new Http().method('put');
 
     win.G = new G();
 })(window);

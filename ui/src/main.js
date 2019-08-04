@@ -24,6 +24,12 @@ import AddTag from './components/AddTag'
 Vue.component('admin-menu', AdminMenu);
 Vue.component('add-tag', AddTag);
 
+import AdminTagComponent from './components/admin/AdminTag'
+import AdminTagsComponent from './components/admin/AdminTags'
+
+Vue.component('admin-tag', AdminTagComponent);
+Vue.component('admin-tags', AdminTagsComponent);
+
 Vue.config.productionTip = false
 
 import AddressPage from './pages/AddressPage'
@@ -42,6 +48,7 @@ import UserProfilePage from './pages/UserProfilePage'
 
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
+import AdminTagsPage from './pages/admin/AdminTagsPage'
 
 const routes = [
   { path: '/', component: HomePage },
@@ -59,7 +66,8 @@ const routes = [
   { path: '/order', component: OrderPage },
   { path: '/profile', component: UserProfilePage},
   { path: '/admin/dashboard', component: AdminDashboardPage},
-  { path: '/admin/products', component: AdminProductsPage}
+  { path: '/admin/products', component: AdminProductsPage},
+  { path: '/admin/tags', component: AdminTagsPage}
 ]
 
 const router = new VueRouter({
@@ -112,6 +120,8 @@ Vue.prototype.getCookie = function (name) {
     return null; ocument.cookie = name + "=" + escape(value);
 
 }
+
+Vue.prototype.apiUrl = 'http://localhost:8088';
 
 new Vue({
   router,

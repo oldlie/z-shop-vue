@@ -15,6 +15,9 @@
       </a-col>
       <a-col :span="12" style="padding: 50px 0 0 0;">
         <a-form refs="form" :form="form" @submit="handleSubmit">
+          <a-form-item>
+            <a-alert v-if="loginMessage !== ''" :message="loginMessage" type="warning" showIcon />
+          </a-form-item>
           <a-form-item label="账号" :label-col="{ span: 5 }" has-feedback :wrapper-col="{ span: 12 }">
             <a-input
               placeholder="请输入账号"
@@ -60,10 +63,32 @@
 export default {
   data: function() {
     return {
-      form: this.$form.createForm(this)
+      form: this.$form.createForm(this),
+      loginMessage: ''
     };
   },
   beforeCreated: function() {},
+  mounted() {
+    const url = this.apiUrl + "/login";
+    let login = {
+      username: 'admin',
+      password: 'admin'
+    };
+    const self = this;
+    G.post(url, login)
+      .callback(function(data) {
+        console.log('login===>', data);
+        if (data['status'] === 0) {
+          self.$router.push('home');
+        }
+        else if (data['status'] === 1) {
+          self.loginMessage = '账号或者密码错误';
+        } else {
+          
+        }
+      })
+      .request();
+  },
   methods: {
     handleSubmit(e) {
       e.preventDefault();
@@ -78,7 +103,7 @@ export default {
       const form = this.form;
       const reg = /^(?![a-zA-z]+$)(?!\d+$)(?![!@#$%^&*]+$)[a-zA-Z\d!@#$%^&*]+$/;
       if (!reg.test(v)) {
-        cb('密码由字母数字以及“!@#$%^&*“组成');
+        cb("密码由字母数字以及“!@#$%^&*“组成");
       } else {
         cb();
       }

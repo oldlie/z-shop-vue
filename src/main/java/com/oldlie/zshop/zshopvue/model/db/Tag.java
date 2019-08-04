@@ -18,7 +18,7 @@ public class Tag extends BaseEO {
     private String title;
     private int category;
     @Column(columnDefinition = "int comment '标签顺序'")
-    private int order;
+    private int tagOrder;
     @Column(columnDefinition = "int default 0 comment '上级标签'")
     private Long parentId;
     @Column(columnDefinition = "int default 0 comment '子标签数量'")

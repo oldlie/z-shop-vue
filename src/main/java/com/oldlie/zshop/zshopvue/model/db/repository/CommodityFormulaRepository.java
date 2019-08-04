@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CommodityFormulaRepository extends JpaRepository<CommodityFormula, Long> {
 
-    void deleteByCommodityId(Long cid);
+    void deleteAllByCommodityId(Long cid);
 
     List<CommodityFormula> findAllByCommodityIdOrderByIdAsc(Long cid);
 }
