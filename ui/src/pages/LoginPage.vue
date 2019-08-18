@@ -64,27 +64,27 @@ export default {
   data: function() {
     return {
       form: this.$form.createForm(this),
-      loginMessage: ''
+      loginMessage: ""
     };
   },
   beforeCreated: function() {},
   mounted() {
     const url = this.apiUrl + "/login";
     let login = {
-      username: 'admin',
-      password: 'admin'
+      username: "admin",
+      password: "admin"
     };
     const self = this;
     G.post(url, login)
       .callback(function(data) {
-        console.log('login===>', data);
-        if (data['status'] === 0) {
-          self.$router.push('home');
-        }
-        else if (data['status'] === 1) {
-          self.loginMessage = '账号或者密码错误';
+        console.log("login===>", data);
+        if (data["status"] === 0) {
+          let token = data["item"];
+          Cookie.setCookie('token', token, 7);
+          // self.$router.push('home');
+        } else if (data["status"] === 1) {
+          self.loginMessage = "账号或者密码错误";
         } else {
-          
         }
       })
       .request();

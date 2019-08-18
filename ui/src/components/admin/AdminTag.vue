@@ -12,6 +12,10 @@
             <a-alert v-if="warnMessage !== ''" :message="warnMessage" type="warning" showIcon />
           </a-form-item>
 
+          <a-form-item label="上级标签" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
+            <span>{{parentTitle}}</span>
+          </a-form-item>
+
           <a-form-item label="标签" :label-col="{ span: 5 }" has-feedback :wrapper-col="{ span: 12 }">
             <a-input
               placeholder="请输入标签"
@@ -52,6 +56,7 @@
 <script>
 export default {
   props: {
+    parentTitle: {type: String, default: '根标签'},
     tag: {
       type: Object,
       default: () => {
@@ -83,7 +88,14 @@ export default {
         if (!err) {
           console.log("Received values of form: ", values);
           const url = self.apiUrl + '/admin/dashboard/tag';
-          
+          let params = {
+              body: this.tag
+          };
+          G.post(url, params)
+          .callback((data) => {
+              console.log('submit tag!', data);
+          })
+          .request();
         }
       });
     }

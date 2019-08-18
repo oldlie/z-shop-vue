@@ -84,7 +84,8 @@
     G.prototype.request = function(url, method, params, callback, finalCallback) {
         var rx;
         method = !!method ? method : 'get';
-
+        var token = Cookie.getCookie('token');
+        var auth = 'ZShop ' + token;
         if ('get' === method) {
             var encodeParams = {};
 
@@ -96,18 +97,20 @@
             rx = axios.get(url, {
                 params: encodeParams,
                 headers: {
-                    'Content-Type': 'application/json;charset=UTF-8'
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    'Authorization': auth
                 }
             });
  
         } else if ('post' === method){
-            rx = axios.post(url, params);
+            rx = axios.post(url, params, {headers: {'Authorization': auth}});
         } else if ('delete' === method) {
             rx = axios.delete(url, {
-                data: params
+                data: params,
+                headers: {'Authorization': auth}
             });
         } else if ('put' === method) {
-            rx = axios.put(url, params);
+            rx = axios.put(url, params, {headers: {'Authorization': auth}});
         }
  
         rx.then(function (value) {
@@ -196,4 +199,27 @@
     // G.prototype.put = new Http().method('put');
 
     win.G = new G();
+
 })(window);
+
+var Cookie = {
+    setCookie: function (cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    },
+    getCookie: function (cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1);
+            if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
+        }
+        return "";
+    },
+    clearCookie: function (name) {
+        Cookie.setCookie(name, "", -1);  
+    }
+ };

@@ -46,7 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/", "/name").permitAll()
                 // 自定义accessDecisionManager
                 .accessDecisionManager(accessDecisionManager())
                 .anyRequest().authenticated()

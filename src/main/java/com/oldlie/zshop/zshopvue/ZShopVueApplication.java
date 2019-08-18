@@ -25,7 +25,7 @@ import java.util.List;
 public class ZShopVueApplication implements ApplicationListener<ContextRefreshedEvent> {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ZShopVueApplication.class, args);
+		SpringApplication.	run(ZShopVueApplication.class, args);
 	}
 
 	@Override
@@ -54,6 +54,7 @@ public class ZShopVueApplication implements ApplicationListener<ContextRefreshed
 	public FilterRegistrationBean simpleCorsFilter() {
 		List<String> origins = new ArrayList<>();
 		origins.add("http://localhost:8080");
+		origins.add("http://localhost:8081");
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);

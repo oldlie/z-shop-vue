@@ -47,7 +47,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         if (token != null) {
             // parse the token.
             String username = Jwts.parser()
-                    .setSigningKey("MyJwtSecret")
+                    .setSigningKey("z-ship-vue")
                     .parseClaimsJws(token.replace("ZShop ", ""))
                     .getBody()
                     .getSubject();

@@ -28,6 +28,10 @@ public class UserService implements UserDetailsService {
         this.urlRoleMappingRepository = urlRoleMappingRepository;
     }
 
+    public User user(String username) {
+        return this.userRepository.findFirstByUsername(username);
+    }
+
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
