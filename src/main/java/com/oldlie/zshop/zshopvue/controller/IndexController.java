@@ -2,6 +2,7 @@ package com.oldlie.zshop.zshopvue.controller;
 
 import com.oldlie.zshop.zshopvue.model.db.User;
 import com.oldlie.zshop.zshopvue.model.front.FrontUser;
+import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.UserService;
 import jdk.nashorn.internal.objects.annotations.Setter;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
@@ -28,6 +30,13 @@ public class IndexController {
     @GetMapping("/")
     public String home() {
         return "index";
+    }
+
+    @GetMapping("/quite")
+    @ResponseBody
+    public BaseResponse logout() {
+        BaseResponse response = new BaseResponse();
+        return response;
     }
 
     @GetMapping("/name")

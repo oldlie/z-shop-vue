@@ -57,6 +57,7 @@
 export default {
   props: {
     parentTitle: {type: String, default: '根标签'},
+    parentId: {type: Number, default: 0},
     tag: {
       type: Object,
       default: () => {
@@ -87,9 +88,12 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           console.log("Received values of form: ", values);
-          const url = self.apiUrl + '/admin/dashboard/tag';
+          const url = self.apiUrl + '/backend/tag';
+          self.tag.title = values.title;
+          self.tag.tagOrder = values.tagOrder;
+          self.tag.parentId = self.parentId;
           let params = {
-              body: this.tag
+              body: self.tag
           };
           G.post(url, params)
           .callback((data) => {

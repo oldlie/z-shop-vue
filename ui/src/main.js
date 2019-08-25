@@ -77,53 +77,16 @@ const router = new VueRouter({
 Vue.use(Antd)
 Vue.use(VueRouter)
 
-Vue.prototype.setCookie = function (name, value, day) {
+import VueCookies from 'vue-cookie'
 
-  if (day !== 0) { //当设置的时间等于0时，不设置expires属性，cookie在浏览器关闭后删除
-
-    var curDate = new Date();
-
-    var curTamp = curDate.getTime();
-
-    var curWeeHours = new Date(curDate.toLocaleDateString()).getTime() - 1;
-
-    var passedTamp = curTamp - curWeeHours;
-
-    var leftTamp = 24 * 60 * 60 * 1000 - passedTamp;
-
-    var leftTime = new Date();
-
-    leftTime.setTime(leftTamp + curTamp);
-
-    document.cookie = name + "=" + escape(value) + ";expires=" + leftTime.toGMTString();
-
-  } else {
-
-    document.cookie = name + "=" + escape(value);
-
-  }
-
-}
-
-Vue.prototype.getCookie = function (name) {
-
-  var arr;
-
-  var reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-
-  if (arr = document.cookie.match(reg))
-
-    return unescape(arr[2]);
-
-  else
-
-    return null; ocument.cookie = name + "=" + escape(value);
-
-}
+Vue.use(VueCookies)
 
 Vue.prototype.apiUrl = 'http://localhost:8088';
+Vue.prototype.bus = new Vue();
 
 new Vue({
   router,
   render: h => h(App),
 }).$mount('#app')
+
+

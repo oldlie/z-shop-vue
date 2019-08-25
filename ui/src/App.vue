@@ -3,7 +3,7 @@
     <a-layout id="components-layout-demo-top" class="layout">
       <a-layout-header>
         <div class="user-panel-left"></div>
-        <user-panel-links :username="username" :isAdmin="isAdmin"></user-panel-links>
+        <user-panel-links ></user-panel-links>
         <a-menu
           mode="horizontal"
           :defaultSelectedKeys="['2']"
@@ -104,46 +104,34 @@
 
 <script>
 import HelloWorld from "./components/HelloWorld.vue";
+import { userInfo } from "os";
 
 export default {
   name: "app",
   data() {
     return {
       current: ["home"],
-      username: "",
-      isAdmin: false
+     
     };
   },
+  created() {},
   mounted() {
-    const url = this.apiUrl + "/name";
-    const self = this;
-    G.get(url)
-      .callback(function(data) {
-        if (data["status"] === 0) {
-          console.log('userinfo:', data);
-          let user = data["item"];
-          self.username = user["username"];
-          let roles = user["roles"];
-          if (roles !== null) {
-            let flag = false;
-            for (let key in roles) {
-              if (roles[key]['name'] === 'ADMIN') {
-                flag = true;
-              }
-            }
-            self.isAdmin = flag;
-          }
-        }
-      })
-      .request();
+    
   },
   methods: {
-    onChange(a, b, c) {}
+    onChange(a, b, c) {},
+    
   }
 };
 </script>
 
 <style>
+.spin-content {
+  border: 1px solid #91d5ff;
+  background-color: #e6f7ff;
+  padding: 30px;
+}
+
 #components-layout-demo-top .logo {
   width: 158px;
   height: 31px;

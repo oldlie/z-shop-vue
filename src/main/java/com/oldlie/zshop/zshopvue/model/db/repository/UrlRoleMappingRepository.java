@@ -2,6 +2,7 @@ package com.oldlie.zshop.zshopvue.model.db.repository;
 
 import com.oldlie.zshop.zshopvue.model.db.UrlRoleMapping;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * ━━━━━━神兽出没━━━━━━
@@ -28,6 +29,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author 陈列
  */
-public interface UrlRoleMappingRepository extends JpaRepository<UrlRoleMapping, Long> {
+public interface UrlRoleMappingRepository extends JpaRepository<UrlRoleMapping, Long>,
+        JpaSpecificationExecutor<UrlRoleMapping> {
 
 }

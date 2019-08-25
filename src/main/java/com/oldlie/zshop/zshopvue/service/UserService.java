@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.Predicate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +50,24 @@ public class UserService implements UserDetailsService {
         List<UrlRoleMapping> list = this.urlRoleMappingRepository.findAll();
         list.forEach(x -> {
             if (urlRoleMap.keySet().contains(x.getUrl())) {
-                String value = urlRoleMap.get(x.getUrl()) + ",ROLE_" + x.getRole();
+                String value = urlRoleMap.get(x.getUrl()) + "," + x.getRole();
                 urlRoleMap.put(x.getUrl(), value);
             } else {
-                urlRoleMap.put(x.getUrl(), "ROLE_" + x.getRole());
+                urlRoleMap.put(x.getUrl(), x.getRole());
             }
         });
         return urlRoleMap;
+    }
+
+    public void loadUrlMap(final Map<String, String> map) {
+        List<UrlRoleMapping> list = this.urlRoleMappingRepository.findAll();
+        list.forEach(x -> {
+            if (map.keySet().contains(x.getUrl())) {
+                String value = map.get(x.getUrl()) + ",ROLE_" + x.getRole();
+                map.put(x.getUrl(), value);
+            } else {
+                map.put(x.getUrl(), "ROLE_" + x.getRole());
+            }
+        });
     }
 }

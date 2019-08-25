@@ -25,7 +25,7 @@ import java.util.List;
 public class ZShopVueApplication implements ApplicationListener<ContextRefreshedEvent> {
 
 	public static void main(String[] args) {
-		SpringApplication.	run(ZShopVueApplication.class, args);
+		SpringApplication.run(ZShopVueApplication.class, args);
 	}
 
 	@Override

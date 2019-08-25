@@ -1,21 +1,22 @@
 package com.oldlie.zshop.zshopvue.config;
 
+import com.oldlie.zshop.zshopvue.config.url.DynamicallyUrlAccessDecisionManager;
+import com.oldlie.zshop.zshopvue.config.url.DynamicallyUrlInterceptor;
+import com.oldlie.zshop.zshopvue.config.url.MyFilterSecurityMetadataSource;
+import com.oldlie.zshop.zshopvue.config.url.RoleBasedVoter;
 import com.oldlie.zshop.zshopvue.filter.JWTAuthenticationFilter;
 import com.oldlie.zshop.zshopvue.filter.JWTLoginFilter;
 import com.oldlie.zshop.zshopvue.service.UserService;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 @EnableWebSecurity
@@ -45,25 +46,28 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .addFilterAfter(dynamicallyUrlInterceptor(), FilterSecurityInterceptor.class)
                 .authorizeRequests()
-                .antMatchers("/", "/name").permitAll()
-                // 自定义accessDecisionManager
-                .accessDecisionManager(accessDecisionManager())
+                .antMatchers("/", "/name", "/quite").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JWTLoginFilter(authenticationManager()))
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(), this.userService));
-        http.logout().logoutSuccessUrl("/");
+        http.logout().logoutSuccessUrl("/quite");
     }
 
+
+
     @Bean
-    public AccessDecisionManager accessDecisionManager() {
-        List<AccessDecisionVoter<? extends Object>> decisionVoters
-                = Arrays.asList(
-                new WebExpressionVoter(),
-                // new RoleVoter(),
-                new RoleBasedVoter(this.userService),
-                new AuthenticatedVoter());
-        return new UnanimousBased(decisionVoters);
+    public DynamicallyUrlInterceptor dynamicallyUrlInterceptor(){
+        DynamicallyUrlInterceptor interceptor = new DynamicallyUrlInterceptor();
+        interceptor.setSecurityMetadataSource(new MyFilterSecurityMetadataSource(this.userService));
+
+        //配置RoleVoter决策
+        List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<>();
+        decisionVoters.add(new RoleBasedVoter(this.userService));
+        //设置认证决策管理器
+        interceptor.setAccessDecisionManager(new DynamicallyUrlAccessDecisionManager(decisionVoters));
+        return interceptor;
     }
 }

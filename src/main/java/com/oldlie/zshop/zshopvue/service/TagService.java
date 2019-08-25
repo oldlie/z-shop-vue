@@ -8,9 +8,14 @@ import com.oldlie.zshop.zshopvue.model.db.repository.CommodityTagRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.TagRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
+import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.utils.ZsTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -126,6 +131,37 @@ public class TagService {
         ListResponse<Tag> response = new ListResponse<>();
         List<Tag> list = this.tagRepository.findAllByParentIdOrderByIdAsc(parentId);
         response.setList(list);
+        return response;
+    }
+
+    public PageResponse<Tag> tags(int page, int size, String orderBy, String order) {
+        PageResponse<Tag> response = new PageResponse<>();
+        Page<Tag> tags = this.tagRepository.findAll(ZsTool.pageable(page, size, orderBy, order));
+        response.setTotal(tags.getTotalElements());
+        response.setList(tags.getContent());
+        return response;
+    }
+
+    public PageResponse<Tag> tags(String title, int page, int size, String orderBy, String order) {
+        PageResponse<Tag> response = new PageResponse<>();
+        Page<Tag> tags = this.tagRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) ->
+                        criteriaBuilder.like(root.get("title"), "%" + title + "%"),
+                ZsTool.pageable(page, size, orderBy, order)
+        );
+        response.setTotal(tags.getTotalElements());
+        response.setList(tags.getContent());
+        return response;
+    }
+
+    public PageResponse<Tag> tags(final Long parentId, int page, int size, String orderBy, String order) {
+        PageResponse<Tag> response = new PageResponse<>();
+        Page<Tag> tagPage = this.tagRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("parentId"), parentId),
+                ZsTool.pageable(page, size, orderBy, order)
+                );
+        response.setTotal(tagPage.getTotalElements());
+        response.setList(tagPage.getContent());
         return response;
     }
 }

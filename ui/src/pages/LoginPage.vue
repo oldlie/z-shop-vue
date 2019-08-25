@@ -35,6 +35,7 @@
           </a-form-item>
 
           <a-form-item label="密码" :label-col="{ span: 5 }" has-feedback :wrapper-col="{ span: 12 }">
+            <!--{validator: validatePassword}-->
             <a-input
               placeholder="请输入密码"
               type="password"
@@ -43,7 +44,6 @@
               {
                 rules: [
                   {required: true, message: '请输入密码！'},
-                  {validator: validatePassword}
                 ]
               }
             ]"
@@ -52,7 +52,7 @@
             </a-input>
           </a-form-item>
           <a-form-item :wrapper-col="{ span: 12, offset: 5 }">
-            <a-button type="primary" @click="handleSubmit">提交</a-button>
+            <a-button type="primary" @click="handleSubmit" :loading="submitting">提交</a-button>
           </a-form-item>
         </a-form>
       </a-col>
@@ -60,42 +60,48 @@
   </div>
 </template>
 <script>
+import { setTimeout, clearTimeout } from "timers";
 export default {
   data: function() {
     return {
       form: this.$form.createForm(this),
-      loginMessage: ""
+      loginMessage: "",
+      submitting: false
     };
   },
   beforeCreated: function() {},
-  mounted() {
-    const url = this.apiUrl + "/login";
-    let login = {
-      username: "admin",
-      password: "admin"
-    };
-    const self = this;
-    G.post(url, login)
-      .callback(function(data) {
-        console.log("login===>", data);
-        if (data["status"] === 0) {
-          let token = data["item"];
-          Cookie.setCookie('token', token, 7);
-          // self.$router.push('home');
-        } else if (data["status"] === 1) {
-          self.loginMessage = "账号或者密码错误";
-        } else {
-        }
-      })
-      .request();
-  },
+  mounted() {},
   methods: {
+    test() {},
     handleSubmit(e) {
       e.preventDefault();
-      console.log("submit");
-      this.form.validateFields(err => {
+
+      const self = this;
+      this.form.validateFields((err, values) => {
         if (!err) {
-          console.info(err);
+          const url = this.apiUrl + "/login";
+          self.submitting = true;
+          G.post(url, values)
+            .callback(function(data) {
+
+              if (data["status"] === 0) {
+                let token = data["item"];
+                self.$cookie.set("token", token, 7);
+                let t = setTimeout(() => {
+
+                  self.bus.$emit("updateUserInfoEvent");
+                  clearTimeout(t);
+                  self.$router.push('/home');
+                }, 100)
+              } else if (data["status"] === 1) {
+                self.loginMessage = "账号或者密码错误";
+              } else {
+              }
+            })
+            .finalCallback(() => {
+              self.submitting = false;
+            })
+            .request();
         }
       });
     },

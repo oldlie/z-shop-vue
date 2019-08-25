@@ -1,4 +1,4 @@
-package com.oldlie.zshop.zshopvue.config;
+package com.oldlie.zshop.zshopvue.config.url;
 
 import com.oldlie.zshop.zshopvue.service.UserService;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -36,7 +36,7 @@ public class RoleBasedVoter implements AccessDecisionVoter<Object> {
 
     @Override
     public int vote(Authentication authentication, Object o, Collection<ConfigAttribute> attributes) {
-        if(authentication == null) {
+        if (authentication == null) {
             return ACCESS_DENIED;
         }
 
@@ -47,7 +47,7 @@ public class RoleBasedVoter implements AccessDecisionVoter<Object> {
         Collection<? extends GrantedAuthority> authorities = extractAuthorities(authentication, url);
 
         for (ConfigAttribute attribute : attributes) {
-            if(attribute.getAttribute()==null){
+            if (attribute.getAttribute() == null) {
                 continue;
             }
             if (this.supports(attribute)) {
@@ -67,20 +67,6 @@ public class RoleBasedVoter implements AccessDecisionVoter<Object> {
 
     private Collection<? extends GrantedAuthority> extractAuthorities(
             Authentication authentication, String url) {
-        Collection collection = authentication.getAuthorities();
-
-        Map<String, String> urlRoleMap = this.userService.loadUrlMap();
-        for (Map.Entry<String, String> entry : urlRoleMap.entrySet()) {
-            if (antPathMatcher.match(entry.getKey(), url)) {
-                SecurityConfig.createList();
-                String[] roles = entry.getValue().split(",");
-                for (String role : roles) {
-                    collection.add(new SimpleGrantedAuthority(role));
-                }
-                break;
-            }
-        }
-
         return authentication.getAuthorities();
     }
 }

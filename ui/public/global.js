@@ -1,5 +1,5 @@
 (function (win) {
-    var G = function () {};
+    var G = function () { };
 
     console.log('axios', axios);
 
@@ -24,7 +24,7 @@
 
         _form.method = method;
         _form.style.display = 'none';
-        for(var item in params) {
+        for (var item in params) {
             if (params.hasOwnProperty(item)) {
                 var _input = document.createElement('input');
                 _input.name = item;
@@ -46,7 +46,7 @@
             return source;
         }
 
-        if (typeof source ===  'number' ||
+        if (typeof source === 'number' ||
             typeof source === 'string' ||
             typeof source === 'boolean') {
             // console.log('common.deepCopy:basic type', source);
@@ -81,7 +81,7 @@
         return target;
     };
 
-    G.prototype.request = function(url, method, params, callback, finalCallback) {
+    G.prototype.request = function (url, method, params, callback, finalCallback, exception) {
         var rx;
         method = !!method ? method : 'get';
         var token = Cookie.getCookie('token');
@@ -89,7 +89,7 @@
         if ('get' === method) {
             var encodeParams = {};
 
-            for(var key in params) {
+            for (var key in params) {
                 if (params.hasOwnProperty(key)) {
                     encodeParams[key] = encodeURI(params[key]);
                 }
@@ -101,18 +101,18 @@
                     'Authorization': auth
                 }
             });
- 
-        } else if ('post' === method){
-            rx = axios.post(url, params, {headers: {'Authorization': auth}});
+
+        } else if ('post' === method) {
+            rx = axios.post(url, params, { headers: { 'Authorization': auth } });
         } else if ('delete' === method) {
             rx = axios.delete(url, {
                 data: params,
-                headers: {'Authorization': auth}
+                headers: { 'Authorization': auth }
             });
         } else if ('put' === method) {
-            rx = axios.put(url, params, {headers: {'Authorization': auth}});
+            rx = axios.put(url, params, { headers: { 'Authorization': auth } });
         }
- 
+
         rx.then(function (value) {
             if (value['status']) {
                 if (!!callback && typeof callback === 'function') {
@@ -123,14 +123,20 @@
             } else {
                 console.error(value);
             }
-        }).catch(function (reason) { console.error(reason) }).finally(function () {
+        })
+        .catch(function (reason) { 
+            if (!!exception && typeof exception === 'function') {
+                exception(reason);
+            }
+         })
+        .finally(function () {
             if (!!finalCallback && typeof finalCallback === 'function') {
                 finalCallback();
             }
         })
     };
 
-    var Http =  function () {
+    var Http = function () {
         var obj = {};
         this.url = function (url) {
             obj['url'] = url;
@@ -144,14 +150,29 @@
             obj['params'] = params;
             return this;
         };
-        this.callback = function(callback) {
+        this.callback = function (callback) {
             obj['callback'] = callback;
             return this;
         };
-        this.finalCallback = function(finalCallback) {
+        this.cb = function (cb) {
+            obj['callback'] = cb;
+            return this;
+        }
+        this.finalCallback = function (finalCallback) {
             obj['finalCallback'] = finalCallback;
             return this;
         };
+        this.fcb = function (finalCallback) {
+            obj['finalCallback'] = finalCallback;
+            return this;
+        }
+        this.ex = function (cb) {
+            obj['exception'] = cb;
+            return this;
+        }
+        this.req = function () {
+            this.request();
+        },
         this.request = function () {
             // console.log('G request', obj);
             if (!obj['url']) {
@@ -162,7 +183,8 @@
                 console.error('invalid method', obj['method']);
                 return;
             }
-            win.G.request(obj['url'], obj['method'], obj['params'], obj['callback'], obj['finalCallback']);
+            win.G.request(obj['url'], obj['method'], obj['params'], obj['callback'],
+                obj['finalCallback'], obj['exception']);
         };
         this.obj = obj;
         return this;
@@ -184,7 +206,7 @@
         }
         return http;
     }
-    G.prototype.delet = function(url, params) {
+    G.prototype.delet = function (url, params) {
         var http = new Http();
         http.method('delete').url(url);
         if (!!params) {
@@ -202,24 +224,25 @@
 
 })(window);
 
+// 不能删哦，因为用着的
 var Cookie = {
     setCookie: function (cname, cvalue, exdays) {
         var d = new Date();
-        d.setTime(d.getTime() + (exdays*24*60*60*1000));
-        var expires = "expires="+d.toUTCString();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
         document.cookie = cname + "=" + cvalue + "; " + expires;
     },
     getCookie: function (cname) {
         var name = cname + "=";
         var ca = document.cookie.split(';');
-        for(var i=0; i<ca.length; i++) {
+        for (var i = 0; i < ca.length; i++) {
             var c = ca[i];
-            while (c.charAt(0)==' ') c = c.substring(1);
+            while (c.charAt(0) == ' ') c = c.substring(1);
             if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
         }
         return "";
     },
     clearCookie: function (name) {
-        Cookie.setCookie(name, "", -1);  
+        Cookie.setCookie(name, "", -1);
     }
- };
+};
