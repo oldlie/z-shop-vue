@@ -13,7 +13,7 @@
           </a-form-item>
 
           <a-form-item label="上级标签" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
-            <span>{{parentTitle}}</span>
+            <span>{{parentTag.title}}</span>
           </a-form-item>
 
           <a-form-item label="标签" :label-col="{ span: 5 }" has-feedback :wrapper-col="{ span: 12 }">
@@ -56,9 +56,7 @@
 <script>
 export default {
   props: {
-    parentTitle: {type: String, default: '根标签'},
-    parentId: {type: Number, default: 0},
-    tag: {
+    parentTag: {
       type: Object,
       default: () => {
         return {
@@ -75,31 +73,41 @@ export default {
   data() {
     return {
       form: this.$form.createForm(this),
-      warnMessage: ""
+      warnMessage: "",
+      tag: {
+        id: 0,
+        title: "",
+        category: 0,
+        tagOrder: 1,
+        parentId: 0,
+        childCount: 0
+      }
     };
   },
   methods: {
     back() {
-      this.$emit("goBackEvent");
+      this.$emit("goBackEvent", this.parentTag, this.tag);
     },
     handleSubmit(e) {
       e.preventDefault();
       const self = this;
       this.form.validateFields((err, values) => {
         if (!err) {
-          console.log("Received values of form: ", values);
-          const url = self.apiUrl + '/backend/tag';
+          const url = self.apiUrl + "/backend/tag";
           self.tag.title = values.title;
           self.tag.tagOrder = values.tagOrder;
-          self.tag.parentId = self.parentId;
+          self.tag.parentId = self.parentTag.id;
           let params = {
-              body: self.tag
+            body: self.tag
           };
           G.post(url, params)
-          .callback((data) => {
-              console.log('submit tag!', data);
-          })
-          .request();
+            .callback(data => {
+              if (data.status === 0) {
+                self.$message.success("已保存");
+                self.bus.$emit("savedEvent");
+              }
+            })
+            .request();
         }
       });
     }

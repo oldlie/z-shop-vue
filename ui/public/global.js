@@ -1,7 +1,20 @@
 (function (win) {
     var G = function () { };
 
-    console.log('axios', axios);
+    G.prototype.copy = function (obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    G.prototype.decodeBase64Content = function (base64Content) {
+        let commonContent = base64Content.replace(/\s/g, '+');
+        commonContent = Buffer.from(commonContent, 'base64').toString();
+        return commonContent;
+    }
+
+    G.prototype.encodeBase64Content = function (commonContent) {
+        let base64Content = Buffer.from(commonContent).toString('base64');
+        return base64Content;
+    }
 
     G.prototype.postForm = function (url, params, target) {
         win.G.submitForm(url, 'post', params, target);
@@ -124,16 +137,16 @@
                 console.error(value);
             }
         })
-        .catch(function (reason) { 
-            if (!!exception && typeof exception === 'function') {
-                exception(reason);
-            }
-         })
-        .finally(function () {
-            if (!!finalCallback && typeof finalCallback === 'function') {
-                finalCallback();
-            }
-        })
+            .catch(function (reason) {
+                if (!!exception && typeof exception === 'function') {
+                    exception(reason);
+                }
+            })
+            .finally(function () {
+                if (!!finalCallback && typeof finalCallback === 'function') {
+                    finalCallback();
+                }
+            })
     };
 
     var Http = function () {
@@ -155,7 +168,7 @@
             return this;
         };
         this.cb = function (cb) {
-            obj['callback'] = cb;
+            obj['cb'] = cb;
             return this;
         }
         this.finalCallback = function (finalCallback) {
@@ -163,7 +176,7 @@
             return this;
         };
         this.fcb = function (finalCallback) {
-            obj['finalCallback'] = finalCallback;
+            obj['fcb'] = finalCallback;
             return this;
         }
         this.ex = function (cb) {
@@ -173,19 +186,27 @@
         this.req = function () {
             this.request();
         },
-        this.request = function () {
-            // console.log('G request', obj);
-            if (!obj['url']) {
-                console.error('invalid url', obj['url']);
-                return;
-            }
-            if (!obj['method']) {
-                console.error('invalid method', obj['method']);
-                return;
-            }
-            win.G.request(obj['url'], obj['method'], obj['params'], obj['callback'],
-                obj['finalCallback'], obj['exception']);
-        };
+            this.request = function () {
+                // console.log('G request', obj);
+                if (!obj['url']) {
+                    console.error('invalid url', obj['url']);
+                    return;
+                }
+                if (!obj['method']) {
+                    console.error('invalid method', obj['method']);
+                    return;
+                }
+
+                if (typeof obj['cb'] === 'function') {
+                    obj['callback'] = obj['cb'];
+                }
+                if (typeof obj['cb'] === 'function') {
+                    obj['finalCallback'] = obj['fcb'];
+                }
+
+                win.G.request(obj['url'], obj['method'], obj['params'], obj['callback'],
+                    obj['finalCallback'], obj['exception']);
+            };
         this.obj = obj;
         return this;
     };
@@ -206,7 +227,7 @@
         }
         return http;
     }
-    G.prototype.delet = function (url, params) {
+    G.prototype.delete = function (url, params) {
         var http = new Http();
         http.method('delete').url(url);
         if (!!params) {

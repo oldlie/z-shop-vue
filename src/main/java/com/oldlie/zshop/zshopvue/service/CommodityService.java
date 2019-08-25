@@ -8,6 +8,7 @@ import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.utils.ZsTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -146,9 +148,8 @@ public class CommodityService {
     }
 
     @Transactional
-    public BaseResponse deleteCommodity(AppRequest<Long> request) {
+    public BaseResponse deleteCommodity(Long id) {
         BaseResponse response = new BaseResponse();
-        Long id = request.getBody();
 
         try {
             this.commodityTagRepository.deleteAllByCommodityId(id);
@@ -160,16 +161,53 @@ public class CommodityService {
             response.setMessage(e.getMessage());
         }
 
-
         return response;
     }
 
-    public PageResponse<Commodity> commodityPage(int page, int size, String orderBy, String direct) {
+    public SimpleResponse<Commodity> commodity(Long id) {
+        SimpleResponse<Commodity> response = new SimpleResponse<>();
+        Commodity commodity = this.commodityRepository.findById(id).orElse(new Commodity());
+        response.setItem(commodity);
+        return response;
+    }
+
+    public PageResponse<Commodity> commodities(int page, int size, String orderBy, String direct) {
         PageResponse<Commodity> response = new PageResponse<>();
-        Pageable pageable = PageRequest.of(page, size,
-                direct.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
-                orderBy);
-        Page<Commodity> commodities = this.commodityRepository.findAll(pageable);
+        Page<Commodity> commodities = this.commodityRepository.findAll(ZsTool.pageable(page, size, orderBy, direct));
+        response.setList(commodities.getContent());
+        response.setTotal(commodities.getTotalElements());
+        return response;
+    }
+
+    public PageResponse<Commodity> commodities(final Long tagId, int page, int size, String orderBy, String direct) {
+        PageResponse<Commodity> response = new PageResponse<>();
+        List<CommodityTag> commodityTags = this.commodityTagRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("tagId"), tagId));
+        if (commodityTags == null || commodityTags.size() <= 0) {
+            return response;
+        }
+
+        Page<Commodity> commodities = this.commodityRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    CriteriaBuilder.In<Object> in = criteriaBuilder.in(root.get("id"));
+                    commodityTags.forEach(ct -> in.value(ct.getCommodityId()));
+                    return in;
+                },
+                ZsTool.pageable(page, size, orderBy, direct)
+        );
+        response.setTotal(commodities.getTotalElements());
+        response.setList(commodities.getContent());
+        return response;
+    }
+
+    public PageResponse<Commodity> commodities(final String title, int page, int size, String orderBy, String direct) {
+        PageResponse<Commodity> response = new PageResponse<>();
+
+        Page<Commodity> commodities = this.commodityRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) ->
+                        criteriaBuilder.like(root.get("title"), "%" + title + "%"),
+                ZsTool.pageable(page, size, orderBy, direct)
+        );
         response.setTotal(commodities.getTotalElements());
         response.setList(commodities.getContent());
         return response;

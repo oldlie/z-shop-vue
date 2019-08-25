@@ -26,7 +26,7 @@ public class AdminTagController {
         return tagService.store(request);
     }
 
-    @DeleteMapping(value = "/delete/{id}")
+    @DeleteMapping(value = "/tag/{id}")
     public BaseResponse delete(@PathVariable("id") Long id) {
         return tagService.delete(id);
     }

@@ -19,16 +19,16 @@ Vue.component('product-comment', ProductComment);
 Vue.component('user-panel-links', UserPanelLinks);
 
 import AdminMenu from './components/AdminMenu'
-import AddTag from './components/AddTag'
 
 Vue.component('admin-menu', AdminMenu);
-Vue.component('add-tag', AddTag);
 
 import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
+import AdminProductComponent from './components/admin/AdminProduct'
 
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
+Vue.component('admin-product', AdminProductComponent)
 
 Vue.config.productionTip = false
 

@@ -12,21 +12,7 @@
           </a-col>
           <a-col :span="24" v-if="tagViewModel === 1">
             <a-button @click="onAddTag(0)" shape="circle" icon="rollback" style="margin:5px;"></a-button>
-            <add-tag></add-tag>
-          </a-col>
-        </a-row>
-        <a-row class="inner-row">
-          <a-col :span="24">
-            <a-table
-              :columns="columns"
-              :rowKey="record => record.login.uuid"
-              :dataSource="data"
-              :pagination="pagination"
-              :loading="loading"
-              @change="handleTableChange"
-            >
-              <template slot="name" slot-scope="name">{{name.first}} {{name.last}}</template>
-            </a-table>
+            <admin-product></admin-product>
           </a-col>
         </a-row>
       </a-col>
@@ -74,37 +60,17 @@ export default {
   data() {
     return {
       tags,
-      tagViewModel: 0
+      tagViewModel: 1,
+      pagination: {}
     };
   },
   mounted() {
-    this.fetch();
+    
   },
   methods: {
     onTagClose() {},
     onAddTag(viewModel) {
       this.tagViewModel = viewModel;
-    },
-    handleTableChange(pagination, filters, sorter) {
-      console.log(pagination);
-      const pager = { ...this.pagination };
-      pager.current = pagination.current;
-      this.pagination = pager;
-      this.fetch({
-        results: pagination.pageSize,
-        page: pagination.current,
-        sortField: sorter.field,
-        sortOrder: sorter.order,
-        ...filters
-      });
-    },
-    fetch(params = {}) {
-      // Read total count from server
-      // pagination.total = data.totalCount;
-      pagination.total = 200;
-      this.loading = false;
-      this.data = dataSet;
-      this.pagination = pagination;
     }
   }
 };

@@ -17,7 +17,7 @@
       <a-menu-item key="4">Aritcles Setting</a-menu-item>
     </a-sub-menu>
     <a-menu-item key="tags"><router-link to="/admin/tags">目录/标签</router-link></a-menu-item>
-    <a-menu-item key="sub2"><router-link to="/admin/products">Products</router-link></a-menu-item>
+    <a-menu-item key="sub2"><router-link to="/admin/products">商品</router-link></a-menu-item>
     <a-sub-menu key="sub4">
       <span slot="title">
         <span>Articles</span>

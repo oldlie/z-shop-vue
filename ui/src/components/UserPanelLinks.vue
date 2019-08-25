@@ -35,7 +35,6 @@ export default {
   },
   watch: {
     userInfo(nv, ov) {
-      console.log("userInfo changed ===>", nv, ov);
       this.userInfo = nv;
     }
   },

@@ -5,23 +5,42 @@
         <admin-menu :activeIndex="'tags'" :openKey="''"></admin-menu>
       </a-col>
       <a-col :span="18">
-        <admin-tags v-if="viewModel === 'list'" @gotoFormEvent="changeViewModel('form')"></admin-tags>
-        <admin-tag v-if="viewModel === 'form'" @goBackEvent="changeViewModel('list')"></admin-tag>
+        <admin-tags 
+        v-show="viewModel === 'list'" 
+        @gotoFormEvent="changeViewModel('form')"
+        @updateTagEvent="updateTag"
+        ></admin-tags>
+        <admin-tag
+          v-if="viewModel === 'form'"
+          :parentTag="tag"
+          @goBackEvent="changeViewModel('list')"
+        ></admin-tag>
       </a-col>
     </a-row>
   </div>
 </template>
 <script>
 export default {
-    data () {
-        return {
-            viewModel: 'form'
-        }
+  data() {
+    return {
+      viewModel: "list",
+      tag: {
+        id: 0,
+        title: "根",
+        category: 0,
+        tagOrder: 1,
+        parentId: 0,
+        childCount: 0
+      }
+    };
+  },
+  methods: {
+    changeViewModel(m) {
+      this.viewModel = m;
     },
-    methods: {
-        changeViewModel (m) {
-            this.viewModel = m;
-        }
-    }
+   updateTag(tag) {
+     this.tag = tag;
+   }
+  }
 };
 </script>
