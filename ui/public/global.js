@@ -137,16 +137,16 @@
                 console.error(value);
             }
         })
-            .catch(function (reason) {
-                if (!!exception && typeof exception === 'function') {
-                    exception(reason);
-                }
-            })
-            .finally(function () {
-                if (!!finalCallback && typeof finalCallback === 'function') {
-                    finalCallback();
-                }
-            })
+        .catch(function (reason) {
+            if (!!exception && typeof exception === 'function') {
+                exception(reason);
+            }
+        })
+        .finally(function () {
+            if (!!finalCallback && typeof finalCallback === 'function') {
+                finalCallback();
+            }
+        })
     };
 
     var Http = function () {
@@ -200,7 +200,7 @@
                 if (typeof obj['cb'] === 'function') {
                     obj['callback'] = obj['cb'];
                 }
-                if (typeof obj['cb'] === 'function') {
+                if (typeof obj['fcb'] === 'function') {
                     obj['finalCallback'] = obj['fcb'];
                 }
 
@@ -235,11 +235,6 @@
         }
         return http;
     }
-    // G.prototype.http = new Http();
-    // G.prototype.get = new Http().method('get');
-    // G.prototype.post = new Http().method('post');
-    // G.prototype.delete = new Http().method('delete');
-    // G.prototype.put = new Http().method('put');
 
     win.G = new G();
 
