@@ -6,6 +6,7 @@ import com.oldlie.zshop.zshopvue.model.db.repository.UrlRoleMappingRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 
@@ -57,6 +58,7 @@ public class InitService {
         this.initUrlRoleMapping();
     }
 
+    @Transactional
     private void initUsers() {
         Role role = this.roleRepository.findFirstByName("ADMIN");
         if (role == null) {
@@ -76,21 +78,26 @@ public class InitService {
         }
         User adminUser = this.userRepository.findFirstByUsername("admin");
         if (adminUser == null) {
-            this.userRepository.save(User.builder()
+            User user = User.builder()
                     .username("admin")
                     .password(this.bCryptPasswordEncoder.encode("admin"))
-                    .roles(Arrays.asList(role, userRole))
+                    // .roles(Arrays.asList(role, userRole))
                     .isEnabled(true)
-                    .build());
+                    .build();
+            user = this.userRepository.save(user);
+            user.setRoles(Arrays.asList(role, userRole));
+            this.userRepository.save(user);
         }
         User normalUser = this.userRepository.findFirstByUsername("user");
         if (normalUser == null) {
-            this.userRepository.save(User.builder()
+            normalUser = this.userRepository.save(User.builder()
                     .username("user")
                     .password(this.bCryptPasswordEncoder.encode("user@123"))
-                    .roles(Arrays.asList(role, userRole))
+                    // .roles(Arrays.asList(role, userRole))
                     .isEnabled(true)
                     .build());
+            normalUser.setRoles(Arrays.asList(role, userRole));
+            this.userRepository.save(normalUser);
         }
     }
 

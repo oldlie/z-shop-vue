@@ -7,6 +7,7 @@ import com.oldlie.zshop.zshopvue.config.url.RoleBasedVoter;
 import com.oldlie.zshop.zshopvue.filter.JWTAuthenticationFilter;
 import com.oldlie.zshop.zshopvue.filter.JWTLoginFilter;
 import com.oldlie.zshop.zshopvue.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;

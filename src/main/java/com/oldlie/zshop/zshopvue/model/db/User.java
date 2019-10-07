@@ -28,9 +28,13 @@ public class User implements UserDetails {
     private String username;
     @Column(name = "pwd")
     private String password;
+    @Column(columnDefinition = "BIT default 1")
     private boolean isAccountNonExpired;
+    @Column(columnDefinition = "BIT default 1")
     private boolean isAccountNonLocked;
+    @Column(columnDefinition = "BIT default 1")
     private boolean isCredentialsNonExpired;
+    @Column(columnDefinition = "BIT default 1")
     private boolean isEnabled;
     @ManyToMany
     @JoinTable(name = "t_user_join_role")
