@@ -167,7 +167,7 @@ export default {
           G.post(url, { body: self.commodity })
             .cb(data => {
               if (data.status === 0) {
-                self.id = data.item;
+                self.commodity.id = data.item;
                 self.$message.success("已保存");
               } else {
                 self.$message.warn(data.message);
@@ -179,7 +179,7 @@ export default {
       });
     },
     next(e) {
-      this.$emit("gotoBasicNext", this.id);
+      this.$emit("gotoBasicNext", this.commodity.id);
     }
   }
 };

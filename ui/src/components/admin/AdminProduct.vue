@@ -29,7 +29,8 @@ export default {
   },
   methods: {
     gotoSpec(id) {
-      console.log('goto specifiction ===>', id);
+      this.id = id;
+      this.step = _step_.SPECIFICATION;
     }
   }
 };
