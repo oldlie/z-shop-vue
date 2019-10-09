@@ -8,6 +8,7 @@ import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +70,7 @@ public class CommodityProfileService {
         return response;
     }
 
+    @Transactional
     public BaseResponse delete(final Long id) {
         BaseResponse response = new BaseResponse();
         this.commodityProfileRepository.findOne(
@@ -77,6 +79,7 @@ public class CommodityProfileService {
         return response;
     }
 
+    @Transactional
     public BaseResponse deleteByCommodityId(final Long commodityId) {
         List<CommodityProfile> list = this.commodityProfileRepository.findAll(
                 (r, q, cb)->cb.equal(r.get("commodityId"), commodityId)
