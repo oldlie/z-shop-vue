@@ -12,7 +12,7 @@
           </a-col>
           <a-col :span="24" v-if="tagViewModel === 1">
             <a-button @click="onAddTag(0)" shape="circle" icon="rollback" style="margin:5px;"></a-button>
-            <admin-product></admin-product>
+            <admin-product :id="0"></admin-product>
           </a-col>
         </a-row>
       </a-col>

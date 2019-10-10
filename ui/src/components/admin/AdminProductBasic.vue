@@ -53,7 +53,7 @@
       <!-- thumbnail -->
       <a-form-item :wrapper-col="{ span: 12, offset: 5 }">
         <a-button type="primary" @click="save">保存</a-button>&nbsp;&nbsp;&nbsp;&nbsp;
-        <template v-if="this.id > 0">
+        <template v-if="this.commodity.id > 0">
           <a-button style="text-align:right;" @click="next">下一步</a-button>
         </template>
         <template v-else>

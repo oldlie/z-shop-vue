@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * 仅用于存储商品概览信息，商品详细信息尽量存在 commodity profile 里

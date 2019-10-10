@@ -26,12 +26,13 @@ import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
 import AdminProductComponent from './components/admin/AdminProduct'
 import AdminProductBasic from './components/admin/AdminProductBasic';
+import AdminProductSpec from './components/admin/AdminProductSpec'
 
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
 Vue.component('admin-product', AdminProductComponent);
 Vue.component('admin-product-basic', AdminProductBasic);
-
+Vue.component('admin-product-spec', AdminProductSpec);
 
 Vue.config.productionTip = false
 
