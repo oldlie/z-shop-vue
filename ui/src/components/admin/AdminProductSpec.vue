@@ -42,11 +42,43 @@
       </a-col>
     </a-row>
     <a-row>
-      <a-col :span="24"></a-col>
+      <a-col :span="24">商品详情:</a-col>
+      <a-col :md="24" :lg="20">
+        <div ref="editor" style="text-align:left"></div>
+      </a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="24">商品展示图:</a-col>
+      <a-col :md="24" :lg="20">
+        <a-upload
+          action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+          listType="picture-card"
+          :fileList="fileList"
+          @preview="handleImagesPreview"
+          @change="handleImagesChange"
+        >
+          <div v-if="fileList.length < 3">
+            <a-icon type="plus" />
+            <div class="ant-upload-text">Upload</div>
+          </div>
+        </a-upload>
+        <a-modal :visible="previewVisible" :footer="null" @cancel="handlePreviewCancel">
+          <img alt="example" style="width: 100%" :src="previewImage" />
+        </a-modal>
+      </a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="24">
+        <a-button type="primary" @click="add">
+          <a-icon type="save" />保存
+        </a-button>
+      </a-col>
     </a-row>
   </a-spin>
 </template>
 <script>
+import E from "wangeditor";
+
 let count = 1;
 export default {
   props: {
@@ -66,7 +98,19 @@ export default {
         specification: "",
         images: "",
         detail: ""
-      }
+      },
+      editorContent: "",
+      fileList: [
+        {
+          uid: "-1",
+          name: "xxx.png",
+          status: "done",
+          url:
+            "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+        }
+      ],
+      previewVisible: false,
+      previewImage: ""
     };
   },
   beforeCreate() {
@@ -75,6 +119,15 @@ export default {
       initialValue: [],
       preserve: true
     });
+  },
+  mounted() {
+    var editor = new E(this.$refs.editor);
+    editor.customConfig.uploadImgServer = "/backend/file/upload";
+    editor.customConfig.uploadImgMaxLength = 5;
+    editor.customConfig.onchange = html => {
+      this.editorContent = html;
+    };
+    editor.create();
   },
   methods: {
     init(id) {
@@ -122,7 +175,22 @@ export default {
           console.log("Received values of form: ", values);
         }
       });
+    },
+    getContent() {
+      alert(this.editorContent);
+    },
+    // region 上传浏览图片
+    handleImagesPreview(file) {
+      this.previewImage = file.url || file.thumbUrl;
+      this.previewVisible = true;
+    },
+    handleImagesChange({ fileList }) {
+      this.fileList = fileList;
+    },
+    handlePreviewCancel() {
+      this.previewVisible = false;
     }
+    // endregion
   }
 };
 </script>
