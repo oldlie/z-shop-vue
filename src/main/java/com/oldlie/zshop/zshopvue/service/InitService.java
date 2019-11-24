@@ -4,6 +4,7 @@ import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.RoleRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.UrlRoleMappingRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,13 @@ public class InitService {
     private UserRepository userRepository;
     private UrlRoleMappingRepository urlRoleMappingRepository;
 
+    private UserService userService;
+
+    @Autowired
+    public void setUserService(UserService service) {
+        this.userService = service;
+    }
+
     public InitService(BCryptPasswordEncoder bCryptPasswordEncoder,
                        RoleRepository roleRepository,
                        UserRepository userRepository,
@@ -78,26 +86,11 @@ public class InitService {
         }
         User adminUser = this.userRepository.findFirstByUsername("admin");
         if (adminUser == null) {
-            User user = User.builder()
-                    .username("admin")
-                    .password(this.bCryptPasswordEncoder.encode("admin"))
-                    // .roles(Arrays.asList(role, userRole))
-                    .isEnabled(true)
-                    .build();
-            user = this.userRepository.save(user);
-            user.setRoles(Arrays.asList(role, userRole));
-            this.userRepository.save(user);
+            this.userService.initUser("admin", "admin", role);
         }
         User normalUser = this.userRepository.findFirstByUsername("user");
         if (normalUser == null) {
-            normalUser = this.userRepository.save(User.builder()
-                    .username("user")
-                    .password(this.bCryptPasswordEncoder.encode("user@123"))
-                    // .roles(Arrays.asList(role, userRole))
-                    .isEnabled(true)
-                    .build());
-            normalUser.setRoles(Arrays.asList(role, userRole));
-            this.userRepository.save(normalUser);
+            this.userService.initUser("user", "user@123", userRole);
         }
     }
 

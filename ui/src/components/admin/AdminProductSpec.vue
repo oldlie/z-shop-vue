@@ -1,73 +1,82 @@
 <template>
   <a-spin :spinning="loading">
-    <a-row>
-      <a-col :span="24">
-        <a-form :form="specForm">
-          <a-form-item>输入规格，例如：【重量:200g】</a-form-item>
-          <a-form-item
-            v-for="(k, index) in specForm.getFieldValue('keys')"
-            :key="k"
-            v-bind="formItemLayoutWithOutLabel"
-            :required="false"
-          >
-            <a-input
-              v-decorator="[
-                `names[${k}]`,
-                {
-                    validateTrigger: ['change', 'blur'],
-                    rules: [{
-                    required: true,
-                    whitespace: true,
-                    message: 'Please input passenger\'s name or delete this field.',
-                    }],
-                }
-                ]"
-              placeholder="重量：200g"
-              style="width: 60%; margin-right: 8px"
-            />
-            <a-icon
-              v-if="specForm.getFieldValue('keys').length > 1"
-              class="dynamic-delete-button"
-              type="minus-circle-o"
-              :disabled="specForm.getFieldValue('keys').length === 1"
-              @click="() => remove(k)"
-            />
-          </a-form-item>
-          <a-form-item v-bind="formItemLayoutWithOutLabel">
-            <a-button type="dashed" style="width: 60%" @click="add">
-              <a-icon type="plus" />Add field
-            </a-button>
-          </a-form-item>
-        </a-form>
-      </a-col>
-    </a-row>
-    <a-row>
-      <a-col :span="24">商品详情:</a-col>
-      <a-col :md="24" :lg="20">
-        <div ref="editor" style="text-align:left"></div>
-      </a-col>
-    </a-row>
-    <a-row>
-      <a-col :span="24">商品展示图:</a-col>
-      <a-col :md="24" :lg="20">
-        <a-upload
-          action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-          listType="picture-card"
-          :fileList="fileList"
-          @preview="handleImagesPreview"
-          @change="handleImagesChange"
-        >
-          <div v-if="fileList.length < 3">
-            <a-icon type="plus" />
-            <div class="ant-upload-text">Upload</div>
-          </div>
-        </a-upload>
-        <a-modal :visible="previewVisible" :footer="null" @cancel="handlePreviewCancel">
-          <img alt="example" style="width: 100%" :src="previewImage" />
-        </a-modal>
-      </a-col>
-    </a-row>
-    <a-row>
+    <a-tabs defaultActiveKey="2">
+      <a-tab-pane tab="设置产品规格" key="1">
+        <a-row>
+          <a-col :span="24">
+            <a-form :form="specForm">
+              <a-form-item>输入规格，例如：【重量:200g】</a-form-item>
+              <a-form-item
+                v-for="k in specForm.getFieldValue('keys')"
+                :key="k"
+                v-bind="formItemLayoutWithOutLabel"
+                :required="false"
+              >
+                <a-input
+                  v-decorator="[
+              `names[${k}]`,
+              {
+                  validateTrigger: ['change', 'blur'],
+                  rules: [{
+                  required: true,
+                  whitespace: true,
+                  message: 'Please input passenger\'s name or delete this field.',
+                  }],
+              }
+              ]"
+                  placeholder="重量：200g"
+                  style="width: 60%; margin-right: 8px"
+                />
+                <a-icon
+                  v-if="specForm.getFieldValue('keys').length > 1"
+                  class="dynamic-delete-button"
+                  type="minus-circle-o"
+                  :disabled="specForm.getFieldValue('keys').length === 1"
+                  @click="() => remove(k)"
+                />
+              </a-form-item>
+              <a-form-item v-bind="formItemLayoutWithOutLabel">
+                <a-button type="dashed" style="width: 60%" @click="add">
+                  <a-icon type="plus" />Add field
+                </a-button>
+              </a-form-item>
+            </a-form>
+          </a-col>
+        </a-row>
+      </a-tab-pane>
+      <a-tab-pane tab="设置产品详情" key="2">
+        <a-row>
+          <a-col :span="24">商品详情:</a-col>
+          <a-col :md="24" :lg="20">
+            <div ref="editor" style="text-align:left"></div>
+          </a-col>
+        </a-row>
+      </a-tab-pane>
+      <a-tab-pane tab="设置产品轮播图" key="3">
+        <a-row>
+          <a-col :span="24">商品展示图:</a-col>
+          <a-col :md="24" :lg="20">
+            <a-upload
+              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+              listType="picture-card"
+              :fileList="fileList"
+              @preview="handleImagesPreview"
+              @change="handleImagesChange"
+            >
+              <div v-if="fileList.length < 3">
+                <a-icon type="plus" />
+                <div class="ant-upload-text">Upload</div>
+              </div>
+            </a-upload>
+            <a-modal :visible="previewVisible" :footer="null" @cancel="handlePreviewCancel">
+              <img alt="example" style="width: 100%" :src="previewImage" />
+            </a-modal>
+          </a-col>
+        </a-row>
+      </a-tab-pane>
+    </a-tabs>
+
+    <a-row class="inner-row">
       <a-col :span="24">
         <a-button type="primary" @click="add">
           <a-icon type="save" />保存
