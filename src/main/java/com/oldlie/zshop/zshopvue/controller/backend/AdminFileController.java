@@ -4,9 +4,11 @@ import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.UploadFile;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.model.response.wangeditor.ImageResponse;
 import com.oldlie.zshop.zshopvue.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -30,17 +32,17 @@ public class AdminFileController {
 
     // region upload
 
-    @PostMapping("/upload")
-    public ListResponse<UploadFile> uploadFile(MultipartHttpServletRequest request,
-                                               @SessionAttribute("username") String username,
-                                               HttpServletResponse servletResponse) {
-        ListResponse<UploadFile> response = new ListResponse<>();
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ImageResponse uploadFile(MultipartHttpServletRequest request,
+                                    @SessionAttribute("username") String username,
+                                    HttpServletResponse servletResponse) {
+        ImageResponse response = new ImageResponse();
 
         Iterator<String> itr = request.getFileNames();
         MultipartFile mpf;
 
         Calendar calendar = Calendar.getInstance();
-        List<UploadFile> uploadFileList = new ArrayList<>();
+        List<String> uploadFileList = new ArrayList<>();
 
         while (itr.hasNext()) {
             mpf = request.getFile(itr.next());
@@ -58,8 +60,7 @@ public class AdminFileController {
 
             if (!saveFile.getParentFile().exists()) {
                 if (!saveFile.getParentFile().mkdirs()) {
-                    response.setStatus(HTTP_CODE.FAILED);
-                    response.setMessage("服务器没有成功的创建文件夹，请稍后再试");
+                    response.setErrno(HTTP_CODE.FAILED);
                 }
             }
 
@@ -72,15 +73,14 @@ public class AdminFileController {
 
                 uploadFile = this.fileService.save(uploadFile);
 
-                uploadFileList.add(uploadFile);
+                uploadFileList.add( uploadFile.getName());
             } catch (IOException e) {
                 e.printStackTrace();
-                response.setStatus(HTTP_CODE.EXCEPTION);
-                response.setMessage(e.getLocalizedMessage());
+                response.setErrno(HTTP_CODE.EXCEPTION);
             }
         }
 
-        response.setList(uploadFileList);
+        response.setData(uploadFileList);
         return response;
     }
 

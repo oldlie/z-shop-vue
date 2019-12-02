@@ -78,7 +78,7 @@
 
     <a-row class="inner-row">
       <a-col :span="24">
-        <a-button type="primary" @click="add">
+        <a-button type="primary" @click="handleSubmit">
           <a-icon type="save" />保存
         </a-button>
       </a-col>
@@ -131,7 +131,11 @@ export default {
   },
   mounted() {
     var editor = new E(this.$refs.editor);
-    editor.customConfig.uploadImgServer = "/backend/file/upload";
+    const token = Cookie.getCookie('token');
+    editor.customConfig.uploadImgServer = this.apiUrl + "/backend/file/upload";
+    editor.customConfig.uploadImgHeaders = {
+      'Authorization': 'ZShop ' + token
+    };
     editor.customConfig.uploadImgMaxLength = 5;
     editor.customConfig.onchange = html => {
       this.editorContent = html;
@@ -179,9 +183,21 @@ export default {
     },
     handleSubmit(e) {
       e.preventDefault();
-      this.form.validateFields((err, values) => {
+      this.specForm.validateFields((err, values) => {
         if (!err) {
           console.log("Received values of form: ", values);
+          if (!values.names || values.names.length <= 0) {
+            this.$message.warning("至少填写一条规格");
+            return;
+          }
+          let spec = "";
+          values.names.forEach(item => {
+            if (!!item) {
+              spec += item;
+            }
+          });
+          values.names.join(",");
+          console.log("spec", spec);
         }
       });
     },
