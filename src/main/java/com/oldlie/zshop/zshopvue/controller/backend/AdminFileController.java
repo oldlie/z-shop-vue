@@ -1,12 +1,17 @@
 package com.oldlie.zshop.zshopvue.controller.backend;
 
+import com.oldlie.zshop.zshopvue.exception.AppRestException;
+import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.UploadFile;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.model.response.wangeditor.ImageResponse;
 import com.oldlie.zshop.zshopvue.service.FileService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -16,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-@PropertySource("classpath:application.properties")
 @RequestMapping("/backend/file")
 @RestController
 public class AdminFileController {
@@ -30,25 +34,39 @@ public class AdminFileController {
 
     // region upload
 
-    @PostMapping("/upload")
-    public ListResponse<UploadFile> uploadFile(MultipartHttpServletRequest request,
-                                               @SessionAttribute("username") String username,
-                                               HttpServletResponse servletResponse) {
-        ListResponse<UploadFile> response = new ListResponse<>();
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ImageResponse uploadFile(MultipartHttpServletRequest request,
+                                    @SessionAttribute("username") String username,
+                                    HttpServletResponse servletResponse)
+            throws AppRestException {
+        ImageResponse response = new ImageResponse();
 
         Iterator<String> itr = request.getFileNames();
         MultipartFile mpf;
 
         Calendar calendar = Calendar.getInstance();
-        List<UploadFile> uploadFileList = new ArrayList<>();
+        List<String> uploadFileList = new ArrayList<>();
 
         while (itr.hasNext()) {
             mpf = request.getFile(itr.next());
             StringBuilder fileNameBuilder = new StringBuilder(64);
-            fileNameBuilder.append(UUID.randomUUID().toString()).append("_").append(mpf.getOriginalFilename());
+            String ofn = mpf.getOriginalFilename();
+            if (ofn == null) {
+                throw new AppRestException("Upload file name is null", ResponseCode.EXCEPTION);
+            }
+            int lastPoint = ofn.lastIndexOf(".");
+            String suffix = ".jpg";
+            if (lastPoint >= 0) {
+                 suffix = ofn.substring(lastPoint);
+            }
+            fileNameBuilder.append(UUID.randomUUID().toString() + suffix);
 
             StringBuilder path = new StringBuilder(128);
-            path.append(username).append(File.separator)
+
+            String pathPrefix = DigestUtils.md5Hex(username).substring(0, 2);
+
+            path.append(pathPrefix).append(File.separator)
+                    .append(username).append(File.separator)
                     .append(calendar.get(Calendar.YEAR)).append(File.separator) // 上传年
                     .append(calendar.get(Calendar.MONTH)).append(File.separator) // 上传月
                     .append(fileNameBuilder.toString());
@@ -58,8 +76,7 @@ public class AdminFileController {
 
             if (!saveFile.getParentFile().exists()) {
                 if (!saveFile.getParentFile().mkdirs()) {
-                    response.setStatus(HTTP_CODE.FAILED);
-                    response.setMessage("服务器没有成功的创建文件夹，请稍后再试");
+                    response.setErrno(HTTP_CODE.FAILED);
                 }
             }
 
@@ -72,15 +89,19 @@ public class AdminFileController {
 
                 uploadFile = this.fileService.save(uploadFile);
 
-                uploadFileList.add(uploadFile);
+                uploadFileList.add(fileService.getSystemProperties().getUploadFileUrl() + "/" +
+                        pathPrefix + "/" +
+                        username + "/" +
+                        calendar.get(Calendar.YEAR) + "/" +
+                        calendar.get(Calendar.MONTH) + "/" +
+                        uploadFile.getName());
             } catch (IOException e) {
                 e.printStackTrace();
-                response.setStatus(HTTP_CODE.EXCEPTION);
-                response.setMessage(e.getLocalizedMessage());
+                response.setErrno(HTTP_CODE.EXCEPTION);
             }
         }
 
-        response.setList(uploadFileList);
+        response.setData(uploadFileList);
         return response;
     }
 

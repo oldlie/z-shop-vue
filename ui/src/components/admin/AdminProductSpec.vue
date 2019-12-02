@@ -57,7 +57,8 @@
           <a-col :span="24">商品展示图:</a-col>
           <a-col :md="24" :lg="20">
             <a-upload
-              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+              :action="uploadImageUrl"
+              :headers="uploadImageHeader"
               listType="picture-card"
               :fileList="fileList"
               @preview="handleImagesPreview"
@@ -78,7 +79,7 @@
 
     <a-row class="inner-row">
       <a-col :span="24">
-        <a-button type="primary" @click="add">
+        <a-button type="primary" @click="handleSubmit">
           <a-icon type="save" />保存
         </a-button>
       </a-col>
@@ -94,6 +95,10 @@ export default {
     id: { type: Number, default: 0 }
   },
   data() {
+    const uploadImageUrl = this.apiUrl + "/backend/file/upload";
+    const uploadImageHeader = {
+      Authorization: "ZShop " + Cookie.getCookie("token")
+    };
     return {
       loading: false,
       formItemLayoutWithOutLabel: {
@@ -110,16 +115,12 @@ export default {
       },
       editorContent: "",
       fileList: [
-        {
-          uid: "-1",
-          name: "xxx.png",
-          status: "done",
-          url:
-            "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-        }
       ],
       previewVisible: false,
-      previewImage: ""
+      previewImage: "",
+      editor: {},
+      uploadImageUrl: uploadImageUrl,
+      uploadImageHeader: uploadImageHeader
     };
   },
   beforeCreate() {
@@ -130,13 +131,15 @@ export default {
     });
   },
   mounted() {
-    var editor = new E(this.$refs.editor);
-    editor.customConfig.uploadImgServer = "/backend/file/upload";
+    const editor = new E(this.$refs.editor);
+    editor.customConfig.uploadImgServer = this.uploadImageUrl;
+    editor.customConfig.uploadImgHeaders = this.uploadImageHeader;
     editor.customConfig.uploadImgMaxLength = 5;
     editor.customConfig.onchange = html => {
       this.editorContent = html;
     };
     editor.create();
+    this.editor = editor;
   },
   methods: {
     init(id) {
@@ -179,9 +182,45 @@ export default {
     },
     handleSubmit(e) {
       e.preventDefault();
-      this.form.validateFields((err, values) => {
+      var self = this;
+      this.specForm.validateFields((err, values) => {
         if (!err) {
           console.log("Received values of form: ", values);
+          if (!values.names || values.names.length <= 0) {
+            this.$message.warning("至少填写一条规格");
+            return;
+          }
+          let spec = "";
+          values.names.forEach(item => {
+            if (!!item) {
+              spec += item;
+            }
+          });
+          values.names.join(",");
+          console.log("spec", spec, self.fileList);
+
+          let imagePaths = [];
+          if (self.fileList.length > 0) {
+            for (let i = 0; i < self.fileList.length; i++) {
+              let _file = self.fileList[i];
+              if (!!_file['response']) {
+                let _res = _file['response'];
+                if (!!_res['data'] && _res['data'] instanceof Array) {
+                  imagePaths.push(_res['data'][0]);
+                }
+              }
+            }
+          }
+
+          const url = self.apiUrl + '/backend/product/profile';
+          let params = {
+            commodityId: self.id,
+            specification: spec,
+            images: imagePaths.length > 0 ? imagePaths.join(',') : '',
+            detail: self.editor.txt.html()
+          };
+
+          console.log('params', params);
         }
       });
     },

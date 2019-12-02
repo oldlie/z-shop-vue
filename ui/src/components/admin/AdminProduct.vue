@@ -8,9 +8,7 @@
 const _step_ = {
   BASIC_INFO: 0,
   SPECIFICATION: 1,
-  IMAGES: 2,
-  DETAILS: 3,
-  FORMULAS: 4
+  FORMULAS: 2
 };
 
 export default {
@@ -20,7 +18,7 @@ export default {
   data() {
     return {
       STEP: _step_,
-      step: _step_.SPECIFICATION,
+      step: _step_.BASIC_INFO,
       innerId: 0
     };
   },
