@@ -3,12 +3,14 @@ package com.oldlie.zshop.zshopvue.service;
 import com.oldlie.zshop.zshopvue.config.properties.SystemProperties;
 import com.oldlie.zshop.zshopvue.model.db.UploadFile;
 import com.oldlie.zshop.zshopvue.model.db.repository.UploadFileRepository;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FileService {
 
+    @Getter
     private SystemProperties systemProperties;
 
     @Autowired

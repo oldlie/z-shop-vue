@@ -1,11 +1,14 @@
 package com.oldlie.zshop.zshopvue.controller.backend;
 
+import com.oldlie.zshop.zshopvue.exception.AppRestException;
+import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.UploadFile;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.model.response.wangeditor.ImageResponse;
 import com.oldlie.zshop.zshopvue.service.FileService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
@@ -18,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-@PropertySource("classpath:application.properties")
 @RequestMapping("/backend/file")
 @RestController
 public class AdminFileController {
@@ -35,7 +37,8 @@ public class AdminFileController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ImageResponse uploadFile(MultipartHttpServletRequest request,
                                     @SessionAttribute("username") String username,
-                                    HttpServletResponse servletResponse) {
+                                    HttpServletResponse servletResponse)
+            throws AppRestException {
         ImageResponse response = new ImageResponse();
 
         Iterator<String> itr = request.getFileNames();
@@ -47,10 +50,23 @@ public class AdminFileController {
         while (itr.hasNext()) {
             mpf = request.getFile(itr.next());
             StringBuilder fileNameBuilder = new StringBuilder(64);
-            fileNameBuilder.append(UUID.randomUUID().toString()).append("_").append(mpf.getOriginalFilename());
+            String ofn = mpf.getOriginalFilename();
+            if (ofn == null) {
+                throw new AppRestException("Upload file name is null", ResponseCode.EXCEPTION);
+            }
+            int lastPoint = ofn.lastIndexOf(".");
+            String suffix = ".jpg";
+            if (lastPoint >= 0) {
+                 suffix = ofn.substring(lastPoint);
+            }
+            fileNameBuilder.append(UUID.randomUUID().toString() + suffix);
 
             StringBuilder path = new StringBuilder(128);
-            path.append(username).append(File.separator)
+
+            String pathPrefix = DigestUtils.md5Hex(username).substring(0, 2);
+
+            path.append(pathPrefix).append(File.separator)
+                    .append(username).append(File.separator)
                     .append(calendar.get(Calendar.YEAR)).append(File.separator) // 上传年
                     .append(calendar.get(Calendar.MONTH)).append(File.separator) // 上传月
                     .append(fileNameBuilder.toString());
@@ -73,7 +89,12 @@ public class AdminFileController {
 
                 uploadFile = this.fileService.save(uploadFile);
 
-                uploadFileList.add( uploadFile.getName());
+                uploadFileList.add(fileService.getSystemProperties().getUploadFileUrl() + "/" +
+                        pathPrefix + "/" +
+                        username + "/" +
+                        calendar.get(Calendar.YEAR) + "/" +
+                        calendar.get(Calendar.MONTH) + "/" +
+                        uploadFile.getName());
             } catch (IOException e) {
                 e.printStackTrace();
                 response.setErrno(HTTP_CODE.EXCEPTION);
