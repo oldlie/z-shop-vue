@@ -88,6 +88,14 @@
           <a-button type="link" icon="plus" @click="changeModel(VIEWMODEL.form)">添加套餐</a-button>
         </a-col>
       </a-row>
+      <a-divider />
+      <a-row>
+        <a-col :span="24">
+          <a-button type="primary" icon="upload" >上架商品</a-button>
+          <a-button type="link" icon="eye" >预览</a-button>
+          <a-button type="link" icon="save" >保存但不上架</a-button>
+        </a-col>
+      </a-row>
     </template>
   </a-spin>
 </template>
