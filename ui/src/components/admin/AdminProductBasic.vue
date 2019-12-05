@@ -75,7 +75,7 @@ export default {
     id: { type: Number, default: 0 }
   },
   data() {
-    let auth = `ZShop ${this.$cookie.get("token")}`;
+    const auth = `ZShop ${this.$cookie.get("token")}`;
     return {
       loading: false,
       headers: { Authorization: auth },
@@ -98,7 +98,7 @@ export default {
     };
   },
   created() {
-    this.uploadUrl = `${this.apiUrl}/backend/file/image`;
+    this.uploadUrl = `${this.apiUrl}/backend/file/upload`;
   },
   mounted() {
     if (this.id > 0) {
@@ -142,7 +142,10 @@ export default {
       if (info.file.status === "done") {
         console.log("handleChange ===>", info);
         let response = info.file.response;
-        this.thumbnail = response.item;
+        if (!!response['data']) {
+            this.thumbnail = response['data'][0];
+        }
+        
         console.log(this.thumbnail);
         // Get this url from response in real world.
         getBase64(info.file.originFileObj, imageUrl => {
@@ -164,7 +167,7 @@ export default {
             self.commodity.thumbnail = self.thumbnail;
           }
           self.loading = true;
-          G.post(url, { body: self.commodity })
+          G.post(url, self.commodity)
             .cb(data => {
               if (data.status === 0) {
                 self.commodity.id = data.item;

@@ -9,14 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class ObjectCopy<T> {
+public class DiffObjectCopy<V, T> {
 
-    public T copy(T source, T target){
+
+    public T copy(V source, T target){
         return this.copy(source, target, null);
     }
 
-    public T copy(T source, T target, List<String> ignoreFieldList) {
-        Map<String, Field> sourceMap = getAllFields(source, ignoreFieldList);
+    public T copy(V source, T target, List<String> ignoreFieldList) {
+        Map<String, Field> sourceMap = getSourceAllFields(source, ignoreFieldList);
         Map<String, Field> targetMap = getAllFields(target);
         for (String key : sourceMap.keySet()) {
             Field sourceField = sourceMap.get(key);
@@ -40,7 +41,7 @@ public class ObjectCopy<T> {
         return target;
     }
 
-    public T copyValue2Entity(T source, T target){
+    public T copyValue2Entity(V source, T target){
         List<String> list = new ArrayList<>();
         list.add("id");
         list.add("createTime");
@@ -48,7 +49,7 @@ public class ObjectCopy<T> {
         return copy(source, target, list);
     }
 
-    public T copyWithoutId(T source, T target) {
+    public T copyWithoutId(V source, T target) {
         List<String> list = new ArrayList<>();
         list.add("id");
         return copy(source, target, list);
@@ -75,4 +76,23 @@ public class ObjectCopy<T> {
         }
         return map;
     }
+
+    private Map<String, Field> getSourceAllFields(V source, List<String> ignore) {
+        Map<String, Field> map = new HashMap<>();
+        Class clazz = source.getClass();
+        while (clazz != null) {
+            Field[] fields = clazz.getDeclaredFields();
+            if (fields != null && fields.length > 0) {
+                for(Field field : fields) {
+                    if (ignore != null && ignore.size() > 0 && ignore.contains(field.getName())) {
+                        continue;
+                    }
+                    map.put(field.getName(), field);
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return map;
+    }
+
 }

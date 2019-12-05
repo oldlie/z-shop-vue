@@ -55,8 +55,8 @@ public class AdminProductController {
     }
 
     @PostMapping(value = "/product", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
-    public SimpleResponse<Long> store(@RequestBody AppRequest<Commodity> request) {
-        return this.commodityService.storeCommodity(request);
+    public SimpleResponse<Long> store(@RequestBody Commodity commodity) {
+        return this.commodityService.storeCommodity(commodity);
     }
 
     @DeleteMapping(value = "/product/{id}")

@@ -19,7 +19,7 @@ export default {
   data() {
     return {
       STEP: _step_,
-      step: _step_.FORMULAS,
+      step: _step_.BASIC_INFO,
       innerId: 0
     };
   },
