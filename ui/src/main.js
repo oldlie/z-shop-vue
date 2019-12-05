@@ -27,12 +27,14 @@ import AdminTagsComponent from './components/admin/AdminTags'
 import AdminProductComponent from './components/admin/AdminProduct'
 import AdminProductBasic from './components/admin/AdminProductBasic';
 import AdminProductSpec from './components/admin/AdminProductSpec'
+import AdminProductFormula from './components/admin/AdminProductFormula'
 
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
 Vue.component('admin-product', AdminProductComponent);
 Vue.component('admin-product-basic', AdminProductBasic);
 Vue.component('admin-product-spec', AdminProductSpec);
+Vue.component('admin-product-formula', AdminProductFormula);
 
 Vue.config.productionTip = false
 

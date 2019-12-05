@@ -120,9 +120,8 @@ public class CommodityService {
 
     // region 商品
 
-    public SimpleResponse<Long> storeCommodity(AppRequest<Commodity> request) {
+    public SimpleResponse<Long> storeCommodity(final Commodity commodity) {
         SimpleResponse<Long> response = new SimpleResponse<>();
-        Commodity commodity = request.getBody();
         Commodity target;
         if (commodity.getId() > 0) {
             target = this.commodityRepository.findById(commodity.getId()).orElse(null);

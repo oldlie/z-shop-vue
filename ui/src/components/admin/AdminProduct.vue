@@ -2,6 +2,7 @@
   <div>
     <admin-product-basic :id="innerId" v-show="step === STEP.BASIC_INFO" @gotoBasicNext="gotoSpec"></admin-product-basic>
     <admin-product-spec :id="innerId" v-show="step === STEP.SPECIFICATION"></admin-product-spec>
+    <admin-product-formula v-show="step === STEP.FORMULAS"></admin-product-formula>
   </div>
 </template>
 <script>
