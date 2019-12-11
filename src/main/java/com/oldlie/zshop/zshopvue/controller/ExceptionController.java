@@ -1,7 +1,6 @@
 package com.oldlie.zshop.zshopvue.controller;
 
 import com.oldlie.zshop.zshopvue.exception.AppRestException;
-import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

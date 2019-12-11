@@ -1,6 +1,6 @@
 package com.oldlie.zshop.zshopvue.service;
 
-import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.CommodityFormula;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityFormulaRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
@@ -34,7 +34,7 @@ public class CommodityFormulaService {
             if (optional.isPresent()) {
                 target = optional.get();
             } else {
-                response.setStatus(ResponseCode.FAILED);
+                response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("Commodity formula does not exist");
                 return response;
             }
@@ -45,7 +45,7 @@ public class CommodityFormulaService {
         ObjectCopy<CommodityFormula> copy = new ObjectCopy<>();
         target = copy.copyValue2Entity(formula, target);
         if (target == null) {
-            response.setStatus(ResponseCode.FAILED);
+            response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("Copy value to target error.");
             return response;
         }

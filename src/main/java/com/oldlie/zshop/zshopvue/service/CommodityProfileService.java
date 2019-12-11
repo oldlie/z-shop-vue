@@ -1,6 +1,6 @@
 package com.oldlie.zshop.zshopvue.service;
 
-import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.CommodityProfile;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityProfileRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
@@ -34,7 +34,7 @@ public class CommodityProfileService {
             if (optional.isPresent()) {
                 target = optional.get();
             } else {
-                response.setStatus(ResponseCode.FAILED);
+                response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("Commodity does not exist.");
                 return response;
             }
@@ -46,7 +46,7 @@ public class CommodityProfileService {
         target = copy.copyValue2Entity(profile, target);
 
         if (target == null) {
-            response.setStatus(ResponseCode.FAILED);
+            response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("CopyValue Failed.");
             return response;
         }
@@ -65,7 +65,7 @@ public class CommodityProfileService {
         if (optional.isPresent()) {
             response.setItem(optional.get());
         } else {
-            response.setStatus(ResponseCode.FAILED);
+            response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("Commodity profile does not exist.");
         }
         return response;

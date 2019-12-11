@@ -1,7 +1,7 @@
 package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.AppRequest;
-import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * 商品相关操作服务
@@ -126,7 +125,7 @@ public class CommodityService {
         if (commodity.getId() > 0) {
             target = this.commodityRepository.findById(commodity.getId()).orElse(null);
             if (target == null) {
-                response.setStatus(ResponseCode.FAILED);
+                response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("Commodity is null");
                 return response;
             }
