@@ -87,6 +87,12 @@ import VueCookies from 'vue-cookie'
 
 Vue.use(VueCookies)
 
+// 引入axios，并加到原型链中
+// import axios from 'axios';
+// Vue.prototype.$axios = axios;
+// import QS from 'qs'
+// Vue.prototype.qs = QS;
+
 Vue.prototype.apiUrl = 'http://localhost:8088';
 Vue.prototype.bus = new Vue();
 
