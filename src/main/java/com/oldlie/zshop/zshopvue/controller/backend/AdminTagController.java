@@ -3,6 +3,7 @@ package com.oldlie.zshop.zshopvue.controller.backend;
 import com.oldlie.zshop.zshopvue.model.AppRequest;
 import com.oldlie.zshop.zshopvue.model.db.Tag;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
+import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.TagService;
@@ -38,5 +39,10 @@ public class AdminTagController {
                                   @PathVariable("orderBy") String orderBy,
                                   @PathVariable("order") String order) {
         return tagService.tags(parentId, page, size, orderBy, order);
+    }
+
+    @GetMapping(value = "/tags/{parentId}")
+    public ListResponse<Tag> tags(@PathVariable(value = "parentId", required = false) Long id) {
+        return this.tagService.list(id == null ? 0L : id);
     }
 }

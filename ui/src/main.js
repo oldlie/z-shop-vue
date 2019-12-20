@@ -71,11 +71,11 @@ const routes = [
   { path: '/products', component: ProductsPage },
   { path: '/order/comment', component: CommentOrderPage },
   { path: '/order', component: OrderPage },
-  { path: '/profile', component: UserProfilePage},
-  { path: '/admin/article', component: AdminArticlePage},
-  { path: '/admin/dashboard', component: AdminDashboardPage},
-  { path: '/admin/products', component: AdminProductsPage},
-  { path: '/admin/tags', component: AdminTagsPage}
+  { path: '/profile', component: UserProfilePage },
+  { path: '/admin/article', component: AdminArticlePage },
+  { path: '/admin/dashboard', component: AdminDashboardPage },
+  { path: '/admin/products', component: AdminProductsPage },
+  { path: '/admin/tags', component: AdminTagsPage }
 ]
 
 const router = new VueRouter({
