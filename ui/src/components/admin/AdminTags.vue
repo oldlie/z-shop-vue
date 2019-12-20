@@ -61,17 +61,14 @@ export default {
     };
   },
   mounted() {
-    const self = this;
-    if (!this.bus._events["savedEvent"]) {
-      this.bus.$on("savedEvent", () => {
-        this.loadByParentId(self.parentTag.id);
-      });
-    }
-
     this.parentTag = G.copy(this.tag);
     this.gotoNext(this.tag);
   },
   methods: {
+    refreshTags() {
+      console.log(`refreshTags(${this.tag.id})`);
+      this.loadByParentId(this.tag.id);
+    },
     gotoForm() {
       this.$emit("gotoFormEvent");
     },

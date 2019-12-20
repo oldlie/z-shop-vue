@@ -52,6 +52,7 @@ import ProductsPage from './pages/ProductsPage'
 import OrderPage from './pages/OrderPage'
 import UserProfilePage from './pages/UserProfilePage'
 
+import AdminArticlePage from './pages/admin/AdminArticlePage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
 import AdminTagsPage from './pages/admin/AdminTagsPage'
@@ -70,10 +71,11 @@ const routes = [
   { path: '/products', component: ProductsPage },
   { path: '/order/comment', component: CommentOrderPage },
   { path: '/order', component: OrderPage },
-  { path: '/profile', component: UserProfilePage},
-  { path: '/admin/dashboard', component: AdminDashboardPage},
-  { path: '/admin/products', component: AdminProductsPage},
-  { path: '/admin/tags', component: AdminTagsPage}
+  { path: '/profile', component: UserProfilePage },
+  { path: '/admin/article', component: AdminArticlePage },
+  { path: '/admin/dashboard', component: AdminDashboardPage },
+  { path: '/admin/products', component: AdminProductsPage },
+  { path: '/admin/tags', component: AdminTagsPage }
 ]
 
 const router = new VueRouter({
