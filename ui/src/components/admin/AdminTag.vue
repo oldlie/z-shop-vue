@@ -104,7 +104,6 @@ export default {
             .callback(data => {
               if (data.status === 0) {
                 self.$message.success("已保存");
-                self.bus.$emit("savedEvent");
               }
             })
             .request();

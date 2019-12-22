@@ -1,6 +1,6 @@
 package com.oldlie.zshop.zshopvue.exception;
 
-import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP;
 import lombok.Getter;
 
 public class AppRestException extends Exception {
@@ -9,7 +9,7 @@ public class AppRestException extends Exception {
     private int code;
 
     public String getLocalizedMessage() {
-        return ResponseCode.localizationMessage(code);
+        return HTTP.localizationMessage(code);
     }
 
     public AppRestException(String message) {

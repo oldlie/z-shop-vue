@@ -1,12 +1,12 @@
 package com.oldlie.zshop.zshopvue.service;
 
-import com.oldlie.zshop.zshopvue.component.CopyObject;
-import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.CommodityFormula;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityFormulaRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.utils.ObjectCopy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,17 +34,18 @@ public class CommodityFormulaService {
             if (optional.isPresent()) {
                 target = optional.get();
             } else {
-                response.setStatus(ResponseCode.FAILED);
+                response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("Commodity formula does not exist");
                 return response;
             }
         } else {
             target = new CommodityFormula();
         }
-        CopyObject<CommodityFormula> copyObject = new CopyObject<>();
-        target = copyObject.copyValue2Entity(formula, target);
+
+        ObjectCopy<CommodityFormula> copy = new ObjectCopy<>();
+        target = copy.copyValue2Entity(formula, target);
         if (target == null) {
-            response.setStatus(ResponseCode.FAILED);
+            response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("Copy value to target error.");
             return response;
         }

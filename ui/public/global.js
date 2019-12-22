@@ -243,6 +243,13 @@
         return http;
     }
 
+    G.prototype._status = {
+        success: 'success',
+        waring: 'waring',
+        error: 'error',
+        validating: 'validating'
+    };
+
     win.G = new G();
 
 })(window);

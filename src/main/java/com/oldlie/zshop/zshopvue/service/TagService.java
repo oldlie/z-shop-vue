@@ -159,9 +159,10 @@ public class TagService {
         Page<Tag> tagPage = this.tagRepository.findAll(
                 (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("parentId"), parentId),
                 ZsTool.pageable(page, size, orderBy, order)
-                );
+        );
         response.setTotal(tagPage.getTotalElements());
         response.setList(tagPage.getContent());
         return response;
     }
+
 }

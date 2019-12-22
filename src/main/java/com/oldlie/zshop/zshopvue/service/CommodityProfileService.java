@@ -1,11 +1,11 @@
 package com.oldlie.zshop.zshopvue.service;
 
-import com.oldlie.zshop.zshopvue.component.CopyObject;
-import com.oldlie.zshop.zshopvue.model.constant.ResponseCode;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.CommodityProfile;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityProfileRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.utils.ObjectCopy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,18 +34,19 @@ public class CommodityProfileService {
             if (optional.isPresent()) {
                 target = optional.get();
             } else {
-                response.setStatus(ResponseCode.FAILED);
+                response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("Commodity does not exist.");
                 return response;
             }
         } else {
             target = new CommodityProfile();
         }
-        CopyObject<CommodityProfile> copyObject = new CopyObject<>();
-        target = copyObject.copyValue2Entity(profile, target);
+
+        ObjectCopy<CommodityProfile> copy = new ObjectCopy<>();
+        target = copy.copyValue2Entity(profile, target);
 
         if (target == null) {
-            response.setStatus(ResponseCode.FAILED);
+            response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("CopyValue Failed.");
             return response;
         }
@@ -64,7 +65,7 @@ public class CommodityProfileService {
         if (optional.isPresent()) {
             response.setItem(optional.get());
         } else {
-            response.setStatus(ResponseCode.FAILED);
+            response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("Commodity profile does not exist.");
         }
         return response;
