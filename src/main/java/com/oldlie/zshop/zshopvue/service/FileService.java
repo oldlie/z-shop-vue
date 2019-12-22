@@ -49,7 +49,7 @@ public class FileService {
         path.append(pathPrefix).append(File.separator)
                 .append(username).append(File.separator)
                 .append(calendar.get(Calendar.YEAR)).append(File.separator) // 上传年
-                .append(calendar.get(Calendar.MONTH)).append(File.separator) // 上传月
+                .append(calendar.get(Calendar.MONTH) + 1).append(File.separator) // 上传月
                 .append(fileName);
 
         return path.toString();
@@ -62,7 +62,7 @@ public class FileService {
         path.append(pathPrefix).append("/")
                 .append(username).append("/")
                 .append(calendar.get(Calendar.YEAR)).append("/") // 上传年
-                .append(calendar.get(Calendar.MONTH)).append("/") // 上传月
+                .append(calendar.get(Calendar.MONTH) + 1).append("/") // 上传月
                 .append(fileName);
 
         return path.toString();

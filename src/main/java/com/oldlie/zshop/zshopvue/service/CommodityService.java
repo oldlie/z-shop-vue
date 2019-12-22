@@ -177,10 +177,11 @@ public class CommodityService {
         return response;
     }
 
-    public PageResponse<Commodity> commodities(final Long tagId, int page, int size, String orderBy, String direct) {
+    public PageResponse<Commodity> commodities(final String field, Object value, int page, int size, String orderBy, String direct) {
         PageResponse<Commodity> response = new PageResponse<>();
         List<CommodityTag> commodityTags = this.commodityTagRepository.findAll(
-                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("tagId"), tagId));
+                (root, criteriaQuery, criteriaBuilder) ->
+                        criteriaBuilder.like(root.get(field), "%"+ value + "%"));
         if (commodityTags == null || commodityTags.size() <= 0) {
             return response;
         }
@@ -191,19 +192,6 @@ public class CommodityService {
                     commodityTags.forEach(ct -> in.value(ct.getCommodityId()));
                     return in;
                 },
-                ZsTool.pageable(page, size, orderBy, direct)
-        );
-        response.setTotal(commodities.getTotalElements());
-        response.setList(commodities.getContent());
-        return response;
-    }
-
-    public PageResponse<Commodity> commodities(final String title, int page, int size, String orderBy, String direct) {
-        PageResponse<Commodity> response = new PageResponse<>();
-
-        Page<Commodity> commodities = this.commodityRepository.findAll(
-                (root, criteriaQuery, criteriaBuilder) ->
-                        criteriaBuilder.like(root.get("title"), "%" + title + "%"),
                 ZsTool.pageable(page, size, orderBy, direct)
         );
         response.setTotal(commodities.getTotalElements());
