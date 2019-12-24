@@ -5,13 +5,18 @@
         <admin-menu :activeIndex="'sub2'" :openKey="'sub2'"></admin-menu>
       </a-col>
       <a-col :span="18">
-        <a-row class="inner-row">
-          <a-col :span="24" v-if="tagViewModel === 0">
-            <a-button @click="onAddTag(1)" shape="circle" icon="plus" style="margin:5px;"></a-button>
-            <a-tag v-for="tag in tags" :key="tag.id" closable @close="onTagClose">{{tag.title}}</a-tag>
+        <a-row class="inner-row" v-if="viewModel === 'table'">
+          <a-col :span="24">
+            <a-button @click="addCommodity('form')" icon="plus" type="link">添加商品</a-button>
+            <a-divider type="vertical"></a-divider>
+            <a-button @click="onAddTag(0)" icon="filter" type="link">标签筛选</a-button>
+            <a-divider type="vertical"></a-divider>
+            <a-button @click="onAddTag(0)" icon="table" type="link">字段筛选</a-button>
           </a-col>
-          <a-col :span="24" v-if="tagViewModel === 1">
-            <a-button @click="onAddTag(0)" shape="circle" icon="rollback" style="margin:5px;"></a-button>
+        </a-row>
+        <a-row class="inner-row" v-if="viewModel === 'form'">
+          <a-col :span="24">
+            <a-button @click="changeViewMoel('table')" icon="rollback" type="link">添加商品</a-button>
           </a-col>
         </a-row>
 
@@ -160,6 +165,15 @@ export default {
     onTagClose() {},
     onAddTag(viewModel) {
       this.tagViewModel = viewModel;
+    },
+    changeViewMoel(viewModel) {
+      this.viewModel = viewModel;
+    },
+    addCommodity() {
+      this.viewModel = "form";
+      this.commodity = {
+        id: 0
+      };
     },
     editCommodity(commodity) {
       this.commodity = commodity;

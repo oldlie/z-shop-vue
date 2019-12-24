@@ -9,7 +9,12 @@
         :help="name.help"
         has-feedback
       >
-        <a-input id="name" placeholder="请输入商品名称" @pressEnter="saveTitle" v-model="name.value" />
+        <a-input
+          id="name"
+          placeholder="请输入商品名称，回车保存或创建"
+          @pressEnter="saveTitle"
+          v-model="name.value"
+        />
       </a-form-item>
 
       <template v-if="commodity.id > 0">
@@ -48,6 +53,27 @@
             </div>
           </a-upload>
         </a-form-item>
+
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="规格">
+          <a-row class="innter-row" :gutter="8">
+            <a-col :span="16">
+              <a-table :columns="columns"></a-table>
+            </a-col>
+            <a-col :span="8">
+              <a-form>
+                <a-form-item>
+                  <a-input placeholder="输入规格名称"></a-input>
+                </a-form-item>
+                <a-form-item>
+                  <a-input placeholder="输入规格"></a-input>
+                </a-form-item>
+                <a-form-item>
+                  <a-button>添加规格</a-button>
+                </a-form-item>
+              </a-form>
+            </a-col>
+          </a-row>
+        </a-form-item>
       </template>
     </a-form>
   </a-spin>
@@ -58,6 +84,12 @@ const _step_ = {
   SPECIFICATION: 1,
   FORMULAS: 2
 };
+
+const specColumns = [
+  { title: "规格名", key: "title" },
+  { title: "内容", key: "content" },
+  { title: "Action", scopedSlots: { customRender: "action" } }
+];
 
 function getBase64(img, callback) {
   const reader = new FileReader();
@@ -75,11 +107,14 @@ export default {
       loading: false,
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 5 }
+        sm: { span: 3 }
       },
       wrapperCol: {
         xs: { span: 24 },
         sm: { span: 12 }
+      },
+      wideWrapperCol: {
+        sm: { span: 21 }
       },
       headers: { Authorization: auth },
       // commodity: {
@@ -97,7 +132,10 @@ export default {
       summary: { status: "", help: "", value: "" },
       thumbnail: { status: "", help: "", value: "" },
       thumbnailLoading: false,
-      uploadUrl: `${this.apiUrl}/backend/file/upload`
+      uploadUrl: `${this.apiUrl}/backend/file/upload`,
+      // endregion
+      // region specification
+      columns: specColumns
       // endregion
     };
   },
