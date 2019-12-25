@@ -54,10 +54,27 @@
           </a-upload>
         </a-form-item>
 
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="轮播图">
+          <a-upload
+            listType="picture-card"
+            class="avatar-uploader"
+            :fileList="imageFileList"
+            :action="uploadUrl"
+            :headers="headers"
+            @preview="handleImagesPreview"
+            @change="handleImagesChange"
+          >
+            <div v-if="imageFileList.length < 3">
+              <a-icon type="plus" />
+              <div class="ant-upload-text">Upload</div>
+            </div>
+          </a-upload>
+        </a-form-item>
+
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="规格">
           <a-row class="innter-row" :gutter="8">
             <a-col :span="16">
-              <a-table :columns="columns" :dataSource="specification">
+              <a-table :columns="columns" :dataSource="specification" size="small">
                 <span slot="action" slot-scope="record">
                   <a-button type="danger" @click="removeSpec(record)">
                     <a-icon type="delete"></a-icon>
@@ -155,7 +172,10 @@ export default {
       addSpecLoading: false,
       specification: [],
       specName: { status: "", help: "", value: "" },
-      specContent: { status: "", help: "", value: "" }
+      specContent: { status: "", help: "", value: "" },
+      imageFileList: [],
+      previewImage: "",
+      previewVisible: ""
       // endregion
     };
   },
@@ -350,15 +370,26 @@ export default {
       fd.append("commodityId", this.commodity.id);
       fd.append("specification", JSON.stringify(this.specification));
       G.post(url, fd)
-      .cb(data => {
-        if (data.status === 0) {
-          this.$message.success('已删除');
-        } else {
-          this.specification = origin;
-        }
-      })
-      .fcb()
-      .req();
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("已删除");
+          } else {
+            this.specification = origin;
+          }
+        })
+        .fcb()
+        .req();
+    },
+    handleImagesPreview(file) {
+      this.previewImage = file.url || file.thumbUrl;
+      this.previewVisible = true;
+    },
+    handleImagesChange({ fileList }) {
+      this.imageFileList = fileList;
+      console.log('this.imageFileList', this.imageFileList);
+    },
+    handlePreviewCancel() {
+      this.previewVisible = false;
     }
     // endregion
   }
