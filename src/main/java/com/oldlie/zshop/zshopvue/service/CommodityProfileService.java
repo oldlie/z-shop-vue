@@ -57,6 +57,45 @@ public class CommodityProfileService {
         return response;
     }
 
+    public BaseResponse updateSpecification(final long commodityId, final String specification) {
+        BaseResponse response = new BaseResponse();
+        CommodityProfile target = this.initCommodityProfile(commodityId);
+        target.setSpecification(specification);
+        this.commodityProfileRepository.save(target);
+        return response;
+    }
+
+    public BaseResponse updateImages(final long commodityId, final String images) {
+        BaseResponse response = new BaseResponse();
+        CommodityProfile target = this.initCommodityProfile(commodityId);
+        target.setImages(images);
+        this.commodityProfileRepository.save(target);
+        return response;
+    }
+
+    public BaseResponse updateDetails(final long commodityId, final String detail) {
+        BaseResponse response = new BaseResponse();
+        CommodityProfile target = this.initCommodityProfile(commodityId);
+        target.setDetail(detail);
+        this.commodityProfileRepository.save(target);
+        return response;
+    }
+
+    private CommodityProfile initCommodityProfile(final long commodityId) {
+        CommodityProfile target;
+        Optional<CommodityProfile> optional = this.commodityProfileRepository
+                .findOne(
+                        (root, query, cb) -> cb.equal(root.get("commodityId"), commodityId)
+                );
+        if (!optional.isPresent()) {
+            target = new CommodityProfile();
+            target.setCommodityId(commodityId);
+        } else {
+            target = optional.get();
+        }
+        return target;
+    }
+
     public SimpleResponse<CommodityProfile> commodityProfile(final Long commodityId) {
         SimpleResponse<CommodityProfile> response = new SimpleResponse<>();
         Optional<CommodityProfile> optional = this.commodityProfileRepository.findOne(

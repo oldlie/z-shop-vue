@@ -25,14 +25,12 @@ Vue.component('admin-menu', AdminMenu);
 import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
 import AdminProductComponent from './components/admin/AdminProduct'
-import AdminProductBasic from './components/admin/AdminProductBasic';
 import AdminProductSpec from './components/admin/AdminProductSpec'
 import AdminProductFormula from './components/admin/AdminProductFormula'
 
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
 Vue.component('admin-product', AdminProductComponent);
-Vue.component('admin-product-basic', AdminProductBasic);
 Vue.component('admin-product-spec', AdminProductSpec);
 Vue.component('admin-product-formula', AdminProductFormula);
 
@@ -52,6 +50,7 @@ import ProductsPage from './pages/ProductsPage'
 import OrderPage from './pages/OrderPage'
 import UserProfilePage from './pages/UserProfilePage'
 
+import AdminArticlePage from './pages/admin/AdminArticlePage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
 import AdminTagsPage from './pages/admin/AdminTagsPage'
@@ -70,10 +69,11 @@ const routes = [
   { path: '/products', component: ProductsPage },
   { path: '/order/comment', component: CommentOrderPage },
   { path: '/order', component: OrderPage },
-  { path: '/profile', component: UserProfilePage},
-  { path: '/admin/dashboard', component: AdminDashboardPage},
-  { path: '/admin/products', component: AdminProductsPage},
-  { path: '/admin/tags', component: AdminTagsPage}
+  { path: '/profile', component: UserProfilePage },
+  { path: '/admin/article', component: AdminArticlePage },
+  { path: '/admin/dashboard', component: AdminDashboardPage },
+  { path: '/admin/products', component: AdminProductsPage },
+  { path: '/admin/tags', component: AdminTagsPage }
 ]
 
 const router = new VueRouter({
@@ -86,6 +86,12 @@ Vue.use(VueRouter)
 import VueCookies from 'vue-cookie'
 
 Vue.use(VueCookies)
+
+// 引入axios，并加到原型链中
+// import axios from 'axios';
+// Vue.prototype.$axios = axios;
+// import QS from 'qs'
+// Vue.prototype.qs = QS;
 
 Vue.prototype.apiUrl = 'http://localhost:8088';
 Vue.prototype.bus = new Vue();

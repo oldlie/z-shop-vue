@@ -20,9 +20,27 @@ public class AdminCommodityProfileController {
         this.commodityProfileService = commodityProfileService;
     }
 
-    @PostMapping(value = "/profile", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @PostMapping(value = "/profile", consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
     public SimpleResponse<Long> store(@RequestBody CommodityProfile profile) {
         return this.commodityProfileService.store(profile);
+    }
+
+    @PostMapping(value = "/profile/specification", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public BaseResponse saveSpecification(@RequestParam("commodityId") long commodityId,
+                                          @RequestParam("specification") String specification) {
+        return this.commodityProfileService.updateSpecification(commodityId, specification);
+    }
+
+    @PostMapping(value = "/profile/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public BaseResponse saveImages(@RequestParam("commodityId") long commodityId,
+                                   @RequestParam("images") String images) {
+        return this.commodityProfileService.updateImages(commodityId, images);
+    }
+
+    @PostMapping(value = "/profile/detail", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public BaseResponse saveDetail(@RequestParam("commodityId") long commodityId,
+                                   @RequestParam("detail") String detail) {
+        return this.commodityProfileService.updateDetails(commodityId, detail);
     }
 
     @GetMapping(value = "/profile/{commodityId}")
