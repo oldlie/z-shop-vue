@@ -1,10 +1,10 @@
 <template>
   <div class="main-panel">
     <a-row>
-      <a-col :span="6">
+      <a-col :span="4">
         <admin-menu :activeIndex="'sub2'" :openKey="'sub2'"></admin-menu>
       </a-col>
-      <a-col :span="18">
+      <a-col :span="20">
         <a-row class="inner-row" v-if="viewModel === 'table'">
           <a-col :span="24">
             <a-button @click="addCommodity('form')" icon="plus" type="link">添加商品</a-button>

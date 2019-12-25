@@ -122,7 +122,7 @@ public class CommodityService {
     public SimpleResponse<Long> storeCommodity(final Commodity commodity) {
         SimpleResponse<Long> response = new SimpleResponse<>();
         Commodity target;
-        if (commodity.getId() > 0) {
+        if (commodity.getId() != null && commodity.getId() > 0) {
             target = this.commodityRepository.findById(commodity.getId()).orElse(null);
             if (target == null) {
                 response.setStatus(HTTP_CODE.FAILED);

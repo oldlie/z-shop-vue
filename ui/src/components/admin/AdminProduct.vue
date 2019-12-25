@@ -57,18 +57,28 @@
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="规格">
           <a-row class="innter-row" :gutter="8">
             <a-col :span="16">
-              <a-table :columns="columns"></a-table>
+              <a-table :columns="columns" :dataSource="specification">
+                <span slot="action" slot-scope="record">
+                  <a-button type="danger" @click="removeSpec(record)">
+                    <a-icon type="delete"></a-icon>
+                  </a-button>
+                </span>
+              </a-table>
             </a-col>
             <a-col :span="8">
               <a-form>
-                <a-form-item>
-                  <a-input placeholder="输入规格名称"></a-input>
+                <a-form-item :validate-status="specName.status" :help="specName.help" has-feedback>
+                  <a-input placeholder="输入规格名称" v-model="specName.value"></a-input>
+                </a-form-item>
+                <a-form-item
+                  :validate-status="specContent.status"
+                  :help="specContent.help"
+                  has-feedback
+                >
+                  <a-input placeholder="输入规格" v-model="specContent.value"></a-input>
                 </a-form-item>
                 <a-form-item>
-                  <a-input placeholder="输入规格"></a-input>
-                </a-form-item>
-                <a-form-item>
-                  <a-button>添加规格</a-button>
+                  <a-button @click="addSpec" :loading="addSpecLoading">添加规格</a-button>
                 </a-form-item>
               </a-form>
             </a-col>
@@ -86,9 +96,9 @@ const _step_ = {
 };
 
 const specColumns = [
-  { title: "规格名", key: "title" },
-  { title: "内容", key: "content" },
-  { title: "Action", scopedSlots: { customRender: "action" } }
+  { title: "规格名", key: "title", dataIndex: "title" },
+  { title: "内容", key: "content", dataIndex: "content" },
+  { title: "Action", scopedSlots: { customRender: "action" }, width: "60px" }
 ];
 
 function getBase64(img, callback) {
@@ -134,8 +144,18 @@ export default {
       thumbnailLoading: false,
       uploadUrl: `${this.apiUrl}/backend/file/upload`,
       // endregion
+      commodityProfile: {
+        commodityId: 0,
+        specification: "",
+        images: "",
+        detail: ""
+      },
       // region specification
-      columns: specColumns
+      columns: specColumns,
+      addSpecLoading: false,
+      specification: [],
+      specName: { status: "", help: "", value: "" },
+      specContent: { status: "", help: "", value: "" }
       // endregion
     };
   },
@@ -145,6 +165,10 @@ export default {
     this.innerId = this.commodity.id;
     this.name.value = this.commodity.title;
     this.summary.value = this.commodity.introduction;
+    if (this.innerId > 0) {
+      this.thumbnail.value = this.commodity.thumbnail;
+      this.loadCommodityProfile(this.innerId);
+    }
   },
   methods: {
     gotoSpec(id) {
@@ -254,7 +278,89 @@ export default {
         })
         .fcb()
         .req();
+    },
+    // region specification
+    addSpec() {
+      let title = this.specName.value;
+      let content = this.specContent.value;
+      if (!title || title.trim() === "") {
+        this.specName.status = G._status.error;
+        this.specName.help = "请输入规格名称";
+        return;
+      }
+      if (!content || content.trim() === "") {
+        this.specContent.status = G._status.error;
+        this.specContent.help = "请输入规格";
+        return;
+      }
+      this.specName.status = G._status.validating;
+      this.specName.help = "";
+      this.specContent.status = G._status.validating;
+      this.specContent.help = "";
+      this.specification.push({
+        title: this.specName.value,
+        content: this.specContent.value
+      });
+
+      const url = `${this.apiUrl}/backend/product/profile/specification`;
+      let fd = new FormData();
+      console.log("id ===>", this.commodity.id);
+      fd.append("commodityId", this.commodity.id);
+      fd.append("specification", JSON.stringify(this.specification));
+      this.addSpecLoading = true;
+      G.post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.specName.status = G._status.success;
+            this.specContent.status = G._status.success;
+          } else {
+            this.specName.status = G._status.error;
+            this.specContent.status = G._status.error;
+          }
+        })
+        .fcb(() => {
+          this.addSpecLoading = false;
+        })
+        .req();
+    },
+    loadCommodityProfile(id) {
+      const url = `${this.apiUrl}/backend/product/profile/${id}`;
+      G.get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            let commodity = data.item;
+            let specification = commodity["specification"];
+            this.specification = !!specification
+              ? JSON.parse(specification)
+              : [];
+          }
+        })
+        .fcb()
+        .req();
+    },
+    removeSpec(item) {
+      console.log("remove ===>", item);
+      let origin = JSON.parse(JSON.stringify(this.specification));
+      this.specification = this.specification.filter(
+        _item => _item.title != item.title
+      );
+      const url = `${this.apiUrl}/backend/product/profile/specification`;
+      let fd = new FormData();
+      console.log("id ===>", this.commodity.id);
+      fd.append("commodityId", this.commodity.id);
+      fd.append("specification", JSON.stringify(this.specification));
+      G.post(url, fd)
+      .cb(data => {
+        if (data.status === 0) {
+          this.$message.success('已删除');
+        } else {
+          this.specification = origin;
+        }
+      })
+      .fcb()
+      .req();
     }
+    // endregion
   }
 };
 </script>

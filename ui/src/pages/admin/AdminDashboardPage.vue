@@ -1,10 +1,10 @@
 <template>
   <div class="main-panel">
     <a-row>
-      <a-col :span="6">
+      <a-col :span="4">
         <admin-menu :activeIndex="'1'" :openKey="'sub1'"></admin-menu>
       </a-col>
-      <a-col :span="18"></a-col>
+      <a-col :span="20"></a-col>
     </a-row>
   </div>
 </template>

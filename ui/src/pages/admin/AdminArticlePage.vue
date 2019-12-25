@@ -2,11 +2,11 @@
     <a-spin :spinning="loading">
         <div class="main-panel">
             <a-row>
-                <a-col :sm="24" :md="8" :lg="6">
+                <a-col :span="4">
                     <admin-menu :activeIndex="'sub3'" :openKey="'sub3'"></admin-menu>
                 </a-col>
 
-                <a-col :sm="24" :md="16" :lg="18">
+                <a-col :span="20">
                     <a-row class="inner-row">
                         <a-button
                             @click="onAddTag()"

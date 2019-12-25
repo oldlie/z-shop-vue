@@ -1,7 +1,7 @@
 <template>
     <a-menu
         @click="handleClick"
-        style="width: 256px;min-height:280px;"
+        style="width: 160px;min-height:280px;"
         :defaultSelectedKeys="[activeIndex]"
         :openKeys.sync="openKeys"
         mode="inline"
