@@ -116,7 +116,14 @@
             });
 
         } else if ('post' === method) {
-            rx = axios.post(url, params, { headers: { 'Authorization': auth } });
+            rx = params instanceof FormData ? axios.post(url, params, {
+                headers: { 
+                    'Authorization': auth,
+                    'Content-Type': 'multipart/form-data',
+                    'X-Request-With': 'XMLHttpRequest'
+                }
+            }) :
+             axios.post(url, params, { headers: { 'Authorization': auth } });
         } else if ('delete' === method) {
             rx = axios.delete(url, {
                 data: params,

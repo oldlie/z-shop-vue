@@ -76,7 +76,7 @@
               <img
                 width="128px"
                 height="128px"
-                src="http://localhost/resoucres/images/wd.jpg"
+                src="http://localhost/resources/images/wd.jpg"
                 alt="知人甄选"
               />
             </p>
@@ -139,7 +139,7 @@ export default {
   margin: 16px 24px 16px 0;
   float: left;
   background-repeat: no-repeat;
-  background-image: url(http://localhost/resoucres/images/logo.png);
+  background-image: url(http://localhost/resources/images/logo.png);
   background-size: 100% 100%;
   -moz-background-size: 100% 100%;
   margin-left: 5px;
