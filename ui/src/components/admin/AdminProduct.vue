@@ -64,7 +64,7 @@
             @preview="handleImagesPreview"
             @change="handleImagesChange"
           >
-            <div v-if="imageFileList.length < 3">
+            <div v-if="imageFileList.length < 5">
               <a-icon type="plus" />
               <div class="ant-upload-text">Upload</div>
             </div>
@@ -188,6 +188,37 @@ export default {
     if (this.innerId > 0) {
       this.thumbnail.value = this.commodity.thumbnail;
       this.loadCommodityProfile(this.innerId);
+    }
+  },
+  watch: {
+    imageFileList (nv, ov) {
+      
+      if (nv instanceof Array) {
+        let images = '';
+        if (nv.length > 0) {
+          let arr = [];
+          for (let index in nv) {
+            console.log('nv', nv[index], nv[index]['name']);
+            let item = nv[index];
+            console.log('item', item, item['response']);
+            let _temp = item['response']['data'][0];
+            arr.push(_temp);
+          }
+          images = arr.join(';');
+        } 
+        const url = `${this.apiUrl}/backend/product/profile/images`;
+        const fd = new FormData();
+        fd.append('commodityId', this.innerId); 
+        fd.append('images', images);
+        G.post(url, fd)
+        .cb(data => {
+          if (data.status !== 0) {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb()
+        .req();
+      }
     }
   },
   methods: {
@@ -384,9 +415,8 @@ export default {
       this.previewImage = file.url || file.thumbUrl;
       this.previewVisible = true;
     },
-    handleImagesChange({ fileList }) {
+    handleImagesChange({ file, fileList, event }) {
       this.imageFileList = fileList;
-      console.log('this.imageFileList', this.imageFileList);
     },
     handlePreviewCancel() {
       this.previewVisible = false;
