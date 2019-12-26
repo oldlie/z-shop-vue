@@ -66,7 +66,7 @@
           >
             <div v-if="imageFileList.length < 5">
               <a-icon type="plus" />
-              <div class="ant-upload-text">Upload</div>
+              <div class="ant-upload-text">点击上传</div>
             </div>
           </a-upload>
         </a-form-item>
@@ -174,6 +174,7 @@ export default {
       specName: { status: "", help: "", value: "" },
       specContent: { status: "", help: "", value: "" },
       imageFileList: [],
+      images: [],
       previewImage: "",
       previewVisible: ""
       // endregion
@@ -191,35 +192,7 @@ export default {
     }
   },
   watch: {
-    imageFileList (nv, ov) {
-      
-      if (nv instanceof Array) {
-        let images = '';
-        if (nv.length > 0) {
-          let arr = [];
-          for (let index in nv) {
-            console.log('nv', nv[index], nv[index]['name']);
-            let item = nv[index];
-            console.log('item', item, item['response']);
-            let _temp = item['response']['data'][0];
-            arr.push(_temp);
-          }
-          images = arr.join(';');
-        } 
-        const url = `${this.apiUrl}/backend/product/profile/images`;
-        const fd = new FormData();
-        fd.append('commodityId', this.innerId); 
-        fd.append('images', images);
-        G.post(url, fd)
-        .cb(data => {
-          if (data.status !== 0) {
-            this.$message.error(data.message);
-          }
-        })
-        .fcb()
-        .req();
-      }
-    }
+    
   },
   methods: {
     gotoSpec(id) {
@@ -384,6 +357,21 @@ export default {
             this.specification = !!specification
               ? JSON.parse(specification)
               : [];
+            let images = commodity['images'];
+            this.images = !!images ? images.split(',') : [];
+            if (this.images.length > 0) {
+              for (let index in this.images) {
+                let image = this.images[index];
+                this.imageFileList.push({
+                  uid: index,
+                  name: index + '.jpg',
+                  response: {
+                    data: [ image ]
+                  },
+                  url: image
+                });
+              }
+            }
           }
         })
         .fcb()
@@ -417,6 +405,33 @@ export default {
     },
     handleImagesChange({ file, fileList, event }) {
       this.imageFileList = fileList;
+      if (file.status === 'done') {
+        console.log('file ===> ', file.uid)
+        this.images.push(file.response.data[0]);
+        console.log('images', this.images)
+        this.updateImages();
+      }
+      if (file.status === 'removed') {
+        console.log('file ===>', file.uid)
+        this.images = this.images.filter(x => x !== file.response.data[0]);
+        console.log('images', this.images);
+        this.updateImages();
+      }
+    },
+    updateImages () {
+      const url = `${this.apiUrl}/backend/product/profile/images`;
+      const fd = new FormData();
+      const images = this.images.length >  0 ? this.images.join(',') : '';
+      fd.append('commodityId', this.innerId);
+      fd.append('images', images);
+      G.post(url, fd)
+      .cb(data => {
+        if (data.status !== 0) {
+          this.$message.error(data.message);
+        }
+      })
+      .fcb()
+      .req();
     },
     handlePreviewCancel() {
       this.previewVisible = false;
