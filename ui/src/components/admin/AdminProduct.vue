@@ -46,7 +46,7 @@
             :beforeUpload="beforeThumbnailUpload"
             @change="handleThumbnailChange"
           >
-            <img v-if="thumbnail" :src="thumbnail.value" alt="上传首图" width="52px" height="52px" />
+            <img v-if="thumbnail" :src="thumbnail.value" alt="上传首图" width="86px" height="86px" />
             <div v-else>
               <a-icon :type="thumbnailLoading ? 'loading' : 'plus'" />
               <div class="ant-upload-text">上传缩略图</div>
@@ -74,7 +74,7 @@
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="规格">
           <a-row class="innter-row" :gutter="8">
             <a-col :span="16">
-              <a-table :columns="columns" :dataSource="specification" size="small">
+              <a-table :columns="columns" :dataSource="specification" size="small" :pagination="false">
                 <span slot="action" slot-scope="record">
                   <a-button type="danger" @click="removeSpec(record)">
                     <a-icon type="delete"></a-icon>
@@ -95,17 +95,64 @@
                   <a-input placeholder="输入规格" v-model="specContent.value"></a-input>
                 </a-form-item>
                 <a-form-item>
-                  <a-button @click="addSpec" :loading="addSpecLoading">添加规格</a-button>
+                  <a-button @click="addSpec" :loading="addSpecLoading" icon="plus">添加规格</a-button>
                 </a-form-item>
               </a-form>
             </a-col>
           </a-row>
+        </a-form-item>
+
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="详情">
+          <div ref="editor" style="text-align:left"></div>
+          <a-button @click="saveDetail" :loading="isDetalSaved">
+            <a-icon type="save"></a-icon>保存详情
+          </a-button>
+        </a-form-item>
+
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="套餐">
+          <a-row class="inner-row" :gutter="8">
+            <a-col :span="18">
+          <a-table
+          :columns="formulaColumns" 
+          :dataSource="formulaDataSet"
+          :pagination="false"
+          ></a-table>
+            </a-col>
+            <a-col :span="6">
+              <a-form>
+                <a-form-item :validate-status="formulaTitle.status" :help="formulaTitle.help" has-feedback>
+                  <a-input placeholder="输入规格名称" v-model="formulaTitle.value"></a-input>
+                </a-form-item>
+                <a-form-item :validate-status="formulaPrice.status" :help="formulaPrice.help" has-feedback>
+                  <a-input placeholder="输入价格" v-model="formulaPrice.value"></a-input>
+                </a-form-item>
+                <a-form-item :validate-status="formulaInventory.status" :help="formulaInventory.help" has-feedback>
+                  <a-input-number 
+                  :min="0"
+                  :max="9999"
+                  placeholder="输入库存" 
+                  v-model="formulaInventory.value"></a-input-number>
+                </a-form-item>
+                <a-form-item>
+                  <a-button icon="plus" :loading="forumlaLoading">添加套餐</a-button>
+                </a-form-item>
+              </a-form>
+            </a-col>
+          </a-row>
+        </a-form-item>
+
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="选择标签"></a-form-item>
+
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label=" ">
+          <a-button icon="upload">上架</a-button>
         </a-form-item>
       </template>
     </a-form>
   </a-spin>
 </template>
 <script>
+import E from "wangeditor";
+
 const _step_ = {
   BASIC_INFO: 0,
   SPECIFICATION: 1,
@@ -116,6 +163,13 @@ const specColumns = [
   { title: "规格名", key: "title", dataIndex: "title" },
   { title: "内容", key: "content", dataIndex: "content" },
   { title: "Action", scopedSlots: { customRender: "action" }, width: "60px" }
+];
+
+const formulaColumns = [
+  { title: '套餐名', key: 'title', dataIndex: 'title'},
+  { title: '价格', key: 'price', dataIndex: 'price'},
+  { title: '库存(件)', key: 'inventory', dataIndex: 'inventory'},
+  { title: 'Action', scopedSlots: { customRender: 'action'}, width: '60px'}
 ];
 
 function getBase64(img, callback) {
@@ -176,12 +230,36 @@ export default {
       imageFileList: [],
       images: [],
       previewImage: "",
-      previewVisible: ""
+      previewVisible: "",
+      // endregion
+      // region Editor
+      editor: {},
+      editorContent: "",
+      isDetalSaved: false,
+      // endregion
+      // region formula
+      formulaColumns: formulaColumns,
+      formulaDataSet: [],
+      formulaTitle: { status: '', help: '', value: ''},
+      formulaPrice: { status: '', help: '', value: ''},
+      formulaInventory: { status: '', help: '', value: ''},
+      forumlaLoading: false,
       // endregion
     };
   },
+  beforeCreate() {},
   created() {},
   mounted() {
+    const editor = new E(this.$refs.editor);
+    editor.customConfig.uploadImgServer = this.uploadUrl;
+    editor.customConfig.uploadImgHeaders = this.headers;
+    editor.customConfig.uploadImgMaxLength = 5;
+    editor.customConfig.onchange = html => {
+      this.editorContent = html;
+    };
+    editor.create();
+    this.editor = editor;
+
     console.log("input commodity=>", this.commodity);
     this.innerId = this.commodity.id;
     this.name.value = this.commodity.title;
@@ -191,9 +269,7 @@ export default {
       this.loadCommodityProfile(this.innerId);
     }
   },
-  watch: {
-    
-  },
+  watch: {},
   methods: {
     gotoSpec(id) {
       this.innerId = id;
@@ -357,21 +433,22 @@ export default {
             this.specification = !!specification
               ? JSON.parse(specification)
               : [];
-            let images = commodity['images'];
-            this.images = !!images ? images.split(',') : [];
+            let images = commodity["images"];
+            this.images = !!images ? images.split(",") : [];
             if (this.images.length > 0) {
               for (let index in this.images) {
                 let image = this.images[index];
                 this.imageFileList.push({
                   uid: index,
-                  name: index + '.jpg',
+                  name: index + ".jpg",
                   response: {
-                    data: [ image ]
+                    data: [image]
                   },
                   url: image
                 });
               }
             }
+            this.editor.txt.html(commodity['detail']);
           }
         })
         .fcb()
@@ -405,38 +482,62 @@ export default {
     },
     handleImagesChange({ file, fileList, event }) {
       this.imageFileList = fileList;
-      if (file.status === 'done') {
-        console.log('file ===> ', file.uid)
+      if (file.status === "done") {
+        console.log("file ===> ", file.uid);
         this.images.push(file.response.data[0]);
-        console.log('images', this.images)
+        console.log("images", this.images);
         this.updateImages();
       }
-      if (file.status === 'removed') {
-        console.log('file ===>', file.uid)
+      if (file.status === "removed") {
+        console.log("file ===>", file.uid);
         this.images = this.images.filter(x => x !== file.response.data[0]);
-        console.log('images', this.images);
+        console.log("images", this.images);
         this.updateImages();
       }
     },
-    updateImages () {
+    updateImages() {
       const url = `${this.apiUrl}/backend/product/profile/images`;
       const fd = new FormData();
-      const images = this.images.length >  0 ? this.images.join(',') : '';
-      fd.append('commodityId', this.innerId);
-      fd.append('images', images);
+      const images = this.images.length > 0 ? this.images.join(",") : "";
+      fd.append("commodityId", this.innerId);
+      fd.append("images", images);
       G.post(url, fd)
-      .cb(data => {
-        if (data.status !== 0) {
-          this.$message.error(data.message);
-        }
-      })
-      .fcb()
-      .req();
+        .cb(data => {
+          if (data.status !== 0) {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb()
+        .req();
     },
     handlePreviewCancel() {
       this.previewVisible = false;
-    }
+    },
     // endregion
+    saveDetail() {
+      const url = `${this.apiUrl}/backend/product/profile/detail`;
+      const fd = new FormData();
+      fd.append("commodityId", this.innerId);
+      fd.append("detail", this.editorContent);
+      this.isDetalSaved = true;
+      G.post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("已保存");
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => {
+          this.isDetalSaved = false;
+        })
+        .req();
+    },
+    // region Formual
+    saveFormual () {
+      
+    },
+    // endregin
   }
 };
 </script>

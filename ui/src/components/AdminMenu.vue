@@ -9,7 +9,7 @@
         <a-sub-menu key="sub1" @titleClick="titleClick">
             <span slot="title">
                 <a-icon type="home" />
-                <span>Home Page Setting</span>
+                <span>首页设置</span>
             </span>
             <a-menu-item key="1">Carousel Setting</a-menu-item>
             <a-menu-item key="2">New Product</a-menu-item>
