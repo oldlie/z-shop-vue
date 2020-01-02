@@ -5,6 +5,7 @@ import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.CommodityFormulaService;
+import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,16 @@ public class AdminCommodityFormulaController {
         this.commodityFormulaService = commodityFormulaService;
     }
 
-    @PostMapping(value = "/formula", consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public SimpleResponse<Long> store(@RequestBody CommodityFormula formula) {
+    @PostMapping(value = "/formula", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE} )
+    public SimpleResponse<Long> store(@RequestParam("commodityId") long commodityId,
+                                      @RequestParam("title") String title,
+                                      @RequestParam("price") String price,
+                                      @RequestParam("inventory") int inventory) {
+        CommodityFormula formula = new CommodityFormula();
+        formula.setCommodityId(commodityId);
+        formula.setTitle(title);
+        formula.setPrice(Money.parse(price));
+        formula.setInventory(inventory);
         return this.commodityFormulaService.store(formula);
     }
 

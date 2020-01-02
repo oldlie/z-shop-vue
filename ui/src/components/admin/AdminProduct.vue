@@ -74,7 +74,12 @@
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="规格">
           <a-row class="innter-row" :gutter="8">
             <a-col :span="16">
-              <a-table :columns="columns" :dataSource="specification" size="small" :pagination="false">
+              <a-table
+                :columns="columns"
+                :dataSource="specification"
+                size="small"
+                :pagination="false"
+              >
                 <span slot="action" slot-scope="record">
                   <a-button type="danger" @click="removeSpec(record)">
                     <a-icon type="delete"></a-icon>
@@ -112,29 +117,47 @@
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="套餐">
           <a-row class="inner-row" :gutter="8">
             <a-col :span="18">
-          <a-table
-          :columns="formulaColumns" 
-          :dataSource="formulaDataSet"
-          :pagination="false"
-          ></a-table>
+              <a-table :columns="formulaColumns" :dataSource="formulaDataSet" :pagination="false">
+                <span slot="action" slot-scope="record">
+                  <a-button type="link" icon="delete" style="color:#f5222d" @click="deleteFormula(record)"></a-button>
+                </span>
+              </a-table>
             </a-col>
             <a-col :span="6">
               <a-form>
-                <a-form-item :validate-status="formulaTitle.status" :help="formulaTitle.help" has-feedback>
+                <a-form-item
+                  :validate-status="formulaTitle.status"
+                  :help="formulaTitle.help"
+                  has-feedback
+                >
                   <a-input placeholder="输入规格名称" v-model="formulaTitle.value"></a-input>
                 </a-form-item>
-                <a-form-item :validate-status="formulaPrice.status" :help="formulaPrice.help" has-feedback>
-                  <a-input placeholder="输入价格" v-model="formulaPrice.value"></a-input>
+                <a-form-item
+                  :validate-status="formulaPrice.status"
+                  :help="formulaPrice.help"
+                  has-feedback
+                >
+                  <a-input
+                    placeholder="输入价格,例如：1.00"
+                    v-model="formulaPrice.value"
+                    :min="0"
+                    :max="9999999"
+                  ></a-input>
                 </a-form-item>
-                <a-form-item :validate-status="formulaInventory.status" :help="formulaInventory.help" has-feedback>
-                  <a-input-number 
-                  :min="0"
-                  :max="9999"
-                  placeholder="输入库存" 
-                  v-model="formulaInventory.value"></a-input-number>
+                <a-form-item
+                  :validate-status="formulaInventory.status"
+                  :help="formulaInventory.help"
+                  has-feedback
+                >
+                  <a-input-number
+                    :min="0"
+                    :max="9999"
+                    placeholder="输入库存"
+                    v-model="formulaInventory.value"
+                  ></a-input-number>
                 </a-form-item>
                 <a-form-item>
-                  <a-button icon="plus" :loading="forumlaLoading">添加套餐</a-button>
+                  <a-button icon="plus" :loading="forumlaLoading" @click="saveFormula">添加套餐</a-button>
                 </a-form-item>
               </a-form>
             </a-col>
@@ -166,10 +189,10 @@ const specColumns = [
 ];
 
 const formulaColumns = [
-  { title: '套餐名', key: 'title', dataIndex: 'title'},
-  { title: '价格', key: 'price', dataIndex: 'price'},
-  { title: '库存(件)', key: 'inventory', dataIndex: 'inventory'},
-  { title: 'Action', scopedSlots: { customRender: 'action'}, width: '60px'}
+  { title: "套餐名", key: "title", dataIndex: "title" },
+  { title: "价格", key: "price", dataIndex: "price" },
+  { title: "库存(件)", key: "inventory", dataIndex: "inventory" },
+  { title: "Action", scopedSlots: { customRender: "action" }, width: "60px" }
 ];
 
 function getBase64(img, callback) {
@@ -240,10 +263,10 @@ export default {
       // region formula
       formulaColumns: formulaColumns,
       formulaDataSet: [],
-      formulaTitle: { status: '', help: '', value: ''},
-      formulaPrice: { status: '', help: '', value: ''},
-      formulaInventory: { status: '', help: '', value: ''},
-      forumlaLoading: false,
+      formulaTitle: { status: "", help: "", value: "" },
+      formulaPrice: { status: "", help: "", value: "" },
+      formulaInventory: { status: "", help: "", value: "" },
+      forumlaLoading: false
       // endregion
     };
   },
@@ -267,6 +290,7 @@ export default {
     if (this.innerId > 0) {
       this.thumbnail.value = this.commodity.thumbnail;
       this.loadCommodityProfile(this.innerId);
+      this.loadFormulaList();
     }
   },
   watch: {},
@@ -448,7 +472,7 @@ export default {
                 });
               }
             }
-            this.editor.txt.html(commodity['detail']);
+            this.editor.txt.html(commodity["detail"]);
           }
         })
         .fcb()
@@ -533,10 +557,121 @@ export default {
         })
         .req();
     },
-    // region Formual
-    saveFormual () {
-      
+    // region formula
+    saveFormula() {
+      const url = `${this.apiUrl}/backend/product/formula`;
+
+      let title = !!this.formulaTitle.value
+        ? this.formulaTitle.value.trim()
+        : null;
+      if (title === null || title === "") {
+        this.formulaTitle.help = "请填入套餐名称";
+        this.formulaTitle.status = "error";
+        return;
+      }
+
+      this.formulaTitle.help = "";
+      this.formulaTitle.status = "validating";
+
+      let price = !!this.formulaPrice.value ? this.formulaPrice.value : null;
+      let priceRegex = /^[1-9]?[\d]*\.[\d]{2}$/;
+      if (!priceRegex.test(price)) {
+        this.formulaPrice.status = "error";
+        this.formulaPrice.help = "请输入正确的价格";
+        return;
+      }
+
+      this.formulaPrice.help = "";
+      this.formulaPrice.status = "validating";
+
+      let inventory = !!this.formulaInventory.value
+        ? this.formulaInventory.value
+        : null;
+      if (!/\d+/.test(inventory)) {
+        this.formulaInventory.help = "请输入正确的库存";
+        this.formulaInventory.status = "error";
+        return;
+      }
+      try {
+        inventory = Number(inventory);
+      } catch (e) {
+        this.formulaInventory.help = "请输入正确的库存";
+        this.formulaInventory.status = "error";
+        return;
+      }
+
+      this.formulaInventory.help = "";
+      this.formulaInventory.status = "validating";
+
+      const fd = new FormData();
+      fd.append("commodityId", this.innerId);
+      fd.append("title", title);
+      fd.append("price", "CNY " + price);
+      fd.append("inventory", inventory);
+
+      G.post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.formulaTitle.status = "success";
+            this.formulaPrice.status = "success";
+            this.formulaInventory.status = "success";
+            let formula = {
+              id: data.item,
+              commodityId: this.innerId,
+              title: title,
+              price: price,
+              inventory: inventory
+            };
+            this.formulaDataSet.push(formula);
+          } else {
+            this.$message.error(data.message);
+            this.formulaTitle.status = "";
+            this.formulaPrice.status = "";
+            this.formulaInventory.status = "";
+          }
+        })
+        .fcb()
+        .req();
     },
+    deleteFormula (item) {
+      console.log('delete formula', item);
+      const url = `${this.apiUrl}/backend/product/formula/${item.id}`;
+      G.delete(url)
+      .cb(data => {
+        if (data.status === 0) {
+          let temp = this.formulaDataSet;
+          temp = temp.filter(x => x.id !== item.id);
+          this.formulaDataSet = temp;
+          this.$message.success('已删除')
+        } else {
+          this.$message.error(data.message);
+        }
+      })
+      .fcb()
+      .req();
+    },
+    loadFormulaList () {
+      const url = `${this.apiUrl}/backend/product/formula-list/${this.innerId}`;
+      G.get(url)
+      .cb(data => {
+        if (data.status === 0) {
+          let arr = [];
+          for (let i = 0; i < data.list.length; i++) {
+            let item = data.list[i];
+            arr.push({
+              id: item['id'],
+              commodityId: item['commodityId'],
+              title: item['title'],
+              price: item['price']['amount'],
+              inventory: item['inventory']
+            });
+          }
+          this.formulaDataSet = arr;
+        }
+      })
+      .fcb()
+      .req();
+    }
     // endregin
   }
 };

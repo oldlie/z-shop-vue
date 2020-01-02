@@ -26,4 +26,8 @@ public class CommodityFormula extends BaseEO implements Serializable {
          parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
     private Money price;
     private int inventory;
+
+    public String formatPrice() {
+        return price.getAmountMajor() + "." + price.getAmountMinor();
+    }
 }

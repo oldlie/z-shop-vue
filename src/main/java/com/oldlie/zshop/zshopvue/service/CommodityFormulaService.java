@@ -27,7 +27,7 @@ public class CommodityFormulaService {
     public SimpleResponse<Long> store(final CommodityFormula formula) {
         SimpleResponse<Long> response = new SimpleResponse<>();
         CommodityFormula target = null;
-        if (formula.getId() > 0) {
+        if (formula.getId() != null && formula.getId() > 0) {
             Optional<CommodityFormula> optional = this.commodityFormulaRepository.findOne(
                     (r, q, cb)->cb.equal(r.get("id"), formula.getId())
             );
