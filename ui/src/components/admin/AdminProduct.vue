@@ -164,7 +164,9 @@
           </a-row>
         </a-form-item>
 
-        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="选择标签"></a-form-item>
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="选择标签">
+
+        </a-form-item>
 
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label=" ">
           <a-button icon="upload">上架</a-button>
@@ -266,7 +268,11 @@ export default {
       formulaTitle: { status: "", help: "", value: "" },
       formulaPrice: { status: "", help: "", value: "" },
       formulaInventory: { status: "", help: "", value: "" },
-      forumlaLoading: false
+      forumlaLoading: false,
+      // endregion
+      // region tags
+      tags: [],
+      commodityTags: [],
       // endregion
     };
   },
@@ -671,8 +677,36 @@ export default {
       })
       .fcb()
       .req();
-    }
+    },
     // endregin
+    // region tags
+    loadTags (id) {
+      const url = `${this.apiUrl}/backend/tags/${id}`;
+      G.get(url)
+      .cb(data => {
+        if (data.status === 0) {
+          this.tags = data.list;
+        } else {
+          this.$message.error(data.message);
+        }
+      })
+      .fcb()
+      .req();
+    },
+    loadCommodityTags (commodityId) {
+      const url = `${this.apiUrl}/backend/product/tags/${commodityId}`;
+      G.get(url)
+      .cb(data => {
+        if (data.status === 0) {
+          this.commodityTags = data.list;
+        } else {
+          this.$message.error(data.message);
+        }
+      })
+      .fcb()
+      .req();
+    }
+    // endregion
   }
 };
 </script>

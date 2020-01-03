@@ -25,8 +25,6 @@ Vue.component('admin-menu', AdminMenu);
 import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
 import AdminProductComponent from './components/admin/AdminProduct'
-import AdminProductSpec from './components/admin/AdminProductSpec'
-import AdminProductFormula from './components/admin/AdminProductFormula'
 
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
