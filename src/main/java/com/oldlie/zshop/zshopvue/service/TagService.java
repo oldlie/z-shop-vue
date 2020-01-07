@@ -101,12 +101,12 @@ public class TagService {
                 response.setMessage("标签存在相关文章，还不能删除。");
                 return response;
             }
-            Long relatedCommodities = this.commodityTagRepository.countByTagId(id);
-            if (relatedCommodities > 0) {
-                response.setStatus(HTTP_CODE.FAILED);
-                response.setMessage("标签存在相关商品，还不能删除");
-                return response;
-            }
+//            Long relatedCommodities = this.commodityTagRepository.countByTagId(id);
+//            if (relatedCommodities > 0) {
+//                response.setStatus(HTTP_CODE.FAILED);
+//                response.setMessage("标签存在相关商品，还不能删除");
+//                return response;
+//            }
 
             if (tag.getParentId() != 0) {
 

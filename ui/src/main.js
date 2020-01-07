@@ -29,8 +29,6 @@ import AdminProductComponent from './components/admin/AdminProduct'
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
 Vue.component('admin-product', AdminProductComponent);
-Vue.component('admin-product-spec', AdminProductSpec);
-Vue.component('admin-product-formula', AdminProductFormula);
 
 Vue.config.productionTip = false
 

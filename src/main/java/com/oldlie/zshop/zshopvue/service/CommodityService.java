@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 商品相关操作服务
@@ -146,11 +148,15 @@ public class CommodityService {
     }
 
     @Transactional
-    public BaseResponse deleteCommodity(Long id) {
+    public BaseResponse deleteCommodity(final long id) {
         BaseResponse response = new BaseResponse();
 
         try {
-            this.commodityTagRepository.deleteAllByCommodityId(id);
+//            this.commodityTagRepository.deleteAllByCommodityId(id);
+            List<CommodityTag> list = this.commodityTagRepository.findAll(
+                    (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("commodityId"), id));
+            this.commodityTagRepository.deleteAll(list);
+
             this.commodityFormulaRepository.deleteAllByCommodityId(id);
             this.commodityRepository.deleteById(id);
         } catch (Exception e) {
@@ -204,10 +210,18 @@ public class CommodityService {
         CommodityTag commodityTag = request.getBody();
         CommodityTag target = null;
 
-        target = this.commodityTagRepository
-                .findFirstByCommodityIdAndTagId(
-                        commodityTag.getCommodityId(),
-                        commodityTag.getTagId());
+//        target = this.commodityTagRepository
+//                .findFirstByCommodityIdAndTagId(
+//                        commodityTag.getCommodityId(),
+//                        commodityTag.getTagId());
+        Optional<CommodityTag> optional = this.commodityTagRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    Predicate commodityId =
+                            criteriaBuilder.equal(root.get("commodityId"), commodityTag.getCommodityId());
+                    Predicate tagId = criteriaBuilder.equal(root.get("tagId"), commodityTag.getTagId());
+                    return criteriaBuilder.and(commodityId, tagId);
+                }
+        );
 
         if (target == null) {
             target = new CommodityTag();
@@ -231,9 +245,16 @@ public class CommodityService {
         return response;
     }
 
-    public BaseResponse deleteCommodityTag(Long commodityId, Long tagId) {
+    public BaseResponse deleteCommodityTag(final long commodityId, final long tagId) {
         BaseResponse response = new BaseResponse();
-        this.commodityTagRepository.deleteByCommodityIdAndTagId(commodityId, tagId);
+        // this.commodityTagRepository.deleteByCommodityIdAndTagId(commodityId, tagId);
+        this.commodityTagRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    Predicate predicate = criteriaBuilder.equal(root.get("commodityId"),commodityId);
+                    Predicate predicate1 = criteriaBuilder.equal(root.get("tagId"), tagId);
+                    return criteriaBuilder.and(predicate, predicate1);
+                }
+        ).ifPresent(x -> this.commodityTagRepository.delete(x));
         return response;
     }
     // endregion
