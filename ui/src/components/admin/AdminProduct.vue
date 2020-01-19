@@ -119,7 +119,12 @@
             <a-col :span="18">
               <a-table :columns="formulaColumns" :dataSource="formulaDataSet" :pagination="false">
                 <span slot="action" slot-scope="record">
-                  <a-button type="link" icon="delete" style="color:#f5222d" @click="deleteFormula(record)"></a-button>
+                  <a-button
+                    type="link"
+                    icon="delete"
+                    style="color:#f5222d"
+                    @click="deleteFormula(record)"
+                  ></a-button>
                 </span>
               </a-table>
             </a-col>
@@ -165,10 +170,25 @@
         </a-form-item>
 
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="选择标签">
-
+          <a-spin :spinning="tagLoading">
+            <a-row>
+              <a-col span="24">
+                <a-button v-if="tagPath.lenght > 0" @click="topTags">&lt;</a-button>
+                <a-button-group v-for="(tag, index) in tags" :key="index" style="margin:6px;">
+                  <a-button @click="addToCommodity(tag)">{{tag.title}}</a-button>
+                  <a-button v-if="tag.childCount > 0" @click="nextTags(tag)">&gt;</a-button>
+                </a-button-group>
+              </a-col>
+            </a-row>
+            <a-row>
+              <a-col span="24">
+                <a-tag v-for="(tag, index) in commodityTags" :key="index" closable @close="removeTag(tag)" style="margin:6px;">Tag 2</a-tag>
+              </a-col>
+            </a-row>
+          </a-spin>
         </a-form-item>
 
-        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label=" ">
+        <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol">
           <a-button icon="upload">上架</a-button>
         </a-form-item>
       </template>
@@ -271,8 +291,10 @@ export default {
       forumlaLoading: false,
       // endregion
       // region tags
+      tagLoading: false,
       tags: [],
       commodityTags: [],
+      tagPath: []
       // endregion
     };
   },
@@ -297,6 +319,8 @@ export default {
       this.thumbnail.value = this.commodity.thumbnail;
       this.loadCommodityProfile(this.innerId);
       this.loadFormulaList();
+      this.loadTags(0);
+      this.loadCommodityTags(this.innerId);
     }
   },
   watch: {},
@@ -639,71 +663,107 @@ export default {
         .fcb()
         .req();
     },
-    deleteFormula (item) {
-      console.log('delete formula', item);
+    deleteFormula(item) {
+      console.log("delete formula", item);
       const url = `${this.apiUrl}/backend/product/formula/${item.id}`;
       G.delete(url)
-      .cb(data => {
-        if (data.status === 0) {
-          let temp = this.formulaDataSet;
-          temp = temp.filter(x => x.id !== item.id);
-          this.formulaDataSet = temp;
-          this.$message.success('已删除')
-        } else {
-          this.$message.error(data.message);
-        }
-      })
-      .fcb()
-      .req();
+        .cb(data => {
+          if (data.status === 0) {
+            let temp = this.formulaDataSet;
+            temp = temp.filter(x => x.id !== item.id);
+            this.formulaDataSet = temp;
+            this.$message.success("已删除");
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb()
+        .req();
     },
-    loadFormulaList () {
+    loadFormulaList() {
       const url = `${this.apiUrl}/backend/product/formula-list/${this.innerId}`;
       G.get(url)
-      .cb(data => {
-        if (data.status === 0) {
-          let arr = [];
-          for (let i = 0; i < data.list.length; i++) {
-            let item = data.list[i];
-            arr.push({
-              id: item['id'],
-              commodityId: item['commodityId'],
-              title: item['title'],
-              price: item['price']['amount'],
-              inventory: item['inventory']
-            });
+        .cb(data => {
+          if (data.status === 0) {
+            let arr = [];
+            for (let i = 0; i < data.list.length; i++) {
+              let item = data.list[i];
+              arr.push({
+                id: item["id"],
+                commodityId: item["commodityId"],
+                title: item["title"],
+                price: item["price"]["amount"],
+                inventory: item["inventory"]
+              });
+            }
+            this.formulaDataSet = arr;
           }
-          this.formulaDataSet = arr;
-        }
-      })
-      .fcb()
-      .req();
+        })
+        .fcb()
+        .req();
     },
     // endregin
     // region tags
-    loadTags (id) {
+    loadTags(id) {
+      this.tagLoading = true;
       const url = `${this.apiUrl}/backend/tags/${id}`;
       G.get(url)
-      .cb(data => {
-        if (data.status === 0) {
-          this.tags = data.list;
-        } else {
-          this.$message.error(data.message);
-        }
-      })
-      .fcb()
-      .req();
+        .cb(data => {
+          if (data.status === 0) {
+            this.tags = data.list;
+            console.log("tags:", this.tags);
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => this.tagLoading = false)
+        .req();
     },
-    loadCommodityTags (commodityId) {
+    loadCommodityTags(commodityId) {
+      this.tagLoading = true;
       const url = `${this.apiUrl}/backend/product/tags/${commodityId}`;
       G.get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.commodityTags = data.list;
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => this.tagLoading = false)
+        .req();
+    },
+    nextTags(tag) {
+      const _tag = JSON.parse(JSON.stringify(tag));
+      this.tagPath.push(_tag);
+      this.loadTags(tag.id);
+    },
+    upTags() {
+      const tag = this.tagPath.pop();
+      this.loadTags(tag.parentId);
+    },
+    addToCommodity(tag) {
+      const url = `${this.apiUrl}/backend/product/tag`;
+      const fd = new FormData();
+      fd.append("tagId", tag.id);
+      fd.append("commodityId", this.innerId);
+      this.tagLoading = true;
+      G.post(url, fd)
+        .cb(data => {
+          if (data.status === 0)
+          this.commodityTags.push(JSON.parse(JSON.stringify(tag)));
+        })
+        .fcb(() => this.tagLoading = false)
+        .req();
+    },
+    removeTag (tag) {
+      const url = `${this.apiUrl}/backend/product/tag/${tag.id}`;
+      G.delete(url)
       .cb(data => {
-        if (data.status === 0) {
-          this.commodityTags = data.list;
-        } else {
-          this.$message.error(data.message);
-        }
+        if (data.status === 0)
+        this.commodityTags = this.commodityTags.filter( t => t.id !== tag.id);
       })
-      .fcb()
+      .fcb(() => this.tagLoading = false)
       .req();
     }
     // endregion

@@ -1,6 +1,7 @@
 package com.oldlie.zshop.zshopvue.controller.backend;
 
 import com.oldlie.zshop.zshopvue.model.db.CommodityTag;
+import com.oldlie.zshop.zshopvue.model.db.Tag;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
@@ -47,13 +48,11 @@ public class AdminCommodityTagController {
 
     @PostMapping(value = "/tag", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SimpleResponse<Long> store(@RequestParam(value = "commodityId") long commodityId,
-                                      @RequestParam(value = "tagId") long tagId,
-                                      @RequestParam(value = "title") String title) {
+                                      @RequestParam(value = "tagId") long tagId) {
         CommodityTag tag = new CommodityTag();
         tag.setCommodityId(commodityId);
         tag.setTagId(tagId);
-        tag.setTitle(title);
-        return this.commodityTagService.store(tag);
+        return this.commodityTagService.store(tagId, commodityId);
     }
 
     @DeleteMapping(value = "/tag/{id}")
@@ -68,7 +67,7 @@ public class AdminCommodityTagController {
     }
 
     @GetMapping(value = "/tags/{commodityId}")
-    public ListResponse<CommodityTag> list(@PathVariable(value = "commodityId") long commodityId) {
+    public ListResponse<Tag> list(@PathVariable(value = "commodityId") long commodityId) {
         return this.commodityTagService.list(commodityId);
     }
 }

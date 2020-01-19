@@ -1,17 +1,19 @@
 package com.oldlie.zshop.zshopvue.service;
 
-import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.CommodityTag;
+import com.oldlie.zshop.zshopvue.model.db.Tag;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityTagRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.TagRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
-import com.oldlie.zshop.zshopvue.utils.ObjectCopy;
 import com.oldlie.zshop.zshopvue.utils.ZsTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.Optional;
@@ -46,32 +48,37 @@ import java.util.Optional;
 public class CommodityTagService {
 
     private CommodityTagRepository commodityTagRepository;
+    private TagRepository tagRepository;
 
     @Autowired
     public void setCommodityTagRepository(CommodityTagRepository repository) {
         this.commodityTagRepository = repository;
     }
 
-    public SimpleResponse<Long> store(final CommodityTag source) {
+    @Autowired
+    public void setTagRepository(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
+    }
+
+    public SimpleResponse<Long> store(final long commodityId,
+                                      final long tagId) {
         SimpleResponse<Long> response = new SimpleResponse<>();
-        CommodityTag target;
-        if (source.getId() != null && source.getId() > 0) {
-            Optional<CommodityTag> optional = this.commodityTagRepository.findOne(
-                    (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), source.getId())
-            );
-            if (!optional.isPresent()) {
-                response.setStatus(HTTP_CODE.FAILED);
-                response.setMessage("要修改的记录不存在了。");
-                return response;
-            }
-            target = optional.get();
+        Optional<CommodityTag> optional = this.commodityTagRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    Predicate predicateCommodityId = criteriaBuilder.equal(root.get("commodityId"), commodityId);
+                    Predicate predicateTagId = criteriaBuilder.equal(root.get("tagId"), tagId);
+                    return criteriaBuilder.and(predicateCommodityId, predicateTagId);
+                }
+        );
+        if (optional.isPresent()) {
+            response.setItem(optional.get().getId());
         } else {
-            target = new CommodityTag();
+            CommodityTag commodityTag = new CommodityTag();
+            commodityTag.setCommodityId(commodityId);
+            commodityTag.setTagId(tagId);
+            commodityTag = this.commodityTagRepository.save(commodityTag);
+            response.setItem(commodityTag.getId());
         }
-        ObjectCopy<CommodityTag> copy = new ObjectCopy<>();
-        target = copy.copyValue2Entity(source, target);
-        target = this.commodityTagRepository.save(target);
-        response.setItem(target.getId());
         return response;
     }
 
@@ -87,20 +94,36 @@ public class CommodityTagService {
                 (root, criteriaQuery, criteriaBuilder) -> {
                     Predicate predicateCommodityId =
                             criteriaBuilder.equal(root.get("commodityId"), commodityId);
-                    Predicate predicateTagid = criteriaBuilder.equal(root.get("tagId"), tagId);
-                    return criteriaBuilder.and(predicateCommodityId, predicateTagid);
+                    Predicate predicateTagId = criteriaBuilder.equal(root.get("tagId"), tagId);
+                    return criteriaBuilder.and(predicateCommodityId, predicateTagId);
                 }
         ).ifPresent(x -> this.commodityTagRepository.delete(x));
         return response;
     }
 
-    public ListResponse<CommodityTag> list(final long commodityId) {
-        ListResponse<CommodityTag> response = new ListResponse<>();
+    @Transactional
+    public ListResponse<Tag> list(final long commodityId) {
+        ListResponse<Tag> response = new ListResponse<>();
         List<CommodityTag> list = this.commodityTagRepository.findAll(
                 (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("commodityId"), commodityId),
                 ZsTool.sort("id", "desc")
         );
-        response.setList(list);
+
+        if (list.size() <= 0) {
+            return response;
+        }
+
+        List<Tag> tags = this.tagRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    CriteriaBuilder.In<Long> in = criteriaBuilder.in(root.get("id"));
+                    for (CommodityTag commodityTag : list) {
+                        in.value(commodityTag.getTagId());
+                    }
+                    return in;
+                }
+        );
+        response.setList(tags);
+
         return response;
     }
 }
