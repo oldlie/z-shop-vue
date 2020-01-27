@@ -7,8 +7,8 @@
                 </a-col>
 
                 <a-col :span="20">
-                    <a-row class="inner-row">
-                        
+                    <a-row class="inner-row" v-if="view === 'form'">
+                       <admin-article></admin-article> 
                     </a-row>
                 </a-col>
             </a-row>
@@ -25,12 +25,12 @@ export default {
     data() {
         return {
             loading: false,
+            view: _view.form
             // region Tag
            // endregion
         };
     },
     mounted() {
-        this.loadTags(this.parentTag.id);
     },
     methods: {
     }

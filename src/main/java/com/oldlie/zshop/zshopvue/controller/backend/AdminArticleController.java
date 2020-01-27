@@ -38,11 +38,39 @@ public class AdminArticleController {
         return this.articleService.list(key, value, index, size, orderBy, order);
     }
 
+    @GetMapping(value = "/article/{id}")
+    public SimpleResponse<Article> article(@PathVariable("id") long id) {
+         return this.articleService.article(id);
+    }
+
     @PostMapping(value = "/article", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public SimpleResponse<Long> store(@RequestBody AppRequest<Article> appRequest,
                                       @SessionAttribute("uid") long uid,
                                       @SessionAttribute("username") String username) {
         return this.articleService.store(appRequest, uid, username);
+    }
+
+    @PostMapping(value = "/article", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public SimpleResponse<Long> store(@RequestParam("id") long id,
+                                      @RequestParam("title") String title,
+                                      @RequestParam("author") String author,
+                                      @RequestParam("summary") String summary,
+                                      @RequestParam("content") String content,
+                                      @RequestParam("thumbnail") String thumbnail,
+                                      @RequestParam("allowComment") int allowComment,
+                                      @SessionAttribute("uid") long uid,
+                                      @SessionAttribute("username") String username) {
+       Article article = new Article();
+       article.setId(id);
+       article.setTitle(title);
+       article.setAuthor(author);
+       article.setSummary(summary);
+       article.setContent(content);
+       article.setImageUrl(thumbnail);
+       article.setAllowComment(allowComment);
+       article.setPublisherId(uid);
+       article.setPublisher(username);
+       return this.articleService.store(article);
     }
 
     @DeleteMapping(value = "/article/{id}")

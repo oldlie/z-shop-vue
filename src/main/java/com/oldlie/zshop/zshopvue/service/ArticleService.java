@@ -1,6 +1,7 @@
 package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.AppRequest;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.Article;
 import com.oldlie.zshop.zshopvue.model.db.ArticleTag;
@@ -9,6 +10,7 @@ import com.oldlie.zshop.zshopvue.model.db.repository.ArticleTagRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.utils.ObjectCopy;
 import com.oldlie.zshop.zshopvue.utils.ZsTool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -73,6 +77,30 @@ public class ArticleService {
         return response;
     }
 
+
+    public SimpleResponse<Long> store(Article article) {
+       SimpleResponse<Long> response = new SimpleResponse<>();
+       Article target;
+       if (article.getId() > 0) {
+           Optional<Article> optional = this.articleRepository.findOne(
+                   (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), article.getId())
+           );
+           if (!optional.isPresent()) {
+               response.setStatus(HTTP_CODE.FAILED);
+               response.setMessage("您要编辑的文章已经不存在了。");
+               return response;
+           }
+           target = optional.get();
+       }  else {
+           target = new Article();
+       }
+       ObjectCopy<Article> copy = new ObjectCopy<>();
+       target = copy.copy(article, target);
+       target = this.articleRepository.save(target);
+       response.setItem(target.getId());
+       return response;
+    }
+
     public SimpleResponse<Long> storeArticleTag(Long articleId, Long tagId) {
         SimpleResponse<Long> response = new SimpleResponse<>();
         ArticleTag articleTag = this.articleTagRepository.findFirstByArticleIdAndTagId(articleId, tagId);
@@ -115,6 +143,21 @@ public class ArticleService {
         response.setList(page.getContent());
         response.setTotal(page.getTotalElements());
 
+        return response;
+    }
+
+    public SimpleResponse<Article> article(final long id) {
+        SimpleResponse<Article> response = new SimpleResponse<>();
+        Optional<Article> optional = this.articleRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id)
+        );
+        if (!optional.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("没有找到请求的文章");
+        } else {
+            Article article = optional.get();
+            response.setItem(article);
+        }
         return response;
     }
 }
