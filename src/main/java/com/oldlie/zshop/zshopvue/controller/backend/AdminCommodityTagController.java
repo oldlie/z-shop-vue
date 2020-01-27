@@ -52,7 +52,7 @@ public class AdminCommodityTagController {
         CommodityTag tag = new CommodityTag();
         tag.setCommodityId(commodityId);
         tag.setTagId(tagId);
-        return this.commodityTagService.store(tagId, commodityId);
+        return this.commodityTagService.store(tag);
     }
 
     @DeleteMapping(value = "/tag/{id}")

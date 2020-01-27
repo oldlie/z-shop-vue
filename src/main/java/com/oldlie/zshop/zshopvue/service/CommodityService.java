@@ -1,6 +1,7 @@
 package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.AppRequest;
+import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
@@ -145,6 +146,26 @@ public class CommodityService {
         target = this.commodityRepository.save(target);
         response.setItem(target.getId());
         return response;
+    }
+
+    public BaseResponse online(final long id) {
+        this.commodityRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id)
+        ).ifPresent( x -> {
+            x.setStatus(COMMODITY_STATUS.ONLINE);
+            this.commodityRepository.save(x);
+        });
+        return new BaseResponse();
+    }
+
+    public BaseResponse offline(final long id) {
+         this.commodityRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id)
+        ).ifPresent( x -> {
+            x.setStatus(COMMODITY_STATUS.OFFLINE);
+            this.commodityRepository.save(x);
+        });
+        return new BaseResponse();
     }
 
     @Transactional

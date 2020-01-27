@@ -1,14 +1,21 @@
 <template>
-    <a-spin :spinning="loading">
-
-    </a-spin>
+  <a-spin :spinning="loading"></a-spin>
 </template>
 <script>
 export default {
-   data () {
-       return {
-           loading: false
-       };
-   }
-}
+  props: {
+    articleId: { type: Number, default: 0 }
+  },
+  data() {
+    return {
+      loading: false,
+      title: '',
+      author: '',
+      summary: '',
+      content: '',
+      thumbnail: ''
+    };
+  },
+  mounted: {}
+};
 </script>

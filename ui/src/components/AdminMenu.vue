@@ -25,13 +25,7 @@
         <a-menu-item key="sub3">
             <router-link to="/admin/article">文章</router-link>
         </a-menu-item>
-        <a-sub-menu key="sub4">
-            <span slot="title">
-                <span>文章</span>
-            </span>
-            <a-menu-item key="7">List</a-menu-item>
-            <a-menu-item key="8">Tags</a-menu-item>
-        </a-sub-menu>
+        
     </a-menu>
 </template>
 <script>

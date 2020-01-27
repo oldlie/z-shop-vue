@@ -173,7 +173,7 @@
           <a-spin :spinning="tagLoading">
             <a-row>
               <a-col span="24">
-                <a-button v-if="tagPath.lenght > 0" @click="topTags">&lt;</a-button>
+                <a-button v-if="tagPath.length > 0" @click="upTags">&lt;</a-button>
                 <a-button-group v-for="(tag, index) in tags" :key="index" style="margin:6px;">
                   <a-button @click="addToCommodity(tag)">{{tag.title}}</a-button>
                   <a-button v-if="tag.childCount > 0" @click="nextTags(tag)">&gt;</a-button>
@@ -182,14 +182,18 @@
             </a-row>
             <a-row>
               <a-col span="24">
-                <a-tag v-for="(tag, index) in commodityTags" :key="index" closable @close="removeTag(tag)" style="margin:6px;">Tag 2</a-tag>
+                <a-tag v-for="(tag, index) in commodityTags" 
+                :key="index" 
+                closable 
+                @close="removeTag(tag)" 
+                style="margin:6px;">{{tag.title}}</a-tag>
               </a-col>
             </a-row>
           </a-spin>
         </a-form-item>
 
         <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol">
-          <a-button icon="upload">上架</a-button>
+          <a-button icon="upload" @click="onlineCommodity">上架</a-button>
         </a-form-item>
       </template>
     </a-form>
@@ -736,6 +740,7 @@ export default {
     nextTags(tag) {
       const _tag = JSON.parse(JSON.stringify(tag));
       this.tagPath.push(_tag);
+      console.log(this.tagPath.length);
       this.loadTags(tag.id);
     },
     upTags() {
@@ -760,13 +765,29 @@ export default {
       const url = `${this.apiUrl}/backend/product/tag/${tag.id}`;
       G.delete(url)
       .cb(data => {
-        if (data.status === 0)
-        this.commodityTags = this.commodityTags.filter( t => t.id !== tag.id);
+        if (data.status === 0) {
+          this.commodityTags = this.commodityTags.filter( t => t.tagId !== tag.id);
+        }
       })
       .fcb(() => this.tagLoading = false)
       .req();
-    }
+    },
     // endregion
+    onlineCommodity () {
+      const url = `${this.apiUrl}/backend/product/online`;
+      const fd = new FormData();
+      fd.append('id', this.innerId);
+      G.post(url, fd)
+      .cb(data => {
+        if (data.status === 0) {
+          this.$message.success('已上架');
+        } else {
+          console.error(data);
+        }
+      })
+      .fcb()
+      .req();
+    }
   }
 };
 </script>

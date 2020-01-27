@@ -60,6 +60,10 @@ public class CommodityTagService {
         this.tagRepository = tagRepository;
     }
 
+    public SimpleResponse<Long> store(final CommodityTag commodityTag) {
+        return this.store(commodityTag.getCommodityId(), commodityTag.getTagId());
+    }
+
     public SimpleResponse<Long> store(final long commodityId,
                                       final long tagId) {
         SimpleResponse<Long> response = new SimpleResponse<>();

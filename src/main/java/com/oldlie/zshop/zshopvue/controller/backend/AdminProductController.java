@@ -48,6 +48,16 @@ public class AdminProductController {
         return this.commodityService.storeCommodity(commodity);
     }
 
+    @PostMapping(value = "/product/online", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE})
+    public BaseResponse online(@RequestParam("id") long id) {
+       return this.commodityService.online(id);
+    }
+
+    @PostMapping(value = "/product/offline", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE})
+    public BaseResponse offline(@RequestParam("id") long id) {
+        return this.commodityService.offline(id);
+    }
+
     @DeleteMapping(value = "/product/{id}")
     public BaseResponse delete(@PathVariable("id") Long id) {
         return this.commodityService.deleteCommodity(id);

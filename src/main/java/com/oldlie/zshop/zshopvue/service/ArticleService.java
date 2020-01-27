@@ -4,12 +4,16 @@ import com.oldlie.zshop.zshopvue.model.AppRequest;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.Article;
 import com.oldlie.zshop.zshopvue.model.db.ArticleTag;
-import com.oldlie.zshop.zshopvue.model.db.repository.ArticleRespostiory;
+import com.oldlie.zshop.zshopvue.model.db.repository.ArticleRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.ArticleTagRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
+import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
+import com.oldlie.zshop.zshopvue.utils.ZsTool;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ArticleService {
 
-    private ArticleRespostiory articleRespostiory;
+    private ArticleRepository articleRepository;
 
     @Autowired
-    public void setArticleRespostiory(ArticleRespostiory articleRespostiory) {
-        this.articleRespostiory = articleRespostiory;
+    public void setArticleRepository(ArticleRepository articleRepository) {
+        this.articleRepository = articleRepository;
     }
 
     private ArticleTagRepository articleTagRepository;
@@ -37,7 +41,7 @@ public class ArticleService {
         Article article = request.getBody();
         Article target = null;
         if (article.getId() > 0) {
-            target = this.articleRespostiory.findById(article.getId()).orElseGet(null);
+            target = this.articleRepository.findById(article.getId()).orElseGet(null);
             if (target == null) {
                 response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("你要编辑的文章已经不存在了。");
@@ -85,13 +89,32 @@ public class ArticleService {
     @Transactional
     public BaseResponse delete(Long id) {
         BaseResponse response = new BaseResponse();
-        Article article = this.articleRespostiory.findById(id).orElse(null);
+        Article article = this.articleRepository.findById(id).orElse(null);
         if (article != null) {
             this.articleTagRepository.deleteAllByArticleId(article.getId());
-            this.articleRespostiory.delete(article);
+            this.articleRepository.delete(article);
         }
         return response;
     }
 
 
+    public PageResponse<Article> list(String key, String value, int index, int size, String orderBy, String order) {
+        PageResponse<Article> response = new PageResponse<>();
+
+        Page<Article> page;
+
+        if (StringUtils.isNotEmpty(key)) {
+            page = this.articleRepository.findAll(
+                    (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(key), value),
+                    ZsTool.pageable(index, size, orderBy, order)
+            );
+        } else {
+            page = this.articleRepository.findAll(ZsTool.pageable(index, size, orderBy, order));
+        }
+
+        response.setList(page.getContent());
+        response.setTotal(page.getTotalElements());
+
+        return response;
+    }
 }

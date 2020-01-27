@@ -41,6 +41,18 @@
                   <a-icon type="edit"></a-icon>
                 </a>
                 <a-divider type="vertical"></a-divider>
+                <template v-if="record.status === 1">
+                <a href="javascript:;"  @click="offlineCommodity(record)">
+                  <a-icon type="download"></a-icon>
+                </a>
+                <a-divider type="vertical"></a-divider>
+                </template>
+                <template v-if="record.status === 2">
+                <a href="javascript:;" @click="onlineCommodity(record)">
+                  <a-icon type="upload"></a-icon>
+                </a>
+                <a-divider type="vertical"></a-divider>
+                </template>
                 <a href="javascript:;" style="color:#f5222d">
                   <a-icon type="delete"></a-icon>
                 </a>
@@ -194,6 +206,38 @@ ${this.pagination.order}`;
         })
         .fcb(() => (self.tableLoading = false))
         .req();
+    },
+    onlineCommodity (commodity) {
+      const url = `${this.apiUrl}/backend/product/online`;
+      const fd = new FormData();
+      fd.append('id', commodity.id);
+      G.post(url, fd)
+      .cb(data => {
+        if (data.status === 0) {
+          commodity.status = 1;
+          this.$message.success('已上架');
+        } else {
+          console.error(data);
+        }
+      })
+      .fcb()
+      .req();
+    },
+    offlineCommodity (commodity) {
+      const url = `${this.apiUrl}/backend/product/offline`;
+      const fd = new FormData();
+      fd.append('id', commodity.id);
+      G.post(url, fd)
+      .cb(data => {
+        if (data.status === 0) {
+          commodity.status = 2;
+          this.$message.success('已下架');
+        } else {
+          console.error(data);
+        }
+      })
+      .fcb()
+      .req();
     }
   }
 };
