@@ -46,17 +46,22 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         String token = request.getHeader("Authorization");
         if (token != null) {
             // parse the token.
-            String username = Jwts.parser()
+            String subject = Jwts.parser()
                     .setSigningKey("z-ship-vue")
                     .parseClaimsJws(token.replace("ZShop ", ""))
                     .getBody()
                     .getSubject();
 
-            if (username != null) {
-                UserDetails userDetails = this.userService.loadUserByUsername(username);
+            if (subject != null) {
+                String[] tmp = subject.split("@");
+                if (tmp.length != 2) {
+                    throw new RuntimeException("Invalid authentication");
+                }
+                UserDetails userDetails = this.userService.loadUserByUsername(tmp[1]);
 
                 HttpSession session = request.getSession();
-                session.setAttribute("username", username);
+                session.setAttribute("uid", tmp[0]);
+                session.setAttribute("username", tmp[1]);
 
                 return new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
                         null,

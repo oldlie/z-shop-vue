@@ -60,16 +60,15 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
 
-        String username = ((User) auth.getPrincipal()).getUsername();
+        User user =(User) auth.getPrincipal();
+        String subject = user.getId() + "@" + user.getUsername();
         String token = Jwts.builder()
-                .setSubject(username)
+                .setSubject(subject)
                 .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 24 * 1000))
                 .signWith(SignatureAlgorithm.HS512, "z-ship-vue")
                 .compact();
         res.addHeader("Authorization", "ZShop " + token);
         SimpleResponse<String> response = new SimpleResponse<>();
-        HttpSession session = req.getSession();
-        session.setAttribute("username", username);
         response.setItem(token);
         res.getWriter().print(objectMapper.writeValueAsString(response));
         res.getWriter().flush();

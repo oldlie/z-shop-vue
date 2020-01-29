@@ -8,8 +8,10 @@ import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@RestController
 @RequestMapping("/backend")
 public class AdminArticleController {
 
@@ -43,12 +45,14 @@ public class AdminArticleController {
          return this.articleService.article(id);
     }
 
+    /**
     @PostMapping(value = "/article", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public SimpleResponse<Long> store(@RequestBody AppRequest<Article> appRequest,
                                       @SessionAttribute("uid") long uid,
                                       @SessionAttribute("username") String username) {
         return this.articleService.store(appRequest, uid, username);
     }
+     */
 
     @PostMapping(value = "/article", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public SimpleResponse<Long> store(@RequestParam("id") long id,

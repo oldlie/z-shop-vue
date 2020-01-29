@@ -31,7 +31,7 @@
         <div ref="editor" style="text-align:left"></div>
       </a-form-item>
       <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="允许评论">
-        <a-switch @change="onChangeAllowComment" />
+        <a-switch @change="onChangeAllowComment" :checked="allowComment" />
       </a-form-item>
       <a-form-item :wrapper-col="wrapperCol">
         <a-button type="primary" html-type="submit">保存</a-button>
@@ -93,9 +93,6 @@ export default {
       ],
       // endregion
       // region fields
-      title: "",
-      author: "",
-      summary: "",
       content: "",
       editor: {},
       thumbnail: "",
@@ -113,6 +110,9 @@ export default {
     };
     editor.create();
     this.editor = editor;
+    if (this.articleId > 0) {
+      this.loadArticle();
+    }
   },
   methods: {
     // region 验证规则
@@ -123,6 +123,27 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           console.log("Received values of form: ", values);
+          const url = `${this.apiUrl}/backend/article`;
+          var fd = new FormData();
+          fd.append("id", this.articleId);
+          fd.append("title", values.title);
+          fd.append("author", values.author);
+          fd.append("summary", values.summary);
+          fd.append("content", this.content);
+          fd.append("thumbnail", this.thumbnail);
+          fd.append("allowComment", this.allowComment ? 1 : 0);
+          this.loading = true;
+          G.post(url, fd)
+            .cb(data => {
+              if (data.status === 0) {
+                this.articleId = data.item;
+                this.$message.success('已保存');
+              } else {
+                this.$message.error(data.message);
+              }
+            })
+            .fcb( () => (this.loading = false))
+            .req();
         }
       });
     },
@@ -153,38 +174,43 @@ export default {
         let response = info.file.response;
         if (!!response["data"]) {
           this.thumbnail = response["data"][0];
-          console.log('thumbnail=>', this.thumbnail);
+          console.log("thumbnail=>", this.thumbnail);
         }
 
         console.log(this.thumbnail);
         // Get this url from response in real world.
         getBase64(info.file.originFileObj, imageUrl => {
-          this.thumbnail = imageUrl;
+          //this.thumbnail = imageUrl;
         });
 
         this.thumbnailLoading = false;
       }
     },
     // endregion
-    loadArticle () {
+    loadArticle() {
       const url = `${this.apiUrl}/backend/article/${this.articleId}`;
+      this.loading = true;
       G.get(url)
-      .cb(data => {
-        if (data.status === 0) {
-          const tmp = data.item;
-          this.title = tmp.title;
-          this.summary = tmp.summary;
-          this.thumbnail = tmp.imageUrl;
-          this.author = tmp.author;
-          this.editor.txt.html(tmp["content"]);
-          this.content = tmp.content;
-          this.allowComment = tmp.allowComment;
-        } else {
-          console.error(data);
-        }
-      })
-      .fcb()
-      .req();
+        .cb(data => {
+          if (data.status === 0) {
+            console.log('load articles', data);
+            const tmp = data.item;
+            this.form.setFieldsValue({
+              title: tmp.title,
+              summary: tmp.summary,
+              author: tmp.author
+            });
+            this.thumbnail = tmp.imageUrl;
+            this.editor.txt.html(tmp["content"]);
+            this.content = tmp.content;
+            this.allowComment = tmp.allowComment == 1;
+            console.log('allow comment', this.allowComment);
+          } else {
+            console.error(data);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
     }
   }
 };
