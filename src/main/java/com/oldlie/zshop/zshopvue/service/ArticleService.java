@@ -5,9 +5,12 @@ import com.oldlie.zshop.zshopvue.model.cs.HTTP;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.Article;
 import com.oldlie.zshop.zshopvue.model.db.ArticleTag;
+import com.oldlie.zshop.zshopvue.model.db.Tag;
 import com.oldlie.zshop.zshopvue.model.db.repository.ArticleRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.ArticleTagRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.TagRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
+import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.utils.ObjectCopy;
@@ -19,6 +22,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,6 +43,13 @@ public class ArticleService {
     @Autowired
     public void setArticleTagRepository(ArticleTagRepository articleTagRepository) {
         this.articleTagRepository = articleTagRepository;
+    }
+
+    private TagRepository tagRepository;
+
+    @Autowired
+    public void setTagRepository(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
     }
 
     @Transactional
@@ -158,6 +171,63 @@ public class ArticleService {
             Article article = optional.get();
             response.setItem(article);
         }
+        return response;
+    }
+
+    @Transactional
+    public ListResponse<Tag> tags(final long id) {
+        ListResponse<Tag> response = new ListResponse<>();
+        List<ArticleTag> articleTags = this.articleTagRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("articleId"), id)
+        );
+        if (articleTags.size() <= 0) {
+            return response;
+        }
+        List<Tag> tags =this.tagRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    CriteriaBuilder.In<Long> in = criteriaBuilder.in(root.get("id"));
+                    for (ArticleTag articleTag : articleTags) {
+                        in.value(articleTag.getTagId());
+                    }
+                    return in;
+                }
+        );
+        response.setList(tags);
+        return response;
+    }
+
+    @Transactional
+    public SimpleResponse<Long> tag(final long articleId, final long tagId) {
+       SimpleResponse<Long> response = new SimpleResponse<>();
+       Optional<ArticleTag> optional = this.articleTagRepository.findOne(
+               (root, criteriaQuery, criteriaBuilder) -> {
+                   Predicate predicate1 = criteriaBuilder.equal(root.get("articleId"), articleId);
+                   Predicate predicate2 = criteriaBuilder.equal(root.get("tagId"), tagId);
+                   return criteriaBuilder.and(predicate1, predicate2);
+               }
+       );
+       if (optional.isPresent()) {
+           response.setStatus(HTTP_CODE.FAILED);
+           response.setMessage("这个标签已经添加了");
+           return response;
+       }
+       ArticleTag articleTag = new ArticleTag();
+       articleTag.setArticleId(articleId);
+       articleTag.setTagId(tagId);
+       articleTag = this.articleTagRepository.save(articleTag);
+       response.setItem(articleTag.getId());
+       return response;
+    }
+
+    public BaseResponse removeTag(final long articleId, final long tagId) {
+        BaseResponse response = new BaseResponse();
+        this.articleTagRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    Predicate predicateArticleId = criteriaBuilder.equal(root.get("articleId"), articleId);
+                    Predicate predicateTagId = criteriaBuilder.equal(root.get("tagId"), tagId);
+                    return criteriaBuilder.and(predicateArticleId, predicateTagId);
+                }
+        ).ifPresent(x -> this.articleTagRepository.delete(x));
         return response;
     }
 }

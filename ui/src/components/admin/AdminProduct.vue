@@ -182,11 +182,13 @@
             </a-row>
             <a-row>
               <a-col span="24">
-                <a-tag v-for="(tag, index) in commodityTags" 
-                :key="index" 
-                closable 
-                @close="removeTag(tag)" 
-                style="margin:6px;">{{tag.title}}</a-tag>
+                <a-tag
+                  v-for="(tag, index) in commodityTags"
+                  :key="index"
+                  closable
+                  @close="removeTag(tag)"
+                  style="margin:6px;"
+                >{{tag.title}}</a-tag>
               </a-col>
             </a-row>
           </a-spin>
@@ -720,7 +722,7 @@ export default {
             this.$message.error(data.message);
           }
         })
-        .fcb(() => this.tagLoading = false)
+        .fcb(() => (this.tagLoading = false))
         .req();
     },
     loadCommodityTags(commodityId) {
@@ -734,7 +736,7 @@ export default {
             this.$message.error(data.message);
           }
         })
-        .fcb(() => this.tagLoading = false)
+        .fcb(() => (this.tagLoading = false))
         .req();
     },
     nextTags(tag) {
@@ -748,6 +750,18 @@ export default {
       this.loadTags(tag.parentId);
     },
     addToCommodity(tag) {
+      let exist = false;
+      for (let i = 0; i < this.commodityTags.length; i++) {
+        let tmp = this.commodityTags[i];
+        if (tmp.id === tag.id) {
+          exist = true;
+          break;
+        }
+      }
+      if (exist) {
+        this.$message.warning('标签已经添加了');
+        return;
+      }
       const url = `${this.apiUrl}/backend/product/tag`;
       const fd = new FormData();
       fd.append("tagId", tag.id);
@@ -755,38 +769,43 @@ export default {
       this.tagLoading = true;
       G.post(url, fd)
         .cb(data => {
-          if (data.status === 0)
-          this.commodityTags.push(JSON.parse(JSON.stringify(tag)));
+          if (data.status === 0) {
+            this.commodityTags.push(JSON.parse(JSON.stringify(tag)));
+          } else {
+            this.$message.error(data.message);
+          }
         })
-        .fcb(() => this.tagLoading = false)
+        .fcb(() => (this.tagLoading = false))
         .req();
     },
-    removeTag (tag) {
-      const url = `${this.apiUrl}/backend/product/tag/${tag.id}`;
+    removeTag(tag) {
+      const url = `${this.apiUrl}/backend/product/tag/${this.innerId}/${tag.id}`;
       G.delete(url)
-      .cb(data => {
-        if (data.status === 0) {
-          this.commodityTags = this.commodityTags.filter( t => t.tagId !== tag.id);
-        }
-      })
-      .fcb(() => this.tagLoading = false)
-      .req();
+        .cb(data => {
+          if (data.status === 0) {
+            this.commodityTags = this.commodityTags.filter(
+              t => t.tagId !== tag.id
+            );
+          }
+        })
+        .fcb(() => (this.tagLoading = false))
+        .req();
     },
     // endregion
-    onlineCommodity () {
+    onlineCommodity() {
       const url = `${this.apiUrl}/backend/product/online`;
       const fd = new FormData();
-      fd.append('id', this.innerId);
+      fd.append("id", this.innerId);
       G.post(url, fd)
-      .cb(data => {
-        if (data.status === 0) {
-          this.$message.success('已上架');
-        } else {
-          console.error(data);
-        }
-      })
-      .fcb()
-      .req();
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("已上架");
+          } else {
+            console.error(data);
+          }
+        })
+        .fcb()
+        .req();
     }
   }
 };

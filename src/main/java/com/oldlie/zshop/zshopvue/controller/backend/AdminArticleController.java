@@ -1,15 +1,16 @@
 package com.oldlie.zshop.zshopvue.controller.backend;
 
-import com.oldlie.zshop.zshopvue.model.AppRequest;
 import com.oldlie.zshop.zshopvue.model.db.Article;
+import com.oldlie.zshop.zshopvue.model.db.Tag;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
+import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/backend")
@@ -80,5 +81,22 @@ public class AdminArticleController {
     @DeleteMapping(value = "/article/{id}")
     public BaseResponse delete(@PathVariable("id") long id) {
        return this.articleService.delete(id);
+    }
+
+    @GetMapping(value = "/article/tags/{id}")
+    public ListResponse<Tag> tags(@PathVariable("id") long id) {
+        return this.articleService.tags(id);
+    }
+
+    @PostMapping(value = "/article/tag", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SimpleResponse<Long> tag(@RequestParam("articleId") long articleId,
+                                    @RequestParam("tagId") long tagId) {
+        return this.articleService.tag(articleId, tagId);
+    }
+
+    @DeleteMapping(value = "/article/tag/{articleId}/{tagId}")
+    public BaseResponse removeTag(@PathVariable("articleId") long articleId,
+                                  @PathVariable("tagId") long tagId) {
+        return this.articleService.removeTag(articleId, tagId);
     }
 }

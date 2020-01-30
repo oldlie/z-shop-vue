@@ -1,5 +1,6 @@
 package com.oldlie.zshop.zshopvue.service;
 
+import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.CommodityTag;
 import com.oldlie.zshop.zshopvue.model.db.Tag;
 import com.oldlie.zshop.zshopvue.model.db.repository.CommodityTagRepository;
@@ -76,6 +77,8 @@ public class CommodityTagService {
         );
         if (optional.isPresent()) {
             response.setItem(optional.get().getId());
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("标签已经添加");
         } else {
             CommodityTag commodityTag = new CommodityTag();
             commodityTag.setCommodityId(commodityId);

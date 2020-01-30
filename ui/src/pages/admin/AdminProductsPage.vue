@@ -101,18 +101,8 @@ const columns = [
   }
 ];
 const tags = [
-  { id: 0, title: "New Products" },
-  { id: 1, title: "Fruit" },
-  { id: 2, title: "Aquatic Products" },
-  { id: 3, title: "Snacks" },
-  { id: 4, title: "Commodity" }
 ];
 const dataSet = [
-  { id: 0, title: "MI 9", status: 1 },
-  { id: 1, title: "MI 9se", status: 2 },
-  { id: 2, title: "Redmi 5", status: 0 },
-  { id: 3, title: "Mi 8", status: 3 },
-  { id: 4, title: "Mi 8se", status: 1 }
 ];
 const viewModel = {
   table: "table",

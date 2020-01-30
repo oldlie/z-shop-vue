@@ -25,7 +25,9 @@
         <a-menu-item key="sub3">
             <router-link to="/admin/article">文章</router-link>
         </a-menu-item>
-        
+        <a-menu-item key="sub4">
+            <router-link to="/admin/card">礼品卡</router-link>
+        </a-menu-item> 
     </a-menu>
 </template>
 <script>

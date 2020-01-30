@@ -33,6 +33,31 @@
       <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="允许评论">
         <a-switch @change="onChangeAllowComment" :checked="allowComment" />
       </a-form-item>
+      <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="选择标签">
+        <a-spin :spinning="tagLoading">
+          <a-row>
+            <a-col span="24">
+              <a-button v-if="tagPath.length > 0" @click="upTags">&lt;</a-button>
+              <a-button-group v-for="(tag, index) in tags" :key="index" style="margin:6px;">
+                <a-button @click="addToAritcle(tag)">{{tag.title}}</a-button>
+                <a-button v-if="tag.childCount > 0" @click="nextTags(tag)">&gt;</a-button>
+              </a-button-group>
+            </a-col>
+          </a-row>
+          <a-row>
+            <a-col span="24">
+              <a-tag
+                v-for="(tag, index) in checkedTags"
+                :key="index"
+                closable
+                @close="removeTag(tag)"
+                style="margin:6px;"
+              >{{tag.title}}</a-tag>
+            </a-col>
+          </a-row>
+        </a-spin>
+      </a-form-item>
+
       <a-form-item :wrapper-col="wrapperCol">
         <a-button type="primary" html-type="submit">保存</a-button>
       </a-form-item>
@@ -93,10 +118,17 @@ export default {
       ],
       // endregion
       // region fields
+      innerId: 0,
       content: "",
       editor: {},
       thumbnail: "",
-      allowComment: false
+      allowComment: false,
+      // endregion
+      // region tag
+      tagLoading: false,
+      tags: [],
+      tagPath: [],
+      checkedTags: []
       // endregion
     };
   },
@@ -110,8 +142,11 @@ export default {
     };
     editor.create();
     this.editor = editor;
+    this.innerId = this.articleId;
+    this.loadTags(0);
     if (this.articleId > 0) {
       this.loadArticle();
+      this.loadAritcleTags();
     }
   },
   methods: {
@@ -125,7 +160,7 @@ export default {
           console.log("Received values of form: ", values);
           const url = `${this.apiUrl}/backend/article`;
           var fd = new FormData();
-          fd.append("id", this.articleId);
+          fd.append("id", this.innerId);
           fd.append("title", values.title);
           fd.append("author", values.author);
           fd.append("summary", values.summary);
@@ -136,13 +171,13 @@ export default {
           G.post(url, fd)
             .cb(data => {
               if (data.status === 0) {
-                this.articleId = data.item;
-                this.$message.success('已保存');
+                this.innerId = data.item;
+                this.$message.success("已保存");
               } else {
                 this.$message.error(data.message);
               }
             })
-            .fcb( () => (this.loading = false))
+            .fcb(() => (this.loading = false))
             .req();
         }
       });
@@ -188,12 +223,12 @@ export default {
     },
     // endregion
     loadArticle() {
-      const url = `${this.apiUrl}/backend/article/${this.articleId}`;
+      const url = `${this.apiUrl}/backend/article/${this.innerId}`;
       this.loading = true;
       G.get(url)
         .cb(data => {
           if (data.status === 0) {
-            console.log('load articles', data);
+            console.log("load articles", data);
             const tmp = data.item;
             this.form.setFieldsValue({
               title: tmp.title,
@@ -204,14 +239,101 @@ export default {
             this.editor.txt.html(tmp["content"]);
             this.content = tmp.content;
             this.allowComment = tmp.allowComment == 1;
-            console.log('allow comment', this.allowComment);
+            console.log("allow comment", this.allowComment);
           } else {
             console.error(data);
           }
         })
         .fcb(() => (this.loading = false))
         .req();
+    },
+    // region tags
+    loadTags(id) {
+      this.tagLoading = true;
+      const url = `${this.apiUrl}/backend/tags/${id}`;
+      G.get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.tags = data.list;
+            console.log("tags:", this.tags);
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => (this.tagLoading = false))
+        .req();
+    },
+    loadAritcleTags() {
+      this.tagLoading = true;
+      const url = `${this.apiUrl}/backend/article/tags/${this.innerId}`;
+      G.get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.checkedTags = data.list;
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => (this.tagLoading = false))
+        .req();
+    },
+    nextTags(tag) {
+      const _tag = JSON.parse(JSON.stringify(tag));
+      this.tagPath.push(_tag);
+      console.log(this.tagPath.length);
+      this.loadTags(tag.id);
+    },
+    upTags() {
+      const tag = this.tagPath.pop();
+      this.loadTags(tag.parentId);
+    },
+    addToAritcle(tag) {
+      if (this.innerId <= 0) {
+        this.$message.warning('请先保存文章');
+        return;
+      }
+      let exist = false;
+      for (let i = 0; i < this.checkedTags; i++) {
+        let tmp = this.checkedTags[i];
+        if (tmp.id === tag.id) {
+          exist = true;
+          break;
+        }
+      }
+      if (exist) {
+        this.$message.warning('已添加');
+        return;
+      }
+      const url = `${this.apiUrl}/backend/article/tag`;
+      const fd = new FormData();
+      fd.append("tagId", tag.id);
+      fd.append("articleId", this.innerId);
+      this.tagLoading = true;
+      G.post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.checkedTags.push(JSON.parse(JSON.stringify(tag)));
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => (this.tagLoading = false))
+        .req();
+    },
+    removeTag(tag) {
+      const url = `${this.apiUrl}/backend/article/tag/${this.innerId}/${tag.id}`;
+      G.delete(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.checkedTags = this.checkedTags.filter(t => t.tagId !== tag.id);
+          } else {
+            console.error(data);
+          }
+        })
+        .fcb(() => (this.tagLoading = false))
+        .req();
     }
+    // endregion
   }
 };
 </script>

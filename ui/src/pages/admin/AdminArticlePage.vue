@@ -80,7 +80,7 @@ export default {
   data() {
     return {
       loading: false,
-      view: _view.table,
+      view: _view.form,
       articleId: 0,
       columns: columns,
       index: 1,
@@ -140,6 +140,7 @@ export default {
     showArticles() {
       this.articleId = 0;
       this.view = _view.table;
+      this.loadArticles();
     },
     editArticle(record) {
         this.articleId = record.id;
