@@ -80,7 +80,7 @@ export default {
   data() {
     return {
       loading: false,
-      view: _view.form,
+      view: _view.table,
       articleId: 0,
       columns: columns,
       index: 1,

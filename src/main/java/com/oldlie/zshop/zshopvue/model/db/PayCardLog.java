@@ -18,4 +18,5 @@ public class PayCardLog extends BaseEO {
     private String optUsername;
     private String optDescription;
     private int opt;
+    private long cardId;
 }

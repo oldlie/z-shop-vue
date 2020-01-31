@@ -27,9 +27,10 @@ public class PayCard extends BaseEO {
     @Column(columnDefinition = "bigint comment '卡片发行人/卡片制作人'")
     private Long publisherId;
     private String publisher;
+    private String title;
     @Column(columnDefinition = "varchar(1000) comment '简要备注'")
     private String node;
-    @Column(columnDefinition = "int default 7 comment '卡有效天数，默认7天'")
+    @Column(columnDefinition = "int default 360 comment '卡有效天数，默认360天'")
     private int validDay;
     @Column(columnDefinition = "char(32) comment '验证码'")
     private String verifyCode;
@@ -53,6 +54,10 @@ public class PayCard extends BaseEO {
     private String username;
     @Column(columnDefinition = "tinyint default 0 comment '是否已经兑换'")
     private int isExchanged;
-    // 兑换日期
-    private Date exchangeDate;
+    // 用户兑换日期
+    private Date exchangedDate;
+    // 用户最晚兑换日期，过期之后不能兑换
+    private Date latestExchangeDate;
+    private int ymd;
+    private int cardCount;
 }

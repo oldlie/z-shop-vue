@@ -25,11 +25,13 @@ Vue.component('admin-menu', AdminMenu);
 import AdminArticleComponent from './components/admin/AdminArticle'
 import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
+import AdminPayCardComponent from './components/admin/AdminPayCard'
 import AdminProductComponent from './components/admin/AdminProduct'
 
 Vue.component('admin-article', AdminArticleComponent);
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
+Vue.component('admin-pay-card', AdminPayCardComponent);
 Vue.component('admin-product', AdminProductComponent);
 
 Vue.config.productionTip = false
@@ -50,6 +52,7 @@ import UserProfilePage from './pages/UserProfilePage'
 
 import AdminArticlePage from './pages/admin/AdminArticlePage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
+import AdminPayCardPage from './pages/admin/AdminPayCardPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
 import AdminTagsPage from './pages/admin/AdminTagsPage'
 
@@ -70,6 +73,7 @@ const routes = [
   { path: '/profile', component: UserProfilePage },
   { path: '/admin/article', component: AdminArticlePage },
   { path: '/admin/dashboard', component: AdminDashboardPage },
+  { path: '/admin/pay-card', component: AdminPayCardPage },
   { path: '/admin/products', component: AdminProductsPage },
   { path: '/admin/tags', component: AdminTagsPage }
 ]

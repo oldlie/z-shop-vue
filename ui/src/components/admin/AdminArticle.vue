@@ -157,7 +157,6 @@ export default {
       e.preventDefault();
       this.form.validateFields((err, values) => {
         if (!err) {
-          console.log("Received values of form: ", values);
           const url = `${this.apiUrl}/backend/article`;
           var fd = new FormData();
           fd.append("id", this.innerId);
