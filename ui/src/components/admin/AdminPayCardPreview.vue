@@ -45,7 +45,7 @@
             <template v-if="payCard.isSoldOut === 0">
               <a-tag color="#52c41a">未售</a-tag>
               <a-divider type="vertical"></a-divider>
-              <a-button>出售</a-button>
+              <a-button @click="openSellModal">出售</a-button>
             </template>
             <template v-if="payCard.isSoldOut === 1">
               <a-tag color="#f5222d">已售</a-tag>
@@ -83,6 +83,11 @@
         </a-form>
       </a-col>
     </a-row>
+
+    <a-modal title="出售这张卡片" v-model="visible" @ok="handleOk" okText="确认" cancelText="取消">
+      <admin-pay-card-sell :ids="ids"></admin-pay-card-sell> 
+    </a-modal>
+
   </a-spin>
 </template>
 
@@ -103,7 +108,9 @@ export default {
       },
       wideWrapperCol: {
         sm: { span: 21 }
-      }
+      },
+      visible: false,
+      ids: []
     };
   },
   mounted() {
@@ -118,12 +125,19 @@ export default {
           if (data.status === 0) {
             console.log("data", data);
             this.payCard = data.item;
+            this.ids.push(this.payCard.id);
           } else {
             this.$message.error(data.message);
           }
         })
         .fcb(() => (this.loading = false))
         .req();
+    },
+    handleOk () {
+
+    },
+    openSellModal () {
+        this.visible = true;
     }
   }
 };

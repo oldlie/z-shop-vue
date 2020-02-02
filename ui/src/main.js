@@ -27,6 +27,7 @@ import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
 import AdminPayCardComponent from './components/admin/AdminPayCard'
 import AdminPayCardPreviewComponent from './components/admin/AdminPayCardPreview'
+import AdminPayCardSellComponent from './components/admin/AdminPayCardSell'
 import AdminProductComponent from './components/admin/AdminProduct'
 
 Vue.component('admin-article', AdminArticleComponent);
@@ -34,6 +35,7 @@ Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
 Vue.component('admin-pay-card', AdminPayCardComponent);
 Vue.component('admin-pay-card-preview', AdminPayCardPreviewComponent);
+Vue.component('admin-pay-card-sell', AdminPayCardSellComponent)
 Vue.component('admin-product', AdminProductComponent);
 
 Vue.config.productionTip = false
