@@ -1,5 +1,6 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
@@ -57,7 +58,12 @@ public class PayCard extends BaseEO {
     // 用户兑换日期
     private Date exchangedDate;
     // 用户最晚兑换日期，过期之后不能兑换
+    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
     private Date latestExchangeDate;
     private int ymd;
     private int cardCount;
+    // 实际售价
+    @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
+            parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
+    private Money price;
 }

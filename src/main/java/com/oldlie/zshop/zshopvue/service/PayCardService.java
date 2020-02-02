@@ -7,6 +7,7 @@ import com.oldlie.zshop.zshopvue.model.db.repository.PayCardLogRespository;
 import com.oldlie.zshop.zshopvue.model.db.repository.PayCardRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
+import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.utils.ZsTool;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.money.Money;
@@ -17,9 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -101,8 +100,9 @@ public class PayCardService {
         payCard.setValidDay(validDay);
         payCard.setDenomination(Money.parse(denomination));
         payCard.setAmount(Money.parse(amount));
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        payCard.setLatestExchangeDate(format.parse(latestExchangeDate));
+        // SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        calendar.add(Calendar.DATE, validDay);
+        payCard.setLatestExchangeDate(calendar.getTime());
         payCard.setIsValid(1);
         payCard.setPublisherId(uid);
         payCard.setPublisher(username);
@@ -115,6 +115,7 @@ public class PayCardService {
         payCard.setExchangedDate(null);
         payCard.setYmd(ymd);
         payCard.setCardCount(serialNumber);
+
         payCard = this.payCardRepository.save(payCard);
 
         PayCardLog log = new PayCardLog();
@@ -161,6 +162,20 @@ public class PayCardService {
         }
         response.setTotal(page.getTotalElements());
         response.setList(page.getContent());
+        return response;
+    }
+
+    public SimpleResponse<PayCard> payCard(final long id) {
+        SimpleResponse<PayCard> response = new SimpleResponse<>();
+        Optional<PayCard> optional = this.payCardRepository.findOne(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id)
+        );
+        if (!optional.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("您要查看的礼品卡已经不存在了");
+            return response;
+        }
+        response.setItem(optional.get());
         return response;
     }
 }

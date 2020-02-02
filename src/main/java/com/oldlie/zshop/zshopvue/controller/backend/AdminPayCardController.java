@@ -3,6 +3,7 @@ package com.oldlie.zshop.zshopvue.controller.backend;
 import com.oldlie.zshop.zshopvue.model.db.PayCard;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
+import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.PayCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -67,5 +68,10 @@ public class AdminPayCardController {
                                       @PathVariable("orderBy") String orderBy,
                                       @PathVariable("order") String order) {
         return this.payCardService.page(key, value, index, size, orderBy, order);
+    }
+
+    @GetMapping(value = "/pay-card/{id}")
+    public SimpleResponse<PayCard> payCard(@PathVariable("id") long id) {
+        return this.payCardService.payCard(id);
     }
 }

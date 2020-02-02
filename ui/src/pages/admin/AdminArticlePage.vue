@@ -11,7 +11,6 @@
             <a-row class="inner-row">
               <a-col :span="24">
                 <a-button @click="showArticles" icon="table" type="link">显示列表</a-button>
-                <a-divider type="vertical"></a-divider>
               </a-col>
             </a-row>
 
