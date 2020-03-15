@@ -22,22 +22,26 @@
             </a-col>
             <a-col :span="24" class="inner-row">
               <a-table :columns="columns" :dataSource="list" :pagination="false">
+                <span slot="isSoldOut" slot-scope="record">
+                  <a-tag v-if="record === 0" color="#2db7f5">未出售</a-tag>
+                  <a-tag v-if="record === 1" color="#87d068">已出售</a-tag>
+                </span>
                 <span slot="isExchanged" slot-scope="record">
                   <a-tag v-if="record === 0" color="#2db7f5">未兑换</a-tag>
                   <a-tag v-if="record === 1" color="#87d068">已兑换</a-tag>
                 </span>
                 <span slot="action" slot-scope="record">
-                  <a-button
-                    type="link"
-                    icon="eye"
-                    @click="handlePreview(record)"
-                  ></a-button>
-                  <a-button
-                    type="link"
-                    icon="delete"
-                    style="color:#f5222d"
-                    @click="deleteFormula(record)"
-                  ></a-button>
+                  <a-button type="link" icon="eye" @click="handlePreview(record)"></a-button>
+                  <a-popconfirm
+                    title="删除"
+                    @confirm="deleteCard(record)"
+                    okText="确定"
+                    cancelText="取消"
+                  >
+                    <a href="javascript:;" style="color:#f5222d">
+                      <a-icon type="delete"></a-icon>
+                    </a>
+                  </a-popconfirm>
                 </span>
               </a-table>
             </a-col>
@@ -60,7 +64,6 @@
             <admin-pay-card-preview :pay-card-id="previewId"></admin-pay-card-preview>
           </a-col>
         </a-row>
-
       </a-col>
     </a-row>
   </div>
@@ -81,6 +84,11 @@ const columns = [
   { title: "售价", dataIndex: "amount" },
   { title: "有效期", dataIndex: "validDay" },
   { title: "制卡日期", dataIndex: "createDate" },
+  {
+    title: "已出售",
+    dataIndex: "isSoldOut",
+    scopedSlots: { customRender: "isSoldOut" }
+  },
   {
     title: "已兑换",
     dataIndex: "isExchanged",
@@ -103,7 +111,7 @@ export default {
       key: "",
       value: "",
       list: [],
-      previewId: 0,
+      previewId: 0
     };
   },
   mounted() {
@@ -112,6 +120,9 @@ export default {
   methods: {
     changeView(view) {
       this.view = view;
+      if (view === _view.table) {
+        this.load();
+      }
     },
     load() {
       const url = `${this.apiUrl}/backend/pay-cards/${this.index}-${this.size}-${this.orderBy}-${this.order}`;
@@ -123,7 +134,7 @@ export default {
             for (let i = 0; i < data.list.length; i++) {
               let tmp = data.list[i];
               arr.push({
-                id: tmp['id'],
+                id: tmp["id"],
                 serialNumber: tmp["serialNumber"],
                 title: tmp["title"],
                 node: tmp["node"],
@@ -131,6 +142,7 @@ export default {
                 amount: "¥" + tmp["amount"]["amount"],
                 validDay: tmp["validDay"] + "日",
                 createDate: tmp["createDate"],
+                isSoldOut: tmp['isSoldOut'],
                 isExchanged: tmp["isExchanged"]
               });
             }
@@ -148,9 +160,19 @@ export default {
       this.load();
     },
     handlePreview(record) {
-      console.log('record', record);
-       this.previewId = record.id;
-       this.view = _view.preview;
+      this.previewId = record.id;
+      this.view = _view.preview;
+    },
+    deleteCard(record) {
+      const url = `${this.apiUrl}/backend/pay-card/${record.id}`;
+      G.delete(url)
+      .cb(data => {
+        if (data.status === 0) {
+          this.list = this.list.filter(x => x.id !== record.id);
+        }
+      })
+      .fcb()
+      .req();
     }
   }
 };

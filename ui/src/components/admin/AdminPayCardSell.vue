@@ -1,5 +1,5 @@
 <template>
-  <a-spin :spinning="loading">
+  <div >
     <p>{{tips}}</p>
     <a-form :form="form" @submit="handleSubmit">
       <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="购卡人">
@@ -11,8 +11,11 @@
       <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="实际金额">
         <a-input v-decorator="priceValidate"></a-input>
       </a-form-item>
+      <a-form-item :wrapper-col="wrapperCol">
+        <a-button type="primary" html-type="submit" :loading="submitLoading">保存</a-button>
+      </a-form-item>
     </a-form>
-  </a-spin>
+  </div>
 </template>
 
 <script>
@@ -22,7 +25,7 @@ export default {
   },
   data() {
     return {
-      loading: false,
+      submitLoading: false,
       form: this.$form.createForm(this, { name: "form" }),
       tips: "",
       labelCol: {
@@ -63,7 +66,30 @@ export default {
   },
   methods: {
     handleSubmit(e) {
+      console.log('sold');
       e.preventDefault();
+      this.form.validateFields((err, values) => {
+        if (!!err) {
+          return;
+        }
+        const url = `${this.apiUrl}/backend/pay-card/sold`;
+        const fd = new FormData();
+        fd.append('id', this.ids.join(','));
+        fd.append('customer', values['customer']);
+        fd.append('customerPhone', values['phone']);
+        fd.append('amount', 'CNY ' + values['price']);
+        this.submitLoading = true;
+        G.post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$emit('soldEvent', {
+              customer: values['customer'],
+              customerPhone: values['phone'],
+              price: values['price']
+            });
+          }
+        }).fcb(() => this.submitLoading = false).req();
+      });
     },
     moneyValidate(rule, value, callback) {
       let priceRegex = /^[1-9]?[\d]*\.[\d]{2}$/;

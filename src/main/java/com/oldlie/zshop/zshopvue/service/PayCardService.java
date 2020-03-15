@@ -178,4 +178,36 @@ public class PayCardService {
         response.setItem(optional.get());
         return response;
     }
+
+    @Transactional
+    public BaseResponse sold(final String idStr,
+                             final String customer,
+                             final String customerPhone,
+                             final String amount,
+                             final long uid,
+                             final String username) {
+        BaseResponse response = new BaseResponse();
+        String[] ids = idStr.split(",");
+        for (String _id : ids) {
+            long id = Long.parseLong(_id);
+            this.payCardRepository.findById(id).ifPresent(x -> {
+                x.setCustomer(customer);
+                x.setCustomerPhone(customerPhone);
+                x.setPrice(Money.parse(amount));
+                x.setIsSoldOut(1);
+                this.payCardRepository.save(x);
+            });
+            this.payCardLogRespository.save(
+                    PayCardLog.builder()
+                            .cardId(id)
+                            .optDescription("SOLD")
+                            .optUsername(username)
+                            .optId(uid)
+                            .opt(2)
+                            .build()
+            );
+        }
+
+        return response;
+    }
 }

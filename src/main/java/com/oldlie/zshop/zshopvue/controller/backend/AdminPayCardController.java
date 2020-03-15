@@ -7,8 +7,12 @@ import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.PayCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotEmpty;
+
+@Validated
 @RestController
 @RequestMapping("/backend")
 public class AdminPayCardController {
@@ -73,5 +77,15 @@ public class AdminPayCardController {
     @GetMapping(value = "/pay-card/{id}")
     public SimpleResponse<PayCard> payCard(@PathVariable("id") long id) {
         return this.payCardService.payCard(id);
+    }
+
+    @PostMapping(value = "/pay-card/sold")
+    public BaseResponse sell(@RequestParam @NotEmpty String id,
+                             @RequestParam @NotEmpty String customer,
+                             @RequestParam @NotEmpty String customerPhone,
+                             @RequestParam @NotEmpty String amount,
+                             @SessionAttribute("uid") long uid,
+                             @SessionAttribute("username") String username) {
+        return this.payCardService.sold(id, customer, customerPhone, amount, uid, username);
     }
 }

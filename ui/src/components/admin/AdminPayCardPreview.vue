@@ -3,7 +3,7 @@
     <a-row class="inner-row">
       <a-col :span="24">
         <div class="pay-card">
-          <h1>{{payCard.title}}</h1>
+          <h1 style="color:#F0E68C;text-shadow:1px 1px 1px #ffffff;">{{payCard.title}}</h1>
           <div class="pay-card-price">
             <span>¥ {{!!payCard['denomination'] ? payCard['denomination']['amount'] : ''}} 元</span>
           </div>
@@ -67,8 +67,8 @@
             label="实际售价"
           >¥ {{!!payCard.price ? payCard.price['amount'] : '0.00'}} 元</a-form-item>
           <a-form-item :label-col="labelCol" :wrapper-col="wideWrapperCol" label="是否兑换">
-            <a-tag color="#52c41a" v-if="payCard.isSoldOut === 0">未兑换</a-tag>
-            <a-tag color="#f5222d" v-if="payCard.isSoldOut === 1">已兑换</a-tag>
+            <a-tag color="#52c41a" v-if="payCard.isExchanged === 0">未兑换</a-tag>
+            <a-tag color="#f5222d" v-if="payCard.isExchanged === 1">已兑换</a-tag>
           </a-form-item>
           <a-form-item
             :label-col="labelCol"
@@ -84,8 +84,8 @@
       </a-col>
     </a-row>
 
-    <a-modal title="出售这张卡片" v-model="visible" @ok="handleOk" okText="确认" cancelText="取消">
-      <admin-pay-card-sell :ids="ids"></admin-pay-card-sell> 
+    <a-modal title="出售这张卡片" v-model="visible" :footer="null">
+      <admin-pay-card-sell :ids="ids" @soldEvent="handleSoldEvent"></admin-pay-card-sell> 
     </a-modal>
 
   </a-spin>
@@ -123,7 +123,6 @@ export default {
       G.get(url)
         .cb(data => {
           if (data.status === 0) {
-            console.log("data", data);
             this.payCard = data.item;
             this.ids.push(this.payCard.id);
           } else {
@@ -138,6 +137,15 @@ export default {
     },
     openSellModal () {
         this.visible = true;
+    },
+    handleSoldEvent(info) {
+      this.payCard['isSoldOut'] = 1;
+      this.payCard['customer'] = info['customer'];
+      this.payCard['customerPhone'] = info['customerPhone'];
+      this.payCard['price'] = {
+        'amount': info['price']
+      };
+      this.visible = false;
     }
   }
 };
