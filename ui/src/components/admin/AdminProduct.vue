@@ -317,7 +317,6 @@ export default {
     editor.create();
     this.editor = editor;
 
-    console.log("input commodity=>", this.commodity);
     this.innerId = this.commodity.id;
     this.name.value = this.commodity.title;
     this.summary.value = this.commodity.introduction;
@@ -464,14 +463,15 @@ export default {
 
       const url = `${this.apiUrl}/backend/product/profile/specification`;
       let fd = new FormData();
-      console.log("id ===>", this.commodity.id);
       fd.append("commodityId", this.commodity.id);
       fd.append("specification", JSON.stringify(this.specification));
       this.addSpecLoading = true;
       G.post(url, fd)
         .cb(data => {
           if (data.status === 0) {
+            this.specName.value = '';
             this.specName.status = G._status.success;
+            this.specContent.value = '';
             this.specContent.status = G._status.success;
           } else {
             this.specName.status = G._status.error;
@@ -515,14 +515,12 @@ export default {
         .req();
     },
     removeSpec(item) {
-      console.log("remove ===>", item);
       let origin = JSON.parse(JSON.stringify(this.specification));
       this.specification = this.specification.filter(
         _item => _item.title != item.title
       );
       const url = `${this.apiUrl}/backend/product/profile/specification`;
       let fd = new FormData();
-      console.log("id ===>", this.commodity.id);
       fd.append("commodityId", this.commodity.id);
       fd.append("specification", JSON.stringify(this.specification));
       G.post(url, fd)
@@ -543,15 +541,11 @@ export default {
     handleImagesChange({ file, fileList, event }) {
       this.imageFileList = fileList;
       if (file.status === "done") {
-        console.log("file ===> ", file.uid);
         this.images.push(file.response.data[0]);
-        console.log("images", this.images);
         this.updateImages();
       }
       if (file.status === "removed") {
-        console.log("file ===>", file.uid);
         this.images = this.images.filter(x => x !== file.response.data[0]);
-        console.log("images", this.images);
         this.updateImages();
       }
     },
@@ -648,8 +642,11 @@ export default {
       G.post(url, fd)
         .cb(data => {
           if (data.status === 0) {
+            this.formulaTitle.value = '';
             this.formulaTitle.status = "success";
+            this.formulaPrice.value = '';
             this.formulaPrice.status = "success";
+            this.formulaInventory.value = '';
             this.formulaInventory.status = "success";
             let formula = {
               id: data.item,
@@ -670,7 +667,6 @@ export default {
         .req();
     },
     deleteFormula(item) {
-      console.log("delete formula", item);
       const url = `${this.apiUrl}/backend/product/formula/${item.id}`;
       G.delete(url)
         .cb(data => {
@@ -731,7 +727,7 @@ export default {
       G.get(url)
         .cb(data => {
           if (data.status === 0) {
-            this.commodityTags = data.list;
+            this.commodityTags = !!data.list ? data.list : [];
           } else {
             this.$message.error(data.message);
           }
@@ -742,7 +738,6 @@ export default {
     nextTags(tag) {
       const _tag = JSON.parse(JSON.stringify(tag));
       this.tagPath.push(_tag);
-      console.log(this.tagPath.length);
       this.loadTags(tag.id);
     },
     upTags() {
