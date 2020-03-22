@@ -26,6 +26,12 @@
             </a-row>
 
             <a-table :columns="columns" :dataSource="list" :pagination="false">
+              <span slot="title"  slot-scope="record">
+                <div style="width:240px; white-space: nowrap;  overflow: hidden;  text-overflow: ellipsis;">{{record.title}}</div>
+              </span>
+              <span slot="summary" slot-scope="record">
+                <div style="width:240px; white-space: nowrap;  overflow: hidden;  text-overflow: ellipsis;">{{record.summary}}</div>
+              </span>
               <span slot="action" slot-scope="record">
                 <a href="javascript:;" @click="editArticle(record)">
                   <a-icon type="edit"></a-icon>
@@ -67,8 +73,8 @@ const _view = {
 };
 
 const columns = [
-  { title: "标题", dataIndex: "title" },
-  { title: "摘要", dataIndex: "summary" },
+  { title: "标题", width: '240px', scopedSlots: { customRender: "title"} },
+  { title: "摘要", width: '240px', scopedSlots: { customRender: "summary"}  },
   { title: "作者", dataIndex: "author" },
   { title: "发布", dataIndex: "publisher" },
   { title: "时间", dataIndex: "createDate" },
@@ -148,3 +154,9 @@ export default {
   }
 };
 </script>
+<style lang="css" scoped>
+tr>td:nth-child(2) {
+  width: 20px;
+  background-color: rebeccapurple;
+}
+</style>
