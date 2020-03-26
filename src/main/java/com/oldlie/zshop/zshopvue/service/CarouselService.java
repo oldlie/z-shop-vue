@@ -27,7 +27,7 @@ public class CarouselService {
     public SimpleResponse<Long> store(Carousel carousel) {
         SimpleResponse<Long> response = new SimpleResponse<>();
         Carousel target = null;
-        if (carousel.getId() > 0) {
+        if (carousel.getId() != null && carousel.getId() > 0) {
             target = this.carouselRepository.findById(carousel.getId()).orElseGet(null);
             if (target == null) {
                 response.setStatus(HTTP_CODE.FAILED);

@@ -35,7 +35,7 @@ public class AdminCarouselController {
         return this.carouselService.store(carousel);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/carousel/{id}")
     public BaseResponse delete(@PathVariable(name = "id") long id) {
         return this.carouselService.delete(id);
     }
