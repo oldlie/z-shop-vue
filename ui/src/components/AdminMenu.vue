@@ -9,9 +9,9 @@
         <a-sub-menu key="sub1" @titleClick="titleClick">
             <span slot="title">
                 <a-icon type="home" />
-                <span>首页设置</span>
+                <router-link to="/admin/dashboard">首页设置</router-link>
             </span>
-            <a-menu-item key="1">Carousel Setting</a-menu-item>
+            <a-menu-item key="1">轮播图设置</a-menu-item>
             <a-menu-item key="2">New Product</a-menu-item>
             <a-menu-item key="3">Products Setting</a-menu-item>
             <a-menu-item key="4">文章</a-menu-item>
@@ -44,8 +44,6 @@ export default {
     },
     methods: {
         handleClick(e) {
-            console.log("click", e);
-            console.log("click", e.key);
             if (this.activeIndex !== e.key) {
                 this.activeIndex = e.key;
                 this.$emit("menuChangeEvent", e.key);
@@ -55,7 +53,6 @@ export default {
     },
     watch: {
         openKeys(val) {
-            console.log("openKeys", val);
         }
     }
 };

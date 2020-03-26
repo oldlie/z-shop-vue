@@ -24,9 +24,8 @@ public class CarouselService {
         this.carouselRepository = carouselRepository;
     }
 
-    public SimpleResponse<Long> store(AppRequest<Carousel> request) {
+    public SimpleResponse<Long> store(Carousel carousel) {
         SimpleResponse<Long> response = new SimpleResponse<>();
-        Carousel carousel = request.getBody();
         Carousel target = null;
         if (carousel.getId() > 0) {
             target = this.carouselRepository.findById(carousel.getId()).orElseGet(null);

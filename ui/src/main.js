@@ -22,6 +22,7 @@ import AdminMenu from './components/AdminMenu'
 
 Vue.component('admin-menu', AdminMenu);
 
+import AdminCarouselComponent from './components/admin/AdminCarousel'
 import AdminArticleComponent from './components/admin/AdminArticle'
 import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
@@ -30,6 +31,7 @@ import AdminPayCardPreviewComponent from './components/admin/AdminPayCardPreview
 import AdminPayCardSellComponent from './components/admin/AdminPayCardSell'
 import AdminProductComponent from './components/admin/AdminProduct'
 
+Vue.component('admin-carousel', AdminCarouselComponent);
 Vue.component('admin-article', AdminArticleComponent);
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);

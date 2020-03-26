@@ -17,37 +17,12 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class AdminDashboardController {
 
-    private CarouselService carouselService;
-
-    @Autowired
-    public void setCarouselService(CarouselService carouselService) {
-        this.carouselService = carouselService;
-    }
-
     private TagService tagService;
 
     @Autowired
     public void setTagService(TagService tagService) {
         this.tagService = tagService;
     }
-
-
-    // region Carousel
-    @GetMapping(value = "/carousel")
-    public ListResponse<Carousel> listCarousel() {
-        return this.carouselService.list();
-    }
-
-    @PostMapping(value = "/carousel", consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public SimpleResponse<Long> storeCarousel(@RequestBody AppRequest<Carousel> request) {
-        return this.carouselService.store(request);
-    }
-
-    @DeleteMapping(value = "/carousel/{id}")
-    public BaseResponse deleteCarousel(@PathVariable("id") Long id) {
-        return this.carouselService.delete(id);
-    }
-    // endregion
 
     // region Menu Tag
     @PostMapping(value = "/tag", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
