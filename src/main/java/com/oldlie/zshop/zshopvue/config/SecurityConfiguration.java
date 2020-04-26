@@ -46,8 +46,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterAfter(dynamicallyUrlInterceptor(), FilterSecurityInterceptor.class)
                 .authorizeRequests()
-                .antMatchers("/", "/name", "/quite").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/", "/name", "/quite", "/public/**").permitAll()
+                //.anyRequest().authenticated()
+                //.and().anonymous()
                 .and()
                 .addFilter(new JWTLoginFilter(authenticationManager()))
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(), this.userService));

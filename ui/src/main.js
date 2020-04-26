@@ -23,6 +23,7 @@ import AdminMenu from './components/AdminMenu'
 Vue.component('admin-menu', AdminMenu);
 
 import AdminCarouselComponent from './components/admin/AdminCarousel'
+import AdminCarouselNavComponent from './components/admin/AdminCarouselNav'
 import AdminArticleComponent from './components/admin/AdminArticle'
 import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
@@ -32,6 +33,7 @@ import AdminPayCardSellComponent from './components/admin/AdminPayCardSell'
 import AdminProductComponent from './components/admin/AdminProduct'
 
 Vue.component('admin-carousel', AdminCarouselComponent);
+Vue.component('admin-carousel-nav', AdminCarouselNavComponent)
 Vue.component('admin-article', AdminArticleComponent);
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
@@ -101,8 +103,9 @@ Vue.use(VueCookies)
 // import QS from 'qs'
 // Vue.prototype.qs = QS;
 
-Vue.prototype.apiUrl = 'http://localhost:8088';
+Vue.prototype.apiUrl = 'http://localhost:8090';
 Vue.prototype.bus = new Vue();
+Vue.prototype.$g = window.G;
 
 new Vue({
   router,

@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 
 @AllArgsConstructor
 @Builder
@@ -15,6 +16,7 @@ import javax.persistence.Table;
 @Table(name = "t_tag")
 @ToString
 public class Tag extends BaseEO {
+    @NotEmpty
     private String title;
     private int category;
     @Column(columnDefinition = "int comment '标签顺序'")

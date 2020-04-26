@@ -184,7 +184,6 @@ export default {
     onChangeAllowComment(checked, e) {
       e.preventDefault();
       this.allowComment = checked;
-      console.log(this.allowComment);
     },
     // region thumbnail
     beforeThumbnailUpload(file) {
@@ -204,14 +203,11 @@ export default {
         return;
       }
       if (info.file.status === "done") {
-        console.log("handleChange ===>", info);
         let response = info.file.response;
         if (!!response["data"]) {
           this.thumbnail = response["data"][0];
-          console.log("thumbnail=>", this.thumbnail);
         }
 
-        console.log(this.thumbnail);
         // Get this url from response in real world.
         getBase64(info.file.originFileObj, imageUrl => {
           //this.thumbnail = imageUrl;
@@ -227,7 +223,6 @@ export default {
       G.get(url)
         .cb(data => {
           if (data.status === 0) {
-            console.log("load articles", data);
             const tmp = data.item;
             this.form.setFieldsValue({
               title: tmp.title,
@@ -279,7 +274,6 @@ export default {
     nextTags(tag) {
       const _tag = JSON.parse(JSON.stringify(tag));
       this.tagPath.push(_tag);
-      console.log(this.tagPath.length);
       this.loadTags(tag.id);
     },
     upTags() {

@@ -3,6 +3,7 @@ package com.oldlie.zshop.zshopvue.controller;
 import com.oldlie.zshop.zshopvue.model.db.User;
 import com.oldlie.zshop.zshopvue.model.front.FrontUser;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
+import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -51,4 +52,5 @@ public class IndexController {
         response.setItem(target);
         return response;
     }
+
 }
