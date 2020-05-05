@@ -12,7 +12,7 @@
         <router-link to="/admin/dashboard">首页设置</router-link>
       </span>
       <a-menu-item key="1">轮播图设置</a-menu-item>
-      <a-menu-item key="5">轮播图导航设置</a-menu-item>
+      <a-menu-item key="5">快捷导航设置</a-menu-item>
       <a-menu-item key="2">New Product</a-menu-item>
       <a-menu-item key="3">Products Setting</a-menu-item>
       <a-menu-item key="4">文章</a-menu-item>

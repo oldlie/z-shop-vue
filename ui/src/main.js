@@ -27,6 +27,7 @@ import AdminCarouselNavComponent from './components/admin/AdminCarouselNav'
 import AdminArticleComponent from './components/admin/AdminArticle'
 import AdminTagComponent from './components/admin/AdminTag'
 import AdminTagsComponent from './components/admin/AdminTags'
+import AdminCommonTagsComponent from './components/admin/AdminCommonTags'
 import AdminPayCardComponent from './components/admin/AdminPayCard'
 import AdminPayCardPreviewComponent from './components/admin/AdminPayCardPreview'
 import AdminPayCardSellComponent from './components/admin/AdminPayCardSell'
@@ -37,6 +38,7 @@ Vue.component('admin-carousel-nav', AdminCarouselNavComponent)
 Vue.component('admin-article', AdminArticleComponent);
 Vue.component('admin-tag', AdminTagComponent);
 Vue.component('admin-tags', AdminTagsComponent);
+Vue.component('admin-common-tags', AdminCommonTagsComponent)
 Vue.component('admin-pay-card', AdminPayCardComponent);
 Vue.component('admin-pay-card-preview', AdminPayCardPreviewComponent);
 Vue.component('admin-pay-card-sell', AdminPayCardSellComponent)
