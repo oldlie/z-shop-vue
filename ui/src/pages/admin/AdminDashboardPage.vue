@@ -10,7 +10,11 @@
             <admin-carousel></admin-carousel>
           </a-row>
           <a-row v-if="activeIndex === '5'">
-            <admin-common-tags @addTagsEvent="handleAddTagEvent" @removeTagEvent="handleRemoveTagEvent"></admin-common-tags>
+            <admin-common-tags
+              :defaultCheckedTags="defaultChecked"
+              @addTagEvent="handleAddTagEvent"
+              @removeTagEvent="handleRemoveTagEvent"
+            ></admin-common-tags>
           </a-row>
         </a-col>
       </a-row>
@@ -34,7 +38,7 @@ export default {
     activeIndexChanged(index) {
       console.log("activeIndexChanged", index);
       this.activeIndex = index;
-      if (this.activeIndex === 5) {
+      if (this.activeIndex === "5") {
         this.loadCheckedTags();
       }
     },
@@ -48,58 +52,62 @@ export default {
         tagTitle: tag.title,
         sequence: 0
       };
-      this.$g.post(url, params)
-      .cb(data => {
-        if (data.status === 0) {
-          this.$message.success('已保存');
-        } else {
-          console.error(data)
-        }
-      })
-      .fcb(() => {
-        this.loading = false;
-      })
-      .req();
+      this.$g
+        .post(url, params)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("已保存");
+          } else {
+            console.error(data);
+          }
+        })
+        .fcb(() => {
+          this.loading = false;
+        })
+        .req();
     },
     handleRemoveTagEvent(tag, tags) {
       const url = `${this.apiUrl}/backend/quick-nav-tag/${tag.id}`;
       this.loading = true;
-      this.$g.delete(url)
-      .cb(data => {
-        if (data.status === 0) {
-          this.$message.success("已删除");
-        } else {
-          console.log(data)
-        }
-      })
-      .fcb(() => {
-        this.loading = false;
-      })
-      .req();
+      this.$g
+        .delete(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("已删除");
+          } else {
+            console.log(data);
+          }
+        })
+        .fcb(() => {
+          this.loading = false;
+        })
+        .req();
     },
     loadCheckedTags() {
       const url = `${this.apiUrl}/backend/quick-nav-tags`;
       this.loading = true;
-      this.$g.get(url)
-      .cb(data => {
-        if (data.status === 0) {
-          if (!!data.list && data.list.length > 0) {
-            for (let index = 0; index < data.list.length; index++) {
-              let item = data.list[index];
-              this.defaultChecked.push(
-                {
+      this.$g
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            console.log(data.list.length);
+            if (!!data.list && data.list.length > 0) {
+              let temp = [];
+              for (let index = 0; index < data.list.length; index++) {
+                let item = data.list[index];
+                temp.push({
                   id: item.tagId,
                   title: item.tagTitle
-                }
-              );
+                });
+              }
+              this.defaultChecked = temp;
             }
+          } else {
+            console.error(data);
           }
-        } else {
-          console.error(data);
-        }
-      })
-      .fcb(() => this.loading = false)
-      .req();
+        })
+        .fcb(() => (this.loading = false))
+        .req();
     }
     // endregion
   } // end of methods

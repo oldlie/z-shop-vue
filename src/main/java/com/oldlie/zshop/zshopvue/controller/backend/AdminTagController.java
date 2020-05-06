@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 @RequestMapping("/backend")
 @RestController
@@ -64,7 +66,9 @@ public class AdminTagController {
     }
 
     @PostMapping(value = "/quick-nav-tag", consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public BaseResponse quickNavTag(@RequestBody QuickNavTag tag) {
+    public BaseResponse quickNavTag(@RequestBody QuickNavTag tag,
+                                    HttpServletRequest request) {
+
         return this.quickNavTagService.store(tag);
     }
 

@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 @AllArgsConstructor
 @Builder
+@Data
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor

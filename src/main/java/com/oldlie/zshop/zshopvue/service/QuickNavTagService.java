@@ -55,10 +55,10 @@ public class QuickNavTagService {
         return response;
     }
 
-    public BaseResponse delete(long id) {
+    public BaseResponse delete(long tagId) {
         BaseResponse response = new BaseResponse();
         this.repository.findOne(
-                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id)
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("tagId"), tagId)
         ).ifPresent(
                 x -> this.repository.delete(x)
         );

@@ -3,7 +3,7 @@
     <a-layout id="components-layout-demo-top" class="layout">
       <a-layout-header>
         <div class="user-panel-left"></div>
-        <user-panel-links ></user-panel-links>
+        <user-panel-links></user-panel-links>
         <a-menu
           mode="horizontal"
           :defaultSelectedKeys="['2']"
@@ -29,14 +29,10 @@
           </a-col>
           <a-col :span="14" :style="{'text-align': 'left', 'padding': '20px 0 0 0'}">
             <span>全部产品分类</span>
-            <a-divider type="vertical" />
-            <a href="#">水产品</a>
-            <a-divider type="vertical" />
-            <a href="#">水果</a>
-            <a-divider type="vertical" />
-            <a href="#">零食</a>
-            <a-divider type="vertical" />
-            <a href="#">生活用品</a>
+            <span v-for="(item, index) in quickNavTags" :key="index">
+              <a-divider type="vertical" />
+              <a href="#">{{item.tagTitle}}</a>
+            </span>
           </a-col>
           <a-col :span="6" :style="{'padding': '20px 0 0 0'}">
             <a-input-search placeholder="请输入产品名称" style="width: 100%" />
@@ -111,16 +107,27 @@ export default {
   data() {
     return {
       current: ["home"],
-     
+      quickNavTags: []
     };
   },
   created() {},
   mounted() {
-    
+    this.loadQuickNavTags();
   },
   methods: {
     onChange(a, b, c) {},
-    
+    loadQuickNavTags() {
+      const url = `${this.apiUrl}/public/home/quick-nav-tags`;
+      this.$g
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.quickNavTags = data.list;
+          }
+        })
+        .fcb()
+        .req();
+    }
   }
 };
 </script>

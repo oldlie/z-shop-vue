@@ -10,13 +10,15 @@
         </a-button-group>
     </a-row>
     <a-row class="inner-row" v-if="this.checkedTags.length > 0">
-      <p>已选的快捷标签（点击已选的标签取消）：</p>
       <a-button
         style="margin:5px;"
         v-for="(item, index) in checkedTags"
         :key="index"
         @click="uncheck(item)"
-      >{{item.title}}</a-button>
+      >{{item.title}}
+            <a-divider type="vertical" />
+            <a-icon type="delete"></a-icon>
+      </a-button>
     </a-row>
   </a-spin>
 </template>
@@ -34,7 +36,13 @@ export default {
       checkedTags: []
     };
   },
+  watch:{
+    defaultCheckedTags (nv, ov) {
+      this.checkedTags = nv;
+    }
+  },
   mounted() {
+    console.log('this.defaultCheckedTags =', this.defaultCheckedTags);
     this.checkedTags = JSON.parse(JSON.stringify(this.defaultCheckedTags));
     this.nextLevel({ id: 0 });
   },
