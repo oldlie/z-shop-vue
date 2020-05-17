@@ -5,6 +5,7 @@ import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
+import com.oldlie.zshop.zshopvue.model.front.TagCommodities;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,29 +47,47 @@ public class CommodityService {
     private CommodityProfileRepository commodityProfileRepository;
     private CommoditySpecificationTemplateRepository commoditySpecificationTemplateRepository;
     private CommodityTagRepository commodityTagRepository;
+    private HomeCommodityTagRepository homeCommodityTagRepository;
+    private TagRepository tagRepository;
 
     @Autowired
     public void setCommodityRepository(CommodityRepository commodityRepository) {
         this.commodityRepository = commodityRepository;
     }
+
     @Autowired
     public void setCommodityFormulaRepository(CommodityFormulaRepository commodityFormulaRepository) {
         this.commodityFormulaRepository = commodityFormulaRepository;
     }
+
     @Autowired
     public void setCommodityProfileRepository(CommodityProfileRepository commodityProfileRepository) {
         this.commodityProfileRepository = commodityProfileRepository;
     }
+
     @Autowired
     public void setCommoditySpecificationTemplateRepository(
             CommoditySpecificationTemplateRepository commoditySpecificationTemplateRepository) {
         this.commoditySpecificationTemplateRepository = commoditySpecificationTemplateRepository;
     }
+
     @Autowired
     public void setCommodityTagRepository(CommodityTagRepository commodityTagRepository) {
         this.commodityTagRepository = commodityTagRepository;
     }
+
+    @Autowired
+    public void setTagRepository(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
+    }
+
+    @Autowired
+    public void setHomeCommodityTagRepository(HomeCommodityTagRepository homeCommodityTagRepository) {
+        this.homeCommodityTagRepository = homeCommodityTagRepository;
+    }
+
     // region 商品规格模板
+
     /**
      * 添加商品规格模板
      *
@@ -109,6 +129,7 @@ public class CommodityService {
 
     /**
      * 删除商品的模板
+     *
      * @param request 要删除的ID
      * @return 删除是否成功
      */
@@ -151,7 +172,7 @@ public class CommodityService {
     public BaseResponse online(final long id) {
         this.commodityRepository.findOne(
                 (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id)
-        ).ifPresent( x -> {
+        ).ifPresent(x -> {
             x.setStatus(COMMODITY_STATUS.ONLINE);
             this.commodityRepository.save(x);
         });
@@ -159,9 +180,9 @@ public class CommodityService {
     }
 
     public BaseResponse offline(final long id) {
-         this.commodityRepository.findOne(
+        this.commodityRepository.findOne(
                 (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id)
-        ).ifPresent( x -> {
+        ).ifPresent(x -> {
             x.setStatus(COMMODITY_STATUS.OFFLINE);
             this.commodityRepository.save(x);
         });
@@ -208,7 +229,7 @@ public class CommodityService {
         PageResponse<Commodity> response = new PageResponse<>();
         List<CommodityTag> commodityTags = this.commodityTagRepository.findAll(
                 (root, criteriaQuery, criteriaBuilder) ->
-                        criteriaBuilder.like(root.get(field), "%"+ value + "%"));
+                        criteriaBuilder.like(root.get(field), "%" + value + "%"));
         if (commodityTags == null || commodityTags.size() <= 0) {
             return response;
         }
@@ -271,7 +292,7 @@ public class CommodityService {
         // this.commodityTagRepository.deleteByCommodityIdAndTagId(commodityId, tagId);
         this.commodityTagRepository.findOne(
                 (root, criteriaQuery, criteriaBuilder) -> {
-                    Predicate predicate = criteriaBuilder.equal(root.get("commodityId"),commodityId);
+                    Predicate predicate = criteriaBuilder.equal(root.get("commodityId"), commodityId);
                     Predicate predicate1 = criteriaBuilder.equal(root.get("tagId"), tagId);
                     return criteriaBuilder.and(predicate, predicate1);
                 }
@@ -362,6 +383,62 @@ public class CommodityService {
                 this.commodityProfileRepository.findOne(factory.equal("commodityId", commodityId))
                         .orElse(null);
         response.setItem(profile);
+        return response;
+    }
+    // endregion
+
+    // region home products
+
+    /**
+     * TODO: 以后要加缓存
+     *
+     * @return
+     */
+    public SimpleResponse<TagCommodities> topCommodities() {
+        SimpleResponse<TagCommodities> response = new SimpleResponse<>();
+        Page<Commodity> page = this.commodityRepository.findAll(
+                (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), COMMODITY_STATUS.ONLINE),
+                ZsTool.pageable(1, 4, "id", "desc")
+        );
+        TagCommodities products = com.oldlie.zshop.zshopvue.model.front.TagCommodities.builder()
+                .title("最新上架")
+                .list(page.getContent())
+                .build();
+        response.setItem(products);
+        return response;
+    }
+
+    /**
+     * TODO： 以后要加缓存
+     *
+     * @return
+     */
+    @Transactional
+    public ListResponse<TagCommodities> homeCommodities() {
+        ListResponse<TagCommodities> response = new ListResponse<>();
+        List<HomeTag> tags = this.homeCommodityTagRepository.findAll();
+        List<TagCommodities> list = new LinkedList<>();
+        for (HomeTag tag : tags) {
+            Optional<Tag> op = this.tagRepository.findById(tag.getTagId());
+            if (!op.isPresent()) {
+                continue;
+            }
+            Tag _tag = op.get();
+            Page<Commodity> page = this.commodityRepository.findAllByTagId(_tag.getId(),
+                    COMMODITY_STATUS.ONLINE,
+                    ZsTool.pageable(0, 4, "id", "desc"));
+            List<Commodity> content = page.getContent();
+            List<Commodity> commodities = new LinkedList<>();
+            for (Object obj : content) {
+                Object[] objects = (Object[]) obj;
+                commodities.add((Commodity) objects[0]);
+            }
+            list.add(com.oldlie.zshop.zshopvue.model.front.TagCommodities.builder()
+                    .title(_tag.getTitle())
+                    .list(commodities)
+                    .build());
+        }
+        response.setList(list);
         return response;
     }
     // endregion

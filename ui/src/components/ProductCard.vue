@@ -14,9 +14,9 @@
     <a-row :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '0 0 50px 0' }">
       <a-col :span="6" v-for="item in products" :key="item['id']">
         <a-card hoverable class="product-card">
-          <img :alt="item['title']" :src="item['image']" slot="cover">
-          <a-card-meta title="Europe Street beat">
-            <template slot="description">www.instagram.com</template>
+          <img :alt="item['title']" :src="item['thumbnail']" slot="cover">
+          <a-card-meta :title="item['title']">
+            <template slot="description">{{item['introduction']}}</template>
           </a-card-meta>
         </a-card>
       </a-col>

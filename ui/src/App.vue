@@ -99,8 +99,6 @@
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
-import { userInfo } from "os";
 
 export default {
   name: "app",

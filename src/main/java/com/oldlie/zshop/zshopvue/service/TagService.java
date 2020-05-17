@@ -165,4 +165,19 @@ public class TagService {
         return response;
     }
 
+    // region Home commodity tags
+    public ListResponse<Tag> homeCommodityTags () {
+        ListResponse<Tag> response = new ListResponse<>();
+        List<Tag> list = this.tagRepository.findAllByHomeTag(0);
+        response.setList(list);
+        return response;
+    }
+
+    public ListResponse<Tag> homeArticleTags () {
+        ListResponse<Tag> response = new ListResponse<>();
+        List<Tag> list = this.tagRepository.findAllByHomeTag(1);
+        response.setList(list);
+        return response;
+    }
+    // endregion
 }

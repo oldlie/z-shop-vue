@@ -9,6 +9,7 @@ import com.oldlie.zshop.zshopvue.model.db.Tag;
 import com.oldlie.zshop.zshopvue.model.db.repository.ArticleRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.ArticleTagRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.TagRepository;
+import com.oldlie.zshop.zshopvue.model.front.HomeArticles;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,7 +92,6 @@ public class ArticleService {
         return response;
     }
 
-
     public SimpleResponse<Long> store(Article article) {
        SimpleResponse<Long> response = new SimpleResponse<>();
        Article target;
@@ -137,7 +138,6 @@ public class ArticleService {
         }
         return response;
     }
-
 
     public PageResponse<Article> list(String key, String value, int index, int size, String orderBy, String order) {
         PageResponse<Article> response = new PageResponse<>();
@@ -228,6 +228,30 @@ public class ArticleService {
                     return criteriaBuilder.and(predicateArticleId, predicateTagId);
                 }
         ).ifPresent(x -> this.articleTagRepository.delete(x));
+        return response;
+    }
+
+    /**
+     * 一次性获取首页的文章tag，以及
+     * @return
+     */
+    public SimpleResponse<HomeArticles> homeArticles () {
+        SimpleResponse<HomeArticles> response = new SimpleResponse<>();
+        List<Tag> tags = this.tagRepository.findAllByHomeTag(1);
+        Tag tag = tags.get(0);
+        Page page = this.articleRepository.findAllByTagId(tag.getId(),
+                ZsTool.pageable(0, 10, "id", "desc"));
+        List content = page.getContent();
+        List<Article> articles = new LinkedList<>();
+        content.forEach(x -> {
+            Object[] object = (Object[]) x;
+            articles.add((Article) object[0]);
+        });
+        response.setItem(HomeArticles.builder()
+                .firstTag(tag)
+                .tags(tags)
+                .articles(articles)
+                .build());
         return response;
     }
 }
