@@ -16,17 +16,8 @@
     </a-spin>
     <div :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '20px 0' }">
       <a-tabs defaultActiveKey="1" @change="onTabChange">
-        <a-tab-pane tab="最新资讯" key="1">
-          <article-list></article-list>
-        </a-tab-pane>
-        <a-tab-pane tab="重要通知" key="2" forceRender>
-          <article-list></article-list>
-        </a-tab-pane>
-        <a-tab-pane tab="试吃测评" key="3">
-          <article-list></article-list>
-        </a-tab-pane>
-        <a-tab-pane tab="地理标志" key="4">
-          <article-list></article-list>
+        <a-tab-pane v-for="(item, index) in articleTags" :key="item.id" :tab="item.title">
+          <article-list :articles="articles"></article-list>
         </a-tab-pane>
       </a-tabs>
     </div>
@@ -164,7 +155,9 @@ export default {
           ]
         }
       ],
-      baseUrl
+      baseUrl,
+      articleTags: [],
+      articles: [],
     };
   },
   mounted() {
@@ -180,7 +173,9 @@ export default {
       return `${baseUrl}abstract0${i + 1}.jpg`;
     },
     onChange(a, b, c) {},
-    onTabChange() {},
+    onTabChange(index) {
+      console.log('on tab change--->', index);
+    },
     loadLatestCommodities() {
       const url = `${this.apiUrl}/public/home/top-commodities`;
       this.topProductLoading = true;
@@ -218,6 +213,10 @@ export default {
       this.$g.get(url)
       .cb(data => {
         console.log('load articles --->', data)
+        if (data.status === 0) {
+          this.articleTags = data.item.tags;
+          this.articles = data.item.articles;
+        }
       })
       .fcb()
       .req();

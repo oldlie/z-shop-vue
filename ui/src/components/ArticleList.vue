@@ -1,8 +1,5 @@
 <template>
   <a-list itemLayout="vertical" size="large" :pagination="pagination" :dataSource="listData">
-    <div slot="footer">
-      <b>ant design vue</b> footer part
-    </div>
     <a-list-item
       slot="renderItem"
       slot-scope="item"
@@ -11,26 +8,23 @@
     >
       <template slot="actions" v-for="{type, text} in actions">
         <span :key="type">
-          <a-icon :type="type" style="margin-right: 8px"/>
+          <a-icon :type="type" style="margin-right: 8px" />
           {{text}}
         </span>
       </template>
-      <img
-        slot="extra"
-        width="272"
-        alt="logo"
-        src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
-      >
+      <img slot="extra" width="272" alt="logo" :src="item.imageUrl" />
       <a-list-item-meta :description="item.description">
         <div slot="title" :href="item.href">
+          <!--
           <a-tag color="#f50">#f50</a-tag>
           <a-tag color="#2db7f5">#2db7f5</a-tag>
           <a-tag color="#87d068">#87d068</a-tag>
           <a-tag color="#108ee9">#108ee9</a-tag>
+          -->
           <router-link :to="{ path: '/article/1'}">{{item.title}}</router-link>
         </div>
       </a-list-item-meta>
-      {{item.content}}
+      {{item.summary}}
     </a-list-item>
   </a-list>
 </template>
@@ -50,6 +44,9 @@ for (let i = 0; i < 23; i++) {
 
 export default {
   name: "ArticleList",
+  props: {
+    articles: Array
+  },
   data() {
     return {
       listData,
@@ -57,7 +54,7 @@ export default {
         onChange: page => {
           console.log(page);
         },
-        pageSize: 3
+        pageSize: 10
       },
       actions: [
         { type: "star-o", text: "156" },
@@ -65,6 +62,14 @@ export default {
         { type: "message", text: "2" }
       ]
     };
+  },
+  watch: {
+    articles(nv, ov) {
+      this.listData = JSON.parse(JSON.stringify(this.articles));
+    }
+  },
+  mounted() {
+    this.listData = JSON.parse(JSON.stringify(this.articles));
   }
 };
 </script>

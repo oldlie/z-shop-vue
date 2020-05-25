@@ -13,4 +13,10 @@ public interface TagRepository extends JpaRepository<Tag, Long>, JpaSpecificatio
 
     @Query("FROM Tag as t join HomeTag as h on t.id=h.tagId where h.category=:category order by h.id asc")
     List<Tag> findAllByHomeTag(@Param("category") int category);
+
+    @Query("from Tag as t join ArticleTag a on t.id=a.tagId where a.articleId=articleId")
+    List<Tag> findAllByArticleId(@Param("articleId") long articleId);
+
+    @Query("FROM Tag as t join CommodityTag as c on t.id=c.tagId where c.commodityId=:commodityId")
+    List<Tag> findAllByCommodityId(@Param("commodityId") long commodity);
 }
