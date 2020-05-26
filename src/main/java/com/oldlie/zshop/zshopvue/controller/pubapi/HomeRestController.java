@@ -4,6 +4,7 @@ import com.oldlie.zshop.zshopvue.model.db.Article;
 import com.oldlie.zshop.zshopvue.model.db.Carousel;
 import com.oldlie.zshop.zshopvue.model.db.Commodity;
 import com.oldlie.zshop.zshopvue.model.db.QuickNavTag;
+import com.oldlie.zshop.zshopvue.model.front.CommodityInfo;
 import com.oldlie.zshop.zshopvue.model.front.HomeArticles;
 import com.oldlie.zshop.zshopvue.model.front.TagCommodities;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
@@ -14,11 +15,12 @@ import com.oldlie.zshop.zshopvue.service.CarouselService;
 import com.oldlie.zshop.zshopvue.service.CommodityService;
 import com.oldlie.zshop.zshopvue.service.QuickNavTagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author oldlie
+ */
 @RestController
 @RequestMapping("/public/home")
 public class HomeRestController {
@@ -65,6 +67,11 @@ public class HomeRestController {
         return this.commodityService.homeCommodities();
     }
 
+    @GetMapping("/commodity/{id}")
+    public SimpleResponse<CommodityInfo>  commodity(@PathVariable("id") long id) {
+        return this.commodityService.commodityInfo(id);
+    }
+
     @GetMapping(value = "/commodities/{tagId}/{page}/{size}")
     public PageResponse<Commodity> commodities(long tagId,
                                              int page,
@@ -80,6 +87,10 @@ public class HomeRestController {
         return this.commodityService.commodities(key, value, page, size, "id", "desc");
     }
 
+    @GetMapping(value = "/article/{id}")
+    public SimpleResponse<Article> article(@PathVariable("id") long id) {
+        return this.articleService.article(id);
+    }
 
     @GetMapping("/articles")
     public SimpleResponse<HomeArticles> homeArticles () {
@@ -87,9 +98,9 @@ public class HomeRestController {
     }
 
     @GetMapping("/articles/{tagId}/{page}/{size}")
-    public ListResponse<Article> articles(@RequestParam("tagId") long tagId,
-                                          @RequestParam("page") int page,
-                                          @RequestParam("size") int size) {
-        return this.articleService.homeArticles(tagId, page, size);
+    public PageResponse<Article> articles(@RequestParam("tagId") long tagId,
+                                           @RequestParam("page") int page,
+                                           @RequestParam("size") int size) {
+        return this.articleService.articles(tagId, page, size);
     }
 }

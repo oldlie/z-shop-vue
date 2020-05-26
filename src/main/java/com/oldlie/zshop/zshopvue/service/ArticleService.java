@@ -54,7 +54,7 @@ public class ArticleService {
         this.tagRepository = tagRepository;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SimpleResponse<Long> store(AppRequest<Article> request, Long uid, String username) {
         SimpleResponse<Long> response = new SimpleResponse<>();
         Article article = request.getBody();
@@ -174,7 +174,7 @@ public class ArticleService {
         return response;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ListResponse<Tag> tags(final long id) {
         ListResponse<Tag> response = new ListResponse<>();
         List<ArticleTag> articleTags = this.articleTagRepository.findAll(
@@ -196,7 +196,7 @@ public class ArticleService {
         return response;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SimpleResponse<Long> tag(final long articleId, final long tagId) {
        SimpleResponse<Long> response = new SimpleResponse<>();
        Optional<ArticleTag> optional = this.articleTagRepository.findOne(
@@ -231,7 +231,7 @@ public class ArticleService {
         return response;
     }
 
-    private List<Article> top10Articles(long tagId, int pageIndex, int size) {
+    public PageResponse<Article> articles(long tagId, int pageIndex, int size) {
         Page page = this.articleRepository.findAllByTagId(tagId,
                 ZsTool.pageable(pageIndex, size, "id", "desc"));
         List content = page.getContent();
@@ -240,7 +240,12 @@ public class ArticleService {
             Object[] object = (Object[]) x;
             articles.add((Article) object[0]);
         });
-        return articles;
+
+        PageResponse<Article> response = new PageResponse<>();
+        response.setList(articles);
+        response.setTotal(page.getTotalElements());
+
+        return response;
     }
 
     /**
@@ -251,22 +256,16 @@ public class ArticleService {
         SimpleResponse<HomeArticles> response = new SimpleResponse<>();
         List<Tag> tags = this.tagRepository.findAllByHomeTag(1);
         Tag tag = tags.get(0);
+
+        PageResponse<Article> article = this.articles(tag.getId(), 1, 10);
+
         response.setItem(HomeArticles.builder()
                 .firstTag(tag)
                 .tags(tags)
-                .articles(this.top10Articles(tag.getId(), 1, 10))
+                .articles(article.getList())
+                .total(article.getTotal())
                 .build());
-        return response;
-    }
 
-    /**
-     * 首页的文章
-     * @param tagId
-     * @return
-     */
-    public ListResponse<Article> homeArticles (long tagId, int page, int size) {
-        ListResponse<Article> response = new ListResponse<>();
-        response.setList(this.top10Articles(tagId, page, size));
         return response;
     }
 }

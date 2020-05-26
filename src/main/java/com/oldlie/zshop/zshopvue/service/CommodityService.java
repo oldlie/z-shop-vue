@@ -190,12 +190,11 @@ public class CommodityService {
         return new BaseResponse();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse deleteCommodity(final long id) {
         BaseResponse response = new BaseResponse();
 
         try {
-//            this.commodityTagRepository.deleteAllByCommodityId(id);
             List<CommodityTag> list = this.commodityTagRepository.findAll(
                     (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("commodityId"), id));
             this.commodityTagRepository.deleteAll(list);
@@ -231,7 +230,7 @@ public class CommodityService {
         List<CommodityTag> commodityTags = this.commodityTagRepository.findAll(
                 (root, criteriaQuery, criteriaBuilder) ->
                         criteriaBuilder.like(root.get(field), "%" + value + "%"));
-        if (commodityTags == null || commodityTags.size() <= 0) {
+        if (commodityTags.size() <= 0) {
             return response;
         }
 
@@ -414,7 +413,7 @@ public class CommodityService {
      *
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ListResponse<TagCommodities> homeCommodities() {
         ListResponse<TagCommodities> response = new ListResponse<>();
         List<Tag> tags = this.tagRepository.findAllByHomeTag(0);
@@ -489,6 +488,17 @@ public class CommodityService {
         }
         CommodityProfile profile = optional1.get();
         List<CommodityFormula> formulas = this.commodityFormulaRepository.findAllByCommodityIdOrderByIdAsc(id);
+
+        List<Tag> tags = this.tagRepository.findAllByCommodityId(id);
+
+        CommodityInfo info = CommodityInfo.builder()
+                .commodity(commodity)
+                .profile(profile)
+                .formulas(formulas)
+                .tags(tags)
+                .build();
+
+        response.setItem(info);
 
         return response;
     }

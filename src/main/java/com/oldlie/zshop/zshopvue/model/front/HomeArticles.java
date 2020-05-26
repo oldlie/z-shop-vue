@@ -20,4 +20,5 @@ public class HomeArticles {
     private Tag firstTag;
     private List<Tag> tags;
     private List<Article> articles;
+    private long total;
 }
