@@ -5,6 +5,7 @@ import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
+import com.oldlie.zshop.zshopvue.model.front.CommodityInfo;
 import com.oldlie.zshop.zshopvue.model.front.TagCommodities;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
@@ -416,15 +417,10 @@ public class CommodityService {
     @Transactional
     public ListResponse<TagCommodities> homeCommodities() {
         ListResponse<TagCommodities> response = new ListResponse<>();
-        List<HomeTag> tags = this.homeCommodityTagRepository.findAll();
+        List<Tag> tags = this.tagRepository.findAllByHomeTag(0);
         List<TagCommodities> list = new LinkedList<>();
-        for (HomeTag tag : tags) {
-            Optional<Tag> op = this.tagRepository.findById(tag.getTagId());
-            if (!op.isPresent()) {
-                continue;
-            }
-            Tag _tag = op.get();
-            Page<Commodity> page = this.commodityRepository.findAllByTagId(_tag.getId(),
+        for (Tag tag : tags) {
+            Page<Commodity> page = this.commodityRepository.findAllByTagId(tag.getId(),
                     COMMODITY_STATUS.ONLINE,
                     ZsTool.pageable(0, 4, "id", "desc"));
             List<Commodity> content = page.getContent();
@@ -434,13 +430,66 @@ public class CommodityService {
                 commodities.add((Commodity) objects[0]);
             }
             list.add(com.oldlie.zshop.zshopvue.model.front.TagCommodities.builder()
-                    .title(_tag.getTitle())
+                    .title(tag.getTitle())
                     .list(commodities)
                     .build());
         }
         response.setList(list);
         return response;
     }
+
+    /**
+     * 根据Tag Id 获取商品列表
+     * @param tagId tag id
+     * @param index start commodity position
+     * @param size page size
+     * @param order order column
+     * @param direct direction of order
+     * @return commodities with same tag id
+     */
+    public PageResponse<Commodity> commodities(long tagId, int index, int size, String order, String direct) {
+        PageResponse<Commodity> response = new PageResponse<>();
+        Page<Commodity> commodityPage = this.commodityRepository.findAllByTagId(tagId,
+                COMMODITY_STATUS.ONLINE,
+                ZsTool.pageable(index, size, order, direct)
+        );
+        List<Commodity> commodityList = new LinkedList<>();
+        List<Commodity> content = commodityPage.getContent();
+        for (Object obj : content) {
+            Object[] objects = (Object[]) obj;
+            commodityList.add((Commodity) objects[0]);
+        }
+        response.setTotal(commodityPage.getTotalElements());
+        response.setList(commodityList);
+        return response;
+    }
     // endregion
 
+    /**
+     * 根据商品的ID获取商品的全部信息
+     * @param id commodity id
+     * @return full commodity information, include: basic info, formula, profile
+     */
+    public SimpleResponse<CommodityInfo> commodityInfo(long id) {
+        SimpleResponse<CommodityInfo> response = new SimpleResponse<>();
+        Optional<Commodity> optional = this.commodityRepository.findById(id);
+        if (!optional.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("你要找的商品不存在了。");
+            return response;
+        }
+        Commodity commodity = optional.get();
+        Optional<CommodityProfile> optional1 = this.commodityProfileRepository.findOne(
+                (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("commodityId"), id)
+        );
+        if (!optional1.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("商品部分信息缺失，暂时无法浏览。");
+            return response;
+        }
+        CommodityProfile profile = optional1.get();
+        List<CommodityFormula> formulas = this.commodityFormulaRepository.findAllByCommodityIdOrderByIdAsc(id);
+
+        return response;
+    }
 }

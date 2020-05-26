@@ -231,6 +231,18 @@ public class ArticleService {
         return response;
     }
 
+    private List<Article> top10Articles(long tagId, int pageIndex, int size) {
+        Page page = this.articleRepository.findAllByTagId(tagId,
+                ZsTool.pageable(pageIndex, size, "id", "desc"));
+        List content = page.getContent();
+        List<Article> articles = new LinkedList<>();
+        content.forEach(x -> {
+            Object[] object = (Object[]) x;
+            articles.add((Article) object[0]);
+        });
+        return articles;
+    }
+
     /**
      * 一次性获取首页的文章tag，以及
      * @return
@@ -239,19 +251,22 @@ public class ArticleService {
         SimpleResponse<HomeArticles> response = new SimpleResponse<>();
         List<Tag> tags = this.tagRepository.findAllByHomeTag(1);
         Tag tag = tags.get(0);
-        Page page = this.articleRepository.findAllByTagId(tag.getId(),
-                ZsTool.pageable(0, 10, "id", "desc"));
-        List content = page.getContent();
-        List<Article> articles = new LinkedList<>();
-        content.forEach(x -> {
-            Object[] object = (Object[]) x;
-            articles.add((Article) object[0]);
-        });
         response.setItem(HomeArticles.builder()
                 .firstTag(tag)
                 .tags(tags)
-                .articles(articles)
+                .articles(this.top10Articles(tag.getId(), 1, 10))
                 .build());
+        return response;
+    }
+
+    /**
+     * 首页的文章
+     * @param tagId
+     * @return
+     */
+    public ListResponse<Article> homeArticles (long tagId, int page, int size) {
+        ListResponse<Article> response = new ListResponse<>();
+        response.setList(this.top10Articles(tagId, page, size));
         return response;
     }
 }
