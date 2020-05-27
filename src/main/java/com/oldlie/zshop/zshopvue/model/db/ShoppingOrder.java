@@ -16,7 +16,7 @@ import java.util.Collection;
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@Table(name = "t_shopping_order")
+@Table(name = "t_shopping_order", uniqueConstraints = { @UniqueConstraint(columnNames = "serialNumber") })
 @ToString
 public class ShoppingOrder extends BaseEO {
     private Long uid;
