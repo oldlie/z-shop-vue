@@ -26,8 +26,16 @@ public class ShoppingOrder extends BaseEO {
     private Money totalMoney;
     @Column(columnDefinition = "tinyint comment '订单状态'")
     private int status;
-    @Column(columnDefinition = "varchar(1000) comment '格式化之后的地址信息'")
+    @Column(columnDefinition = "varchar(2000) comment '格式化之后的地址信息'")
     private String addressInfo;
+    @Column(columnDefinition = "varchar(255) comment '快递单号'")
+    private String postSerialNumber;
+    @Column(columnDefinition = "varchar(255) comment '快递公司'")
+    private String postCompany;
+    @Column(columnDefinition = "varchar(1000) comment '订单备注信息'")
+    private String comment;
+    @Column(columnDefinition = "varchar(1000) comment '订单取消备注'")
+    private String cancelReason;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "shopping_order_id")
