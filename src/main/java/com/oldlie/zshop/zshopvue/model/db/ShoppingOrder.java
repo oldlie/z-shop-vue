@@ -38,6 +38,6 @@ public class ShoppingOrder extends BaseEO {
     private String cancelReason;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "shopping_order_id")
+    @JoinColumn(name = "ShoppingOrderId")
     private Collection<ShoppingOrderItem> items;
 }

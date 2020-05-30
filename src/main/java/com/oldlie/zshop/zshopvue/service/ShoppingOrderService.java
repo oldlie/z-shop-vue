@@ -223,8 +223,13 @@ public class ShoppingOrderService {
         this.repository.save(order);
 
         // 取消订单的时候需要返还
-        FinancialAccount ffa = this.faRepository.findFirstOrderByIdDesc();
-        Money fab = ffa == null ? Money.parse("￥ 0.00") : ffa.getBalance();
+        Money fab;
+        Page<FinancialAccount> ffaList = this.faRepository.findAll(ZsTool.pageable(0, 1,"id", "desc"));
+        if (ffaList.getTotalElements() > 0) {
+            fab = ffaList.getContent().get(0).getBalance();
+        } else {
+            fab = Money.parse("￥ 0.00");
+        }
         FinancialAccount fa = FinancialAccount.builder()
                 .optUid(uid)
                 .isAdd(FinancialAccount.INCOME)
@@ -392,16 +397,16 @@ public class ShoppingOrderService {
 
         Money money = order.getTotalMoney();
 
-        FinancialAccount last = this.faRepository.findFirstOrderByIdDesc();
-
-        FinancialAccount fa = FinancialAccount.builder()
-                .optUid(uid)
-                .money(money)
-                .balance(last.getBalance().minus(money))
-                .isAdd(FinancialAccount.EXPENSE)
-                .comment(uid + " 取消订单，支出：" + money.toString())
-                .build();
-        this.faRepository.save(fa);
+//        FinancialAccount last = this.faRepository.findTop1(ZsTool.sort("id", "desc"));
+//
+//        FinancialAccount fa = FinancialAccount.builder()
+//                .optUid(uid)
+//                .money(money)
+//                .balance(last.getBalance().minus(money))
+//                .isAdd(FinancialAccount.EXPENSE)
+//                .comment(uid + " 取消订单，支出：" + money.toString())
+//                .build();
+//        this.faRepository.save(fa);
 
         return response;
     }

@@ -98,9 +98,15 @@ public class HomeRestController {
     }
 
     @GetMapping("/articles/{tagId}/{page}/{size}")
-    public PageResponse<Article> articles(@RequestParam("tagId") long tagId,
-                                           @RequestParam("page") int page,
-                                           @RequestParam("size") int size) {
+    public PageResponse<Article> articles(@PathVariable("tagId") long tagId,
+                                           @PathVariable("page") int page,
+                                           @PathVariable("size") int size) {
         return this.articleService.articles(tagId, page, size);
     }
+
+    @GetMapping("/articles/latest")
+    public ListResponse<Article> latestArticles() {
+        return this.articleService.latestArticles();
+    }
+
 }

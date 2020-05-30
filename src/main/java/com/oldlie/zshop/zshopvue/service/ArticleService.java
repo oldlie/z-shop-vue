@@ -268,4 +268,17 @@ public class ArticleService {
 
         return response;
     }
+
+    /**
+     * 获取最新的文章列表
+     * @return articles
+     */
+    public ListResponse<Article> latestArticles() {
+        ListResponse<Article> response = new ListResponse<>();
+        Page<Article> page =
+                this.articleRepository.findAll(ZsTool.pageable(1, 10, "id", "desc"));
+        response.setList(page.getContent());
+        return response;
+    }
+
 }

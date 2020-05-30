@@ -23,6 +23,6 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
      * 查找到越
      * @return
      */
-    @Query("FROM Wallet w join User u on w.uid=u.id")
-    Page<Object> findAllUserAndWallet();
+//    @Query("FROM Wallet w join User u on w.uid=u.id")
+//    Page<Object> allUserAndWallet();
 }
