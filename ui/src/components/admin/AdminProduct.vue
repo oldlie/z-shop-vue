@@ -15,6 +15,7 @@
           @pressEnter="saveTitle"
           v-model="name.value"
         />
+        <a-button @click="saveTitle" v-if="!name || !name.value" type="primary">请先保存商品名称</a-button>
       </a-form-item>
 
       <template v-if="commodity.id > 0">

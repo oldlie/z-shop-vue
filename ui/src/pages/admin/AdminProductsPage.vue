@@ -16,7 +16,7 @@
         </a-row>
         <a-row class="inner-row" v-if="viewModel === 'form'">
           <a-col :span="24">
-            <a-button @click="changeViewMoel('table')" icon="rollback" type="link">添加商品</a-button>
+            <a-button @click="changeViewMoel('table')" icon="rollback" type="link">返回商品列表</a-button>
           </a-col>
         </a-row>
 

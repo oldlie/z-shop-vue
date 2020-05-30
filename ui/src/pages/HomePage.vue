@@ -14,18 +14,22 @@
         :products="product['list']"
       ></product-card>
     </a-spin>
-    <div :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '20px 0' }">
-      <a-tabs defaultActiveKey="1" @change="onTabChange">
-        <a-tab-pane v-for="(item, index) in articleTags" :key="item.id" :tab="item.title">
-          <article-list :articles="articles"></article-list>
-        </a-tab-pane>
-      </a-tabs>
-    </div>
+
+    <a-spin :spinning="articleLoading">
+      <div :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '20px 0' }">
+        <a-tabs defaultActiveKey="1" @change="onTabChange">
+          <a-tab-pane v-for="item in articleTags" :key="item.id" :tab="item.title">
+            <article-list :articles="articles" :total="articleTotal"></article-list>
+          </a-tab-pane>
+        </a-tabs>
+      </div>
+    </a-spin>
   </div>
 </template>
 <script>
-const baseUrl =
-  "https://raw.githubusercontent.com/vueComponent/ant-design-vue/master/components/vc-slick/assets/img/react-slick/";
+const __cache = {
+  articles: []
+};
 
 export default {
   name: "HomePage",
@@ -37,127 +41,11 @@ export default {
       topProductLoading: false,
       topProduct: {},
       productsLoading: false,
-      products: [
-        {
-          title: "水产品",
-          list: [
-            {
-              id: 1,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 2,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 3,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 4,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            }
-          ]
-        },
-        {
-          title: "水果",
-          list: [
-            {
-              id: 1,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 2,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 3,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 4,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            }
-          ]
-        },
-        {
-          title: "零食",
-          list: [
-            {
-              id: 1,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 2,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 3,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 4,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            }
-          ]
-        },
-        {
-          title: "生活用品",
-          list: [
-            {
-              id: 1,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 2,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 3,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            },
-            {
-              id: 4,
-              title: "Example",
-              image:
-                "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-            }
-          ]
-        }
-      ],
-      baseUrl,
+      products: [],
       articleTags: [],
       articles: [],
+      articleTotal: 0,
+      articleLoading: false
     };
   },
   mounted() {
@@ -169,12 +57,9 @@ export default {
     }, 500);
   },
   methods: {
-    getImgUrl(i) {
-      return `${baseUrl}abstract0${i + 1}.jpg`;
-    },
     onChange(a, b, c) {},
     onTabChange(index) {
-      console.log('on tab change--->', index);
+      this.loadArticlesByTagId(index);
     },
     loadLatestCommodities() {
       const url = `${this.apiUrl}/public/home/top-commodities`;
@@ -197,10 +82,9 @@ export default {
       this.$g
         .get(url)
         .cb(data => {
-          console.log('load products --->', data)
+          console.log("load products --->", data);
           if (data.status === 0) {
             this.products = data.list;
-            
           } else {
             console.error("load products error --->", data);
           }
@@ -208,18 +92,46 @@ export default {
         .fcb(() => (this.productsLoading = false))
         .req();
     },
-    loadArticles () {
+    loadArticles() {
       const url = `${this.apiUrl}/public/home/articles`;
-      this.$g.get(url)
-      .cb(data => {
-        console.log('load articles --->', data)
-        if (data.status === 0) {
-          this.articleTags = data.item.tags;
-          this.articles = data.item.articles;
-        }
-      })
-      .fcb()
-      .req();
+      this.articleLoading = true;
+      this.$g
+        .get(url)
+        .cb(data => {
+          console.log("load articles --->", data);
+          if (data.status === 0) {
+            this.articleTags = data.item.tags;
+            this.articles = data.item.articles;
+            this.articleTotal = data.item.total;
+          }
+        })
+        .fcb(() => (this.articleLoading = false))
+        .req();
+    },
+    loadArticlesByTagId(tagId) {
+      if (!!__cache.articles[tagId]) {
+        this.articles = __cache.articles[tagId].articles;
+        this.articleTotal = __cache.articles[tagId].total;
+        return;
+      }
+      const url = `${this.apiUrl}/public/home/articles/${tagId}/1/10`;
+      this.articleLoading = true;
+      this.$g
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.articles = data.list;
+            this.articleTotal = data.total;
+            __cache.articles[tagId] = {
+              articles: data.list,
+              total: data.total
+            };
+          } else {
+            console.error("load articles by tag error --->", data);
+          }
+        })
+        .fcb(() => (this.articleLoading = false))
+        .req();
     }
   }
 };
