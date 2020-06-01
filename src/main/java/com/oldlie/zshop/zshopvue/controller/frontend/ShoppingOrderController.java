@@ -1,6 +1,7 @@
 package com.oldlie.zshop.zshopvue.controller.frontend;
 
 import com.oldlie.zshop.zshopvue.model.db.ShoppingOrderItem;
+import com.oldlie.zshop.zshopvue.model.front.BuyInfo;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.ShoppingOrderService;
@@ -49,9 +50,10 @@ public class ShoppingOrderController {
                                                 @RequestParam("price") String price,
                                                 @RequestParam("count") int count,
                                                 @SessionAttribute("uid") long uid) {
+        Money money = Money.parse("CNY " + price);
         // 直接从购物页面下订单
         return this.service.shoppingOrder(uid, address, commodityId, commodityTitle, formulaId, formulaTitle, count,
-                Money.parse(price), 0);
+                money, 0);
     }
 
     /**
@@ -105,5 +107,12 @@ public class ShoppingOrderController {
      */
     public BaseResponse completeOrder(@RequestParam("sn") String serialNumber) {
         return null;
+    }
+
+
+    @GetMapping(value = "/buy-info/{sn}")
+    public SimpleResponse<BuyInfo> buyInfo(@PathVariable("sn") String sn,
+                                           @SessionAttribute("uid") long uid) {
+        return this.service.buyInfo(uid, sn);
     }
 }

@@ -4,9 +4,11 @@
       <router-link to="/admin/dashboard">管理员</router-link>
       <a-divider type="vertical" />
     </template>
+ <!--
     <router-link to="/cart">
       <a-icon type="shopping-cart" />购物车
     </router-link>
+    -->
     <a-divider type="vertical" />
     <template v-if="!!userInfo.username">
       <router-link to="/profile">{{userInfo.username}}</router-link>

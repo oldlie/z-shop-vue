@@ -102,7 +102,7 @@
 
                   <a-row>
                     <a-col :span="24" :style="{'padding': '10px 5px'} ">
-                      <a-input-number :min="1" :max="10" style="margin: 0 5px;" />
+                      <a-input-number v-model="count" :min="1" :max="10" style="margin: 0 5px;" />
                     </a-col>
                   </a-row>
 
@@ -128,6 +128,8 @@
                     <a-col :span="12" :style="{'padding': '10px 5px'}">
                       <a-button
                         :style="{'width': '100%', 'height': '64px', 'border-color': '#ff6700', 'background-color': '#ff6700', 'color': '#ffffff', 'border-radius': '0'}"
+                        @click="submitOrder"
+                        :loading="submitting"
                       >立即购买</a-button>
                     </a-col>
                   </a-row>
@@ -162,8 +164,12 @@ export default {
       profile: {},
       tags: [],
       buttonActiveId: 0,
-      price: '',
+      buttonActiveTitle: "",
+      price: "",
       buttonType,
+      address: {},
+      count: 1,
+      submitting: false
     };
   },
   mounted() {
@@ -171,11 +177,13 @@ export default {
       const url = window.location.href;
       const lastSlah = url.lastIndexOf("/");
       this.innerId = url.substring(lastSlah + 1, url.length);
-      console.log(this.innerId);
     } else {
       this.innerId = JSON.parse(JSON.stringify(this.id));
     }
     this.loadCommodity();
+    let timeout = setTimeout(() => {
+      this.getDefaultAddress();
+    }, 500);
   },
   methods: {
     onTabChange() {},
@@ -190,12 +198,11 @@ export default {
             this.formulas = data.item["formulas"];
             this.profile = data.item["profile"];
             let f = this.formulas[0];
-            this.price = f['price']['amount'];
+            this.price = f["price"]["amount"];
             const spec = JSON.parse(this.profile.specification);
             let specList = [];
             for (let index in spec) {
               let item = spec[index];
-              console.log(index, item);
               specList.push({
                 key: index,
                 name: item["title"],
@@ -213,7 +220,47 @@ export default {
     },
     checkedFormula(formula) {
       this.buttonActiveId = formula.id;
-      this.price = formula['price']['amount'];
+      this.buttonActiveTitle = formula.title;
+      this.price = formula["price"]["amount"];
+    },
+    submitOrder() {
+      if (this.buttonActiveId === 0) {
+        this.$message.warning("请选择套餐");
+        return;
+      }
+      const url = `${this.apiUrl}/frontend/direct-order?\
+address=${this.address}&cid=${this.commodity.id}&ct=${this.commodity.title}\
+&fid=${this.buttonActiveId}&ft=${this.buttonActiveTitle}&price=${this.price}\
+&count=${this.count}`;
+      this.submitting = true;
+      this.$g
+        .post(url, {})
+        .cb(data => {
+          if (data.status === 0) {
+            this.$router.push(`/buy/${data.item}`);
+          } else {
+            this.$message.error(data.message);
+            console.error(data);
+          }
+        })
+        .fcb(() => (this.submitting = false))
+        .req();
+    },
+    getDefaultAddress() {
+      const url = `${this.apiUrl}/frontend/default-address`;
+      this.$g
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.address = data.item;
+            console.log("default address --->", this.address, data);
+          } else {
+            this.address = false;
+            console.error("load address --->", data);
+          }
+        })
+        .fcb()
+        .req();
     }
   }
 };

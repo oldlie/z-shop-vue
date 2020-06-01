@@ -4,6 +4,9 @@ import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.cs.SHOPPING_ORDER_STATUS;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
+import com.oldlie.zshop.zshopvue.model.front.BuyInfo;
+import com.oldlie.zshop.zshopvue.model.front.CommoditiesWithTag;
+import com.oldlie.zshop.zshopvue.model.front.CommodityWithFormula;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
@@ -18,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Process shopping order.
@@ -34,6 +34,12 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class ShoppingOrderService {
+
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private CommodityFormulaRepository cfRepositry;
 
     @Autowired
     private FinancialAccountRepository faRepository;
@@ -57,14 +63,14 @@ public class ShoppingOrderService {
     private String sn() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1;
         int date = calendar.get(Calendar.DATE);
         int ymd = year * 10000 + month * 100 + date;
 
-        int hour = calendar.get(Calendar.HOUR);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
-        int hms = hour * 10000 + minute * 100 + second;
+        String hms = (hour > 9 ? "" : "0") + (hour * 10000 + minute * 100 + second);
 
         ShoppingOrderSerial serial = this.serialRepository.findByYmd(ymd);
         if (serial == null) {
@@ -73,7 +79,7 @@ public class ShoppingOrderService {
                     .month(month)
                     .date(date)
                     .ymd(ymd)
-                    .count(0)
+                    .count(1)
                     .build();
         }
 
@@ -206,6 +212,28 @@ public class ShoppingOrderService {
             return response;
         }
 
+        Collection<ShoppingOrderItem> items = order.getItems();
+        List<CommodityFormula> cfList = new LinkedList<>();
+        for (ShoppingOrderItem item : items) {
+            Optional<CommodityFormula> optional = this.cfRepositry.findById(item.getFormulaId());
+            if (!optional.isPresent()) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("商品【" + item.getCommodityTitle() + "】:"
+                        + item.getFormulaTitle() + "规格不存在了，订单暂时无法处理。" );
+                return response;
+            }
+            CommodityFormula cf = optional.get();
+            int inventory = cf.getInventory() - item.getFormulaCount();
+            if (inventory < 0) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("商品【" + item.getCommodityTitle() + "】:"
+                        + item.getFormulaTitle() + "库存不足，订单暂时无法处理。" );
+                return response;
+            }
+            cf.setInventory(inventory);
+            cfList.add(cf);
+        }
+
         Money price = order.getTotalMoney();
         Money balance = wallet.getBalance();
         if (balance.isLessThan(price)) {
@@ -217,6 +245,7 @@ public class ShoppingOrderService {
         balance = balance.minus(price);
         wallet.setBalance(balance);
 
+        this.cfRepositry.saveAll(cfList);
         this.walletRepository.save(wallet);
 
         order.setStatus(SHOPPING_ORDER_STATUS.OUT_OF_WAREHOUSE);
@@ -412,4 +441,45 @@ public class ShoppingOrderService {
     }
 
     // endregion
+
+
+    /**
+     * 通过订单号获取客户方的订单信息，以便客户方进行订单结算
+     * @param uid user id
+     * @param sn serial number
+     * @return buy information
+     */
+    public SimpleResponse<BuyInfo> buyInfo(long uid, String sn) {
+        SimpleResponse<BuyInfo> response = new SimpleResponse<>();
+        ShoppingOrder order = this.repository.findByUidAndSerialNumber(uid, sn);
+        if (order == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("没有找到指定的订单");
+            return response;
+        }
+        Collection<ShoppingOrderItem> items = order.getItems();
+        Money total = Money.parse("CNY 0.00");
+        for (ShoppingOrderItem item : items) {
+            total = total.plus(item.getPrice().multipliedBy(item.getFormulaCount()));
+        }
+        Address da = this.addressRepository.findOneByUidAndIsDefault(uid, 1);
+
+        String balance = "";
+        Wallet wallet = this.walletRepository.findOneByUid(uid);
+        if (wallet != null) {
+           balance = wallet.getBalance().toString();
+        }
+
+        response.setItem(
+                BuyInfo.builder()
+                        .orderId(order.getId())
+                        .sn(sn)
+                        .address(da)
+                        .items(items)
+                        .totalPrice(total.toString().replace("CNY ", ""))
+                        .balance(balance.replace("CNY ", ""))
+                        .build()
+        );
+        return response;
+    }
 }

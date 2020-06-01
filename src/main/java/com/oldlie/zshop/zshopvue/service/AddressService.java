@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.rowset.Predicate;
 import java.util.List;
@@ -33,7 +34,7 @@ public class AddressService {
     public SimpleResponse<Long> store(Address address, Long uid) {
         SimpleResponse<Long> response = new SimpleResponse<>();
         Address target = null;
-        if (address.getId() > 0) {
+        if (address.getId() != null && address.getId() > 0) {
             target = this.addressRepository.findById(address.getId()).orElseGet(null);
             if (target == null) {
                 response.setStatus(HTTP_CODE.FAILED);
@@ -50,12 +51,36 @@ public class AddressService {
         target.setCounty(address.getCounty());
         target.setIsDefault(address.getIsDefault());
         target.setProvince(address.getProvince());
-        long userId = address.getUid() <= 0 ? uid : address.getUid();
+        long userId = address.getUid() == null || address.getUid() <= 0 ? uid : address.getUid();
         target.setUid(userId);
         target.setInfo(this.formatAddress(target));
         target = this.addressRepository.save(target);
         response.setItem(target.getId());
 
+        return response;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse doDefault(long id, long uid){
+        BaseResponse response = new BaseResponse();
+        Address defAddress = this.addressRepository.findOneByUidAndIsDefault(uid, 1);
+        if (defAddress != null) {
+            if (id != defAddress.getUid()) {
+                defAddress.setIsDefault(0);
+                this.addressRepository.save(defAddress);
+            } else {
+                // 不用改
+                return response;
+            }
+        }
+        Address address = this.addressRepository.findOneByIdAndUid(id, uid);
+        if (address == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("这个地址信息已经不存在了");
+            return response;
+        }
+        address.setIsDefault(1);
+        this.addressRepository.save(address);
         return response;
     }
 
@@ -73,7 +98,16 @@ public class AddressService {
 
     public BaseResponse delete(long id, long uid) {
         BaseResponse response = new BaseResponse();
-        this.addressRepository.deleteByIdAndUid(id, uid);
+        try {
+            Address address = this.addressRepository.findOneByIdAndUid(id, uid);
+            if (address != null) {
+                this.addressRepository.delete(address);
+            }
+        } catch (Exception e) {
+            response.setStatus(HTTP_CODE.EXCEPTION);
+            response.setMessage(e.getMessage());
+            return response;
+        }
         return response;
     }
 

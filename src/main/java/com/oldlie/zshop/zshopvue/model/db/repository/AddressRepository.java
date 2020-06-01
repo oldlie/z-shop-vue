@@ -26,6 +26,14 @@ public interface AddressRepository extends JpaRepository<Address, Long>, JpaSpec
     Address findOneByUidAndIsDefault(long uid, int isDefault);
 
     /**
+     * Find one by id and user id
+     * @param id id
+     * @param uid user id
+     * @return address
+     */
+    Address findOneByIdAndUid(long id, long uid);
+
+    /**
      * Delete by id and user id
      * @param id id
      * @param uid user id
