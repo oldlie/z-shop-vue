@@ -232,18 +232,25 @@ public class ArticleService {
     }
 
     public PageResponse<Article> articles(long tagId, int pageIndex, int size) {
-        Page page = this.articleRepository.findAllByTagId(tagId,
-                ZsTool.pageable(pageIndex, size, "id", "desc"));
-        List content = page.getContent();
-        List<Article> articles = new LinkedList<>();
-        content.forEach(x -> {
-            Object[] object = (Object[]) x;
-            articles.add((Article) object[0]);
-        });
 
         PageResponse<Article> response = new PageResponse<>();
-        response.setList(articles);
-        response.setTotal(page.getTotalElements());
+
+        if (tagId == 0) {
+
+        } else {
+            Page page = this.articleRepository.findAllByTagId(tagId,
+                    ZsTool.pageable(pageIndex, size, "id", "desc"));
+            List content = page.getContent();
+            List<Article> articles = new LinkedList<>();
+            content.forEach(x -> {
+                Object[] object = (Object[]) x;
+                articles.add((Article) object[0]);
+            });
+
+            response.setList(articles);
+            response.setTotal(page.getTotalElements());
+
+        }
 
         return response;
     }

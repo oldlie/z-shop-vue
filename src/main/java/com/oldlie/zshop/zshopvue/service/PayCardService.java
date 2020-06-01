@@ -270,7 +270,7 @@ public class PayCardService {
             return response;
         }
         long now = Calendar.getInstance().getTimeInMillis();
-        long expires = card.getExchangedDate().getTime();
+        long expires = card.getLatestExchangeDate().getTime();
         if (now > expires) {
             response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("过期卡片。");
@@ -280,10 +280,16 @@ public class PayCardService {
         Wallet wallet = this.walletRepository.findOneByUid(uid);
         if (wallet == null) {
             wallet = new Wallet();
+            wallet.setUid(uid);
         }
         Money balance = wallet.getBalance();
-        // 和面值相加，而不是实际的金额
-        balance.plus(card.getDenomination());
+        if (balance == null) {
+            balance = card.getDenomination();
+        } else {
+            // 和面值相加，而不是实际的金额
+            balance = balance.plus(card.getDenomination());
+        }
+
         wallet.setBalance(balance);
         // 增加账户余额
         this.walletRepository.save(wallet);
@@ -321,6 +327,8 @@ public class PayCardService {
                 .build();
         // 记录账户变更信息
         this.erRepository.save(record);
+
+        response.setItem(balance);
 
         return response;
     }

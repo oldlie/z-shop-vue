@@ -3,6 +3,7 @@ package com.oldlie.zshop.zshopvue.service;
 import com.oldlie.zshop.zshopvue.model.db.Wallet;
 import com.oldlie.zshop.zshopvue.model.db.repository.WalletRepository;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
+import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,14 @@ public class WalletService {
      */
     public PageResponse<Wallet> page(int pageIndex, int size, String orderBy, String direct) {
         PageResponse<Wallet> response = new PageResponse<>();
+        return response;
+    }
+
+
+    public SimpleResponse<Wallet> wallet(long uid) {
+        SimpleResponse<Wallet> response = new SimpleResponse<>();
+        Wallet wallet = this.repository.findOneByUid(uid);
+        response.setItem(wallet);
         return response;
     }
 

@@ -105,7 +105,6 @@ export default {
   mounted() {
     console.log(this.actions);
     if (!this.id) {
-      console.log("url --->", window.location.href);
       const url = window.location.href;
       const lastSlah = url.lastIndexOf("/");
       this.innerId = url.substring(lastSlah + 1, url.length);

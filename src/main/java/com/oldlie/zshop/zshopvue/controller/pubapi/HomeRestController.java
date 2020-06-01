@@ -4,6 +4,7 @@ import com.oldlie.zshop.zshopvue.model.db.Article;
 import com.oldlie.zshop.zshopvue.model.db.Carousel;
 import com.oldlie.zshop.zshopvue.model.db.Commodity;
 import com.oldlie.zshop.zshopvue.model.db.QuickNavTag;
+import com.oldlie.zshop.zshopvue.model.front.CommoditiesWithTag;
 import com.oldlie.zshop.zshopvue.model.front.CommodityInfo;
 import com.oldlie.zshop.zshopvue.model.front.HomeArticles;
 import com.oldlie.zshop.zshopvue.model.front.TagCommodities;
@@ -73,17 +74,17 @@ public class HomeRestController {
     }
 
     @GetMapping(value = "/commodities/{tagId}/{page}/{size}")
-    public PageResponse<Commodity> commodities(long tagId,
-                                             int page,
-                                             int size) {
+    public SimpleResponse<CommoditiesWithTag> commodities(@PathVariable("tagId") long tagId,
+                                                          @PathVariable("page") int page,
+                                                          @PathVariable("size") int size) {
         return this.commodityService.commodities(tagId, page, size, "id", "desc");
     }
 
     @GetMapping(value = "/commodities/{page}/{size}/{key}/{value}")
-    public PageResponse<Commodity> commodities(int page,
-                                               int size,
-                                               String key,
-                                               String value) {
+    public PageResponse<Commodity> commodities(@PathVariable("page") int page,
+                                               @PathVariable("size") int size,
+                                               @PathVariable("key") String key,
+                                               @PathVariable("value") String value) {
         return this.commodityService.commodities(key, value, page, size, "id", "desc");
     }
 

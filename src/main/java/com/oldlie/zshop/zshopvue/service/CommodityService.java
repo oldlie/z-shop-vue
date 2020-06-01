@@ -5,6 +5,7 @@ import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
+import com.oldlie.zshop.zshopvue.model.front.CommoditiesWithTag;
 import com.oldlie.zshop.zshopvue.model.front.CommodityInfo;
 import com.oldlie.zshop.zshopvue.model.front.TagCommodities;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
@@ -446,20 +447,54 @@ public class CommodityService {
      * @param direct direction of order
      * @return commodities with same tag id
      */
-    public PageResponse<Commodity> commodities(long tagId, int index, int size, String order, String direct) {
-        PageResponse<Commodity> response = new PageResponse<>();
-        Page<Commodity> commodityPage = this.commodityRepository.findAllByTagId(tagId,
-                COMMODITY_STATUS.ONLINE,
-                ZsTool.pageable(index, size, order, direct)
-        );
-        List<Commodity> commodityList = new LinkedList<>();
-        List<Commodity> content = commodityPage.getContent();
-        for (Object obj : content) {
-            Object[] objects = (Object[]) obj;
-            commodityList.add((Commodity) objects[0]);
+    public SimpleResponse<CommoditiesWithTag> commodities(long tagId, int index, int size, String order, String direct) {
+        SimpleResponse<CommoditiesWithTag> response = new SimpleResponse<>();
+
+        Page<Commodity> commodityPage;
+        Tag tag;
+        List<Commodity> commodityList;
+        if (tagId == 0) {
+            // 没有指明tagId，按ID 逆序查找所有的商品
+            tag = Tag.builder()
+                    .title("全部商品")
+                    .build();
+
+            commodityPage = this.commodityRepository.findAll(
+                    (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), COMMODITY_STATUS.ONLINE),
+                    ZsTool.pageable(index, size, order, direct)
+            );
+
+            commodityList = commodityPage.getContent();
+
+        }  else {
+            Optional<Tag> tagOptional = this.tagRepository.findById(tagId);
+            if (!tagOptional.isPresent()) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("TAG不存在了");
+                return response;
+            }
+            tag = tagOptional.get();
+
+            commodityPage = this.commodityRepository.findAllByTagId(tagId,
+                    COMMODITY_STATUS.ONLINE,
+                    ZsTool.pageable(index, size, order, direct)
+            );
+             commodityList= new LinkedList<>();
+            List<Commodity> content = commodityPage.getContent();
+            for (Object obj : content) {
+                Object[] objects = (Object[]) obj;
+                commodityList.add((Commodity) objects[0]);
+            }
         }
-        response.setTotal(commodityPage.getTotalElements());
-        response.setList(commodityList);
+
+
+        CommoditiesWithTag cwt = CommoditiesWithTag.builder()
+                .tag(tag)
+                .commodities(commodityList)
+                .build();
+
+        response.setItem(cwt);
+
         return response;
     }
     // endregion
