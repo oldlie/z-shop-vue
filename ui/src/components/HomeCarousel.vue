@@ -17,7 +17,7 @@
           <a :href="item.url" target="_blank">
             <img
               :src="item.imageUrl"
-              :style="{height:'460px',width:'1000px','min-width':'247px','min-height':'186px'}"
+              :style="{height:'460px',width:'1200px','min-width':'247px','min-height':'186px'}"
             />
           </a>
         </div>

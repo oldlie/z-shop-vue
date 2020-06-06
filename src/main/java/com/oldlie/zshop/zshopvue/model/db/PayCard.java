@@ -11,6 +11,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.Date;
 
+/**
+ * @author oldlie
+ */
 @AllArgsConstructor
 @Builder
 @Data
@@ -35,34 +38,52 @@ public class PayCard extends BaseEO {
     private int validDay;
     @Column(columnDefinition = "char(32) comment '验证码'")
     private String verifyCode;
-    // 面额
+    /**
+     * 面额
+     */
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
             parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
     private Money denomination;
-    // 售价
+    /**
+     * 售价
+     */
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
             parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
     private Money amount;
     @Column(columnDefinition = "tinyint default 0 comment '是否已经销售'")
     private int isSoldOut;
-    // 购买人
+    /**
+     * 购买人
+     */
     private String customer;
-    // 购买人电话
+    /**
+     * 购买人电话
+     */
     private String customerPhone;
-    // 使用人ID,卡片兑换者
+    /**
+     * 使用人ID,卡片兑换者
+     */
     private Long uid;
-    // 卡片兑换人姓名
+    /**
+     * 卡片兑换人姓名
+     */
     private String username;
     @Column(columnDefinition = "tinyint default 0 comment '是否已经兑换'")
     private int isExchanged;
-    // 用户兑换日期
+    /**
+     * 用户兑换日期
+     */
     private Date exchangedDate;
-    // 用户最晚兑换日期，过期之后不能兑换
+    /**
+     * 用户最晚兑换日期，过期之后不能兑换
+     */
     @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
     private Date latestExchangeDate;
     private int ymd;
     private int cardCount;
-    // 实际售价
+    /**
+     * 实际售价，实际交易价格
+     */
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
             parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
     private Money price;

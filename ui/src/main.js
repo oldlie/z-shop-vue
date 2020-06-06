@@ -72,7 +72,7 @@ const routes = [
   { path: '/after-sale', component: AfterSale },
   { path: '/article/:id', component: ArticlePage },
   { path: '/articles', component: ArticlesPage },
-  { path: '/buy', component: BuyPage },
+  { path: '/buy/:sn', component: BuyPage },
   { path: '/cart', component: CartPage },
   { path: '/home', component: HomePage },
   { path: '/login', component: LoginPage },

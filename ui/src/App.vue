@@ -28,14 +28,24 @@
             <div class="logo" />
           </a-col>
           <a-col :span="14" :style="{'text-align': 'left', 'padding': '20px 0 0 0'}">
-            <span>全部产品分类</span>
+            <span>
+              <router-link to="/products">全部产品分类</router-link>
+            </span>
             <span v-for="(item, index) in quickNavTags" :key="index">
               <a-divider type="vertical" />
-              <a href="#">{{item.tagTitle}}</a>
+              <router-link :to="`/products?tagId=${item.tagId}`">{{item.tagTitle}}</router-link>
             </span>
           </a-col>
           <a-col :span="6" :style="{'padding': '20px 0 0 0'}">
-            <a-input-search placeholder="请输入产品名称" style="width: 100%" />
+            <a-input-search
+              @search="searchCommodities"
+              v-model="searchText.value"
+              :validate-status="searchText.status"
+              :help="searchText.help"
+              has-feedback
+              placeholder="请输入产品名称"
+              style="width: 100%"
+            />
           </a-col>
         </a-row>
 
@@ -99,13 +109,13 @@
 </template>
 
 <script>
-
 export default {
   name: "app",
   data() {
     return {
       current: ["home"],
-      quickNavTags: []
+      quickNavTags: [],
+      searchText: { value: "", status: "", help: "" }
     };
   },
   created() {},
@@ -125,6 +135,19 @@ export default {
         })
         .fcb()
         .req();
+    },
+    searchCommodities() {
+      console.log("click search btn --->", this.searchText);
+      if (!this.searchText.value || this.searchText.value === "") {
+        console.log("empty...");
+        this.searchText.status = "error";
+        this.searchText.help = "请填写商品名称";
+        return;
+      }
+      this.searchText.status = "success";
+      this.searchText.help = "";
+      console.log("go to commodities");
+      this.$router.push(`/products?t=${this.searchText.value}`);
     }
   }
 };

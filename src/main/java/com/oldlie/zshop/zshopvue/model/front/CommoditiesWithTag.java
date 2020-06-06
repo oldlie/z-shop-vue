@@ -1,6 +1,7 @@
 package com.oldlie.zshop.zshopvue.model.front;
 
 import com.oldlie.zshop.zshopvue.model.db.Commodity;
+import com.oldlie.zshop.zshopvue.model.db.Tag;
 import lombok.*;
 
 import java.util.List;
@@ -8,11 +9,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 @NoArgsConstructor
 @ToString
-public class TagCommodities {
-    private long tagId;
-    private String title;
-    private List<Commodity> list;
+public class CommoditiesWithTag {
+    private Tag tag;
+    private List<Commodity> commodities;
+    private long total;
 }

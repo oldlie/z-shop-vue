@@ -3,7 +3,7 @@ package com.oldlie.zshop.zshopvue.service;
 import com.oldlie.zshop.zshopvue.model.AppRequest;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.Address;
-import com.oldlie.zshop.zshopvue.model.db.repository.AddressRespository;
+import com.oldlie.zshop.zshopvue.model.db.repository.AddressRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
@@ -11,26 +11,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.rowset.Predicate;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * @author Oldlie
+ */
 @Slf4j
 @Service
 public class AddressService {
 
-    private AddressRespository addressRespository;
+    private AddressRepository addressRepository;
 
     @Autowired
-    public void setAddressRespository(AddressRespository addressRespository) {
-        this.addressRespository = addressRespository;
+    public void setAddressRepository(AddressRepository addressRepository) {
+        this.addressRepository = addressRepository;
     }
 
-    public SimpleResponse<Long> store(AppRequest<Address> request, Long uid) {
+    public SimpleResponse<Long> store(Address address, Long uid) {
         SimpleResponse<Long> response = new SimpleResponse<>();
-        Address address = request.getBody();
         Address target = null;
-        if (address.getId() > 0) {
-            target = this.addressRespository.findById(address.getId()).orElseGet(null);
+        if (address.getId() != null && address.getId() > 0) {
+            target = this.addressRepository.findById(address.getId()).orElseGet(null);
             if (target == null) {
                 response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("要修改的地址不存在了。");
@@ -46,31 +51,75 @@ public class AddressService {
         target.setCounty(address.getCounty());
         target.setIsDefault(address.getIsDefault());
         target.setProvince(address.getProvince());
-        long userId = address.getUid() <= 0 ? uid : address.getUid();
+        long userId = address.getUid() == null || address.getUid() <= 0 ? uid : address.getUid();
         target.setUid(userId);
         target.setInfo(this.formatAddress(target));
-        target = this.addressRespository.save(target);
+        target = this.addressRepository.save(target);
         response.setItem(target.getId());
 
         return response;
     }
 
-    public BaseResponse delete(AppRequest<Long> request) {
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse doDefault(long id, long uid){
         BaseResponse response = new BaseResponse();
-        Long id = request.getBody();
-        this.addressRespository.deleteById(id);
+        Address defAddress = this.addressRepository.findOneByUidAndIsDefault(uid, 1);
+        if (defAddress != null) {
+            if (id != defAddress.getUid()) {
+                defAddress.setIsDefault(0);
+                this.addressRepository.save(defAddress);
+            } else {
+                // 不用改
+                return response;
+            }
+        }
+        Address address = this.addressRepository.findOneByIdAndUid(id, uid);
+        if (address == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("这个地址信息已经不存在了");
+            return response;
+        }
+        address.setIsDefault(1);
+        this.addressRepository.save(address);
+        return response;
+    }
+
+    public SimpleResponse<Address> defaultAddress(Long uid) {
+        SimpleResponse<Address> response = new SimpleResponse<>();
+        Address address = this.addressRepository.findOneByUidAndIsDefault(uid, 1);
+        if (address == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("没有设置默认地址");
+            return response;
+        }
+        response.setItem(address);
+        return response;
+    }
+
+    public BaseResponse delete(long id, long uid) {
+        BaseResponse response = new BaseResponse();
+        try {
+            Address address = this.addressRepository.findOneByIdAndUid(id, uid);
+            if (address != null) {
+                this.addressRepository.delete(address);
+            }
+        } catch (Exception e) {
+            response.setStatus(HTTP_CODE.EXCEPTION);
+            response.setMessage(e.getMessage());
+            return response;
+        }
         return response;
     }
 
     public ListResponse<Address> listAddress(Long uid) {
         ListResponse<Address> response = new ListResponse<>();
-        List<Address> list = this.addressRespository.findAllByUidOrderByIdDesc(uid);
+        List<Address> list = this.addressRepository.findAllByUidOrderByIdDesc(uid);
         response.setList(list);
         return response;
     }
 
     public String formatAddress(Long id) {
-        Address address = this.addressRespository.findById(id).orElse(null);
+        Address address = this.addressRepository.findById(id).orElse(null);
         if (address == null) {
             return null;
         }

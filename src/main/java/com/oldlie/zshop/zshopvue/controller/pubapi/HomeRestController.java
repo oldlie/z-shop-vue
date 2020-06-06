@@ -4,6 +4,8 @@ import com.oldlie.zshop.zshopvue.model.db.Article;
 import com.oldlie.zshop.zshopvue.model.db.Carousel;
 import com.oldlie.zshop.zshopvue.model.db.Commodity;
 import com.oldlie.zshop.zshopvue.model.db.QuickNavTag;
+import com.oldlie.zshop.zshopvue.model.front.CommoditiesWithTag;
+import com.oldlie.zshop.zshopvue.model.front.CommodityInfo;
 import com.oldlie.zshop.zshopvue.model.front.HomeArticles;
 import com.oldlie.zshop.zshopvue.model.front.TagCommodities;
 import com.oldlie.zshop.zshopvue.model.response.ListResponse;
@@ -14,8 +16,14 @@ import com.oldlie.zshop.zshopvue.service.CarouselService;
 import com.oldlie.zshop.zshopvue.service.CommodityService;
 import com.oldlie.zshop.zshopvue.service.QuickNavTagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+
+/**
+ * @author oldlie
+ */
 @RestController
 @RequestMapping("/public/home")
 public class HomeRestController {
@@ -62,21 +70,31 @@ public class HomeRestController {
         return this.commodityService.homeCommodities();
     }
 
+    @GetMapping("/commodity/{id}")
+    public SimpleResponse<CommodityInfo>  commodity(@PathVariable("id") long id) {
+        return this.commodityService.commodityInfo(id);
+    }
+
     @GetMapping(value = "/commodities/{tagId}/{page}/{size}")
-    public PageResponse<Commodity> commodities(long tagId,
-                                             int page,
-                                             int size) {
+    public SimpleResponse<CommoditiesWithTag> commodities(@PathVariable("tagId") long tagId,
+                                                          @PathVariable("page") int page,
+                                                          @PathVariable("size") int size) {
         return this.commodityService.commodities(tagId, page, size, "id", "desc");
     }
 
     @GetMapping(value = "/commodities/{page}/{size}/{key}/{value}")
-    public PageResponse<Commodity> commodities(int page,
-                                               int size,
-                                               String key,
-                                               String value) {
+    public SimpleResponse<CommoditiesWithTag> commodities(@PathVariable("page") int page,
+                                               @PathVariable("size") int size,
+                                               @PathVariable("key") String key,
+                                               @PathVariable("value") String value) throws Exception {
+        value = URLDecoder.decode(value, "utf-8");
         return this.commodityService.commodities(key, value, page, size, "id", "desc");
     }
 
+    @GetMapping(value = "/article/{id}")
+    public SimpleResponse<Article> article(@PathVariable("id") long id) {
+        return this.articleService.article(id);
+    }
 
     @GetMapping("/articles")
     public SimpleResponse<HomeArticles> homeArticles () {
@@ -84,9 +102,15 @@ public class HomeRestController {
     }
 
     @GetMapping("/articles/{tagId}/{page}/{size}")
-    public ListResponse<Article> articles(@PathVariable("tagId") long tagId,
-                                          @PathVariable("page") int page,
-                                          @PathVariable("size") int size) {
-        return this.articleService.homeArticles(tagId, page, size);
+    public PageResponse<Article> articles(@PathVariable("tagId") long tagId,
+                                           @PathVariable("page") int page,
+                                           @PathVariable("size") int size) {
+        return this.articleService.articles(tagId, page, size);
     }
+
+    @GetMapping("/articles/latest")
+    public ListResponse<Article> latestArticles() {
+        return this.articleService.latestArticles();
+    }
+
 }

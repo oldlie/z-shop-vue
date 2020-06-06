@@ -5,6 +5,7 @@ import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
+import com.oldlie.zshop.zshopvue.model.front.CommoditiesWithTag;
 import com.oldlie.zshop.zshopvue.model.front.CommodityInfo;
 import com.oldlie.zshop.zshopvue.model.front.TagCommodities;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
@@ -190,12 +191,11 @@ public class CommodityService {
         return new BaseResponse();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse deleteCommodity(final long id) {
         BaseResponse response = new BaseResponse();
 
         try {
-//            this.commodityTagRepository.deleteAllByCommodityId(id);
             List<CommodityTag> list = this.commodityTagRepository.findAll(
                     (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("commodityId"), id));
             this.commodityTagRepository.deleteAll(list);
@@ -226,25 +226,31 @@ public class CommodityService {
         return response;
     }
 
-    public PageResponse<Commodity> commodities(final String field, Object value, int page, int size, String orderBy, String direct) {
+    public PageResponse<Commodity> commodityPage(final String field, Object value, int pageIndex, int size, String orderBy,
+                                                 String direct) {
         PageResponse<Commodity> response = new PageResponse<>();
-        List<CommodityTag> commodityTags = this.commodityTagRepository.findAll(
-                (root, criteriaQuery, criteriaBuilder) ->
-                        criteriaBuilder.like(root.get(field), "%" + value + "%"));
-        if (commodityTags == null || commodityTags.size() <= 0) {
-            return response;
-        }
+        Page<Commodity> page = this.commodityRepository.findAll(
+                (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(field), "%" + value + "%"),
+                ZsTool.pageable(pageIndex, size, orderBy, direct)
+        );
+        response.setList(page.getContent());
+        response.setTotal(page.getTotalElements());
+        return response;
+    }
 
+    public SimpleResponse<CommoditiesWithTag> commodities(final String field, Object value, int page, int size, String orderBy, String direct) {
+        SimpleResponse<CommoditiesWithTag> response = new SimpleResponse<>();
         Page<Commodity> commodities = this.commodityRepository.findAll(
-                (root, criteriaQuery, criteriaBuilder) -> {
-                    CriteriaBuilder.In<Object> in = criteriaBuilder.in(root.get("id"));
-                    commodityTags.forEach(ct -> in.value(ct.getCommodityId()));
-                    return in;
-                },
+                (root, criteriaQuery, criteriaBuilder) ->
+                        criteriaBuilder.like(root.get(field), "%" + value + "%"),
                 ZsTool.pageable(page, size, orderBy, direct)
         );
-        response.setTotal(commodities.getTotalElements());
-        response.setList(commodities.getContent());
+        CommoditiesWithTag cwt = CommoditiesWithTag.builder()
+                .tag(Tag.builder().title(value.toString()).build())
+                .commodities(commodities.getContent())
+                .total(commodities.getTotalElements())
+                .build();
+        response.setItem(cwt);
         return response;
     }
 
@@ -414,7 +420,7 @@ public class CommodityService {
      *
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ListResponse<TagCommodities> homeCommodities() {
         ListResponse<TagCommodities> response = new ListResponse<>();
         List<Tag> tags = this.tagRepository.findAllByHomeTag(0);
@@ -430,6 +436,7 @@ public class CommodityService {
                 commodities.add((Commodity) objects[0]);
             }
             list.add(com.oldlie.zshop.zshopvue.model.front.TagCommodities.builder()
+                    .tagId(tag.getId())
                     .title(tag.getTitle())
                     .list(commodities)
                     .build());
@@ -447,20 +454,54 @@ public class CommodityService {
      * @param direct direction of order
      * @return commodities with same tag id
      */
-    public PageResponse<Commodity> commodities(long tagId, int index, int size, String order, String direct) {
-        PageResponse<Commodity> response = new PageResponse<>();
-        Page<Commodity> commodityPage = this.commodityRepository.findAllByTagId(tagId,
-                COMMODITY_STATUS.ONLINE,
-                ZsTool.pageable(index, size, order, direct)
-        );
-        List<Commodity> commodityList = new LinkedList<>();
-        List<Commodity> content = commodityPage.getContent();
-        for (Object obj : content) {
-            Object[] objects = (Object[]) obj;
-            commodityList.add((Commodity) objects[0]);
+    public SimpleResponse<CommoditiesWithTag> commodities(long tagId, int index, int size, String order, String direct) {
+        SimpleResponse<CommoditiesWithTag> response = new SimpleResponse<>();
+
+        Page<Commodity> commodityPage;
+        Tag tag;
+        List<Commodity> commodityList;
+        if (tagId == 0) {
+            // 没有指明tagId，按ID 逆序查找所有的商品
+            tag = Tag.builder()
+                    .title("全部商品")
+                    .build();
+
+            commodityPage = this.commodityRepository.findAll(
+                    (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), COMMODITY_STATUS.ONLINE),
+                    ZsTool.pageable(index, size, order, direct)
+            );
+
+            commodityList = commodityPage.getContent();
+
+        }  else {
+            Optional<Tag> tagOptional = this.tagRepository.findById(tagId);
+            if (!tagOptional.isPresent()) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("TAG不存在了");
+                return response;
+            }
+            tag = tagOptional.get();
+
+            commodityPage = this.commodityRepository.findAllByTagId(tagId,
+                    COMMODITY_STATUS.ONLINE,
+                    ZsTool.pageable(index, size, order, direct)
+            );
+             commodityList= new LinkedList<>();
+            List<Commodity> content = commodityPage.getContent();
+            for (Object obj : content) {
+                Object[] objects = (Object[]) obj;
+                commodityList.add((Commodity) objects[0]);
+            }
         }
-        response.setTotal(commodityPage.getTotalElements());
-        response.setList(commodityList);
+
+
+        CommoditiesWithTag cwt = CommoditiesWithTag.builder()
+                .tag(tag)
+                .commodities(commodityList)
+                .build();
+
+        response.setItem(cwt);
+
         return response;
     }
     // endregion
@@ -489,6 +530,17 @@ public class CommodityService {
         }
         CommodityProfile profile = optional1.get();
         List<CommodityFormula> formulas = this.commodityFormulaRepository.findAllByCommodityIdOrderByIdAsc(id);
+
+        List<Tag> tags = this.tagRepository.findAllByCommodityId(id);
+
+        CommodityInfo info = CommodityInfo.builder()
+                .commodity(commodity)
+                .profile(profile)
+                .formulas(formulas)
+                .tags(tags)
+                .build();
+
+        response.setItem(info);
 
         return response;
     }

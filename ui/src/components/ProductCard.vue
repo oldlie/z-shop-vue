@@ -5,7 +5,7 @@
         <h1 style="color:#2c3e50;text-align:left;padding:0;">{{title}}</h1>
       </a-col>
       <a-col :span="12" style="text-align:right;padding: 15px 0 0 0;">
-        <router-link :style="{'text-align': 'right', 'color':'#2c3e50'}" to="/">
+        <router-link :style="{'text-align': 'right', 'color':'#2c3e50'}" :to="to">
           查看全部
           <a-icon type="right-circle"/>
         </router-link>
@@ -28,7 +28,8 @@ export default {
   name: "ProductCard",
   props: {
     title: String,
-    products: Array
+    products: Array,
+    to: String
   }
 };
 </script>

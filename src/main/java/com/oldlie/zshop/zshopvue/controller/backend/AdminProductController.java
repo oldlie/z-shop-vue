@@ -35,7 +35,7 @@ public class AdminProductController {
                                                @PathVariable("size") int size,
                                                @PathVariable("orderBy") String orderBy,
                                                @PathVariable("order") String order) {
-        return this.commodityService.commodities(field, value, page, size, orderBy, order);
+        return this.commodityService.commodityPage(field, value, page, size, orderBy, order);
     }
 
     @GetMapping(value = "/product/{id}")

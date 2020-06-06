@@ -9,7 +9,9 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 /**
- * @author DELL
+ * 账户余额信息
+ * @author CL
+ * @date 2020/5/25
  */
 @AllArgsConstructor
 @Builder
@@ -17,16 +19,11 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@Table(name = "t_shopping_cart")
+@Table(name = "t_wallet", uniqueConstraints = { @UniqueConstraint(columnNames = "uid")})
 @ToString
-public class ShoppingCart extends BaseEO {
-    private Long uid;
-    private Long commodityId;
-    private String commoditySummary;
-    private Long formulaId;
-    private String formulaTitle;
-    private int count;
+public class Wallet extends BaseEO {
+    private long uid;
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
-         parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
-    private Money price;
+            parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
+    private Money balance;
 }

@@ -4,17 +4,19 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 import org.joda.money.Money;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Collection;
 
+/**
+ * @author oldlie
+ */
 @AllArgsConstructor
 @Builder
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@Table(name = "t_shopping_order")
+@Table(name = "t_shopping_order", uniqueConstraints = { @UniqueConstraint(columnNames = "serialNumber") })
 @ToString
 public class ShoppingOrder extends BaseEO {
     private Long uid;
@@ -24,6 +26,18 @@ public class ShoppingOrder extends BaseEO {
     private Money totalMoney;
     @Column(columnDefinition = "tinyint comment '订单状态'")
     private int status;
-    @Column(columnDefinition = "varchar(1000) comment '格式化之后的地址信息'")
+    @Column(columnDefinition = "varchar(2000) comment '格式化之后的地址信息'")
     private String addressInfo;
+    @Column(columnDefinition = "varchar(255) comment '快递单号'")
+    private String postSerialNumber;
+    @Column(columnDefinition = "varchar(255) comment '快递公司'")
+    private String postCompany;
+    @Column(columnDefinition = "varchar(1000) comment '订单备注信息'")
+    private String comment;
+    @Column(columnDefinition = "varchar(1000) comment '订单取消备注'")
+    private String cancelReason;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "ShoppingOrderId")
+    private Collection<ShoppingOrderItem> items;
 }

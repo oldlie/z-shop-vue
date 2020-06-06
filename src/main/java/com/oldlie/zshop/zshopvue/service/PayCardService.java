@@ -1,11 +1,17 @@
 package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
+import com.oldlie.zshop.zshopvue.model.cs.MONEY_EXCHANGE;
+import com.oldlie.zshop.zshopvue.model.db.ExchangeRecord;
 import com.oldlie.zshop.zshopvue.model.db.PayCard;
 import com.oldlie.zshop.zshopvue.model.db.PayCardLog;
-import com.oldlie.zshop.zshopvue.model.db.repository.PayCardLogRespository;
+import com.oldlie.zshop.zshopvue.model.db.Wallet;
+import com.oldlie.zshop.zshopvue.model.db.repository.ExchangeRecordRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.PayCardLogRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.PayCardRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.WalletRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
+import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.utils.ZsTool;
@@ -13,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,12 +27,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * @author oldlie
+ */
 @Slf4j
 @Service
 public class PayCardService {
 
     private PayCardRepository payCardRepository;
-    private PayCardLogRespository payCardLogRespository;
+    private PayCardLogRepository payCardLogRepository;
+
+    @Autowired
+    private ExchangeRecordRepository erRepository;
+    @Autowired
+    private WalletRepository walletRepository;
 
     @Autowired
     public void setPayCardRepository(PayCardRepository payCardRepository) {
@@ -33,8 +48,8 @@ public class PayCardService {
     }
 
     @Autowired
-    public void setPayCardLogRespository(PayCardLogRespository payCardLogRespository) {
-        this.payCardLogRespository = payCardLogRespository;
+    public void setPayCardLogRepository(PayCardLogRepository payCardLogRepository) {
+        this.payCardLogRepository = payCardLogRepository;
     }
 
     public BaseResponse payCard(String title, String note, int validDay, String denomination, String amount,
@@ -124,7 +139,7 @@ public class PayCardService {
         log.setOpt(1);
         log.setOptId(uid);
         log.setOptUsername(username);
-        this.payCardLogRespository.save(log);
+        this.payCardLogRepository.save(log);
 
         return payCard.getId();
     }
@@ -197,7 +212,7 @@ public class PayCardService {
                 x.setIsSoldOut(1);
                 this.payCardRepository.save(x);
             });
-            this.payCardLogRespository.save(
+            this.payCardLogRepository.save(
                     PayCardLog.builder()
                             .cardId(id)
                             .optDescription("SOLD")
@@ -210,4 +225,113 @@ public class PayCardService {
 
         return response;
     }
+
+    // region 个人操作自己的兑换卡
+
+
+    /**
+     * 当前只显示已经充值了的卡片信息
+     * @param uid user id
+     * @param pageIndex page index
+     * @param size size
+     * @param orderBy order by
+     * @param direct direct
+     * @return one page of pay cards
+     */
+    public PageResponse<PayCard> listMyPayCards(long uid, int pageIndex, int size, String orderBy, String direct) {
+        PageResponse<PayCard> response = new PageResponse<>();
+        Page<PayCard> payCardPage =
+                this.payCardRepository.findAllByUid(uid, ZsTool.pageable(pageIndex, size, orderBy, direct));
+        response.setTotal(payCardPage.getTotalElements());
+        response.setList(payCardPage.getContent());
+        return response;
+    }
+
+
+    /**
+     * 用户兑换一张兑换卡
+     * @param uid user id
+     * @param sn serial number
+     * @param password verify code
+     * @return balance
+     */
+    @Transactional
+    public SimpleResponse<Money> payCardRecharge(long uid, String username, String sn, String password) {
+        SimpleResponse<Money> response = new SimpleResponse<>();
+        PayCard card = this.payCardRepository.findOneBySerialNumberAndVerifyCode(sn, password);
+        if (card == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("没有该兑换卡的信息，请检查序列号和密码是否输入正确。");
+            return response;
+        }
+        if (card.getIsValid() != 1) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("无效卡片。");
+            return response;
+        }
+        long now = Calendar.getInstance().getTimeInMillis();
+        long expires = card.getLatestExchangeDate().getTime();
+        if (now > expires) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("过期卡片。");
+            return response;
+        }
+
+        Wallet wallet = this.walletRepository.findOneByUid(uid);
+        if (wallet == null) {
+            wallet = new Wallet();
+            wallet.setUid(uid);
+        }
+        Money balance = wallet.getBalance();
+        if (balance == null) {
+            balance = card.getDenomination();
+        } else {
+            // 和面值相加，而不是实际的金额
+            balance = balance.plus(card.getDenomination());
+        }
+
+        wallet.setBalance(balance);
+        // 增加账户余额
+        this.walletRepository.save(wallet);
+
+        Date exchangeDate = new Date();
+
+        card.setUid(uid);
+        card.setUsername(username);
+        card.setIsExchanged(1);
+        card.setExchangedDate(exchangeDate);
+        // 变更卡片兑换者ID,账号，兑换状态和兑换时间
+        this.payCardRepository.save(card);
+
+        PayCardLog log = PayCardLog.builder()
+                .cardId(card.getId())
+                .optUsername(username)
+                .optId(uid)
+                .opt(2)
+                .optDescription("USER EXCHANGE")
+                .build();
+        // 记录卡片变更概要信息
+        this.payCardLogRepository.save(log);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        String comment = format.format(new Date())
+                +  " 兑换卡充值:"+ card.getDenomination().getAmountMajorLong()
+                + " 兑换卡:" + card.getSerialNumber();
+
+        ExchangeRecord record = ExchangeRecord.builder()
+                .category(MONEY_EXCHANGE.PAY_CARD_EXCHANGE)
+                .correlationId(card.getId())
+                .exchangeMoney(card.getDenomination())
+                .balance(balance)
+                .comment(comment)
+                .build();
+        // 记录账户变更信息
+        this.erRepository.save(record);
+
+        response.setItem(balance);
+
+        return response;
+    }
+
+    // endregion
 }

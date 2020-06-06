@@ -83,16 +83,14 @@ export default {
           self.submitting = true;
           G.post(url, values)
             .callback(function(data) {
-
               if (data["status"] === 0) {
                 let token = data["item"];
                 self.$cookie.set("token", token, 7);
                 let t = setTimeout(() => {
-
                   self.bus.$emit("updateUserInfoEvent");
                   clearTimeout(t);
-                  self.$router.push('/home');
-                }, 100)
+                  self.$router.push("/home");
+                }, 100);
               } else if (data["status"] === 1) {
                 self.loginMessage = "账号或者密码错误";
               } else {

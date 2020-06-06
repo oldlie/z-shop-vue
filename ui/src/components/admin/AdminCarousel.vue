@@ -146,8 +146,8 @@ export default {
         "summary",
         {
           rules: [
-            { required: true, message: "请输入标题" },
-            { max: 32, message: "标题最多输入32个字符" }
+            { required: true, message: "请输入简介" },
+            { max: 255, message: "标题最多输入255个字符" }
           ]
         }
       ],
@@ -155,8 +155,8 @@ export default {
         "url",
         {
           rules: [
-            { required: true, message: "请输入标题" },
-            { max: 32, message: "标题最多输入32个字符" }
+            { required: true, message: "请输入URL" },
+            { max: 255, message: "标题最多输入255个字符" }
           ]
         }
       ],
