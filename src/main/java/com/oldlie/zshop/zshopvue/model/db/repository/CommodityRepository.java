@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface CommodityRepository extends JpaRepository<Commodity, Long>, JpaSpecificationExecutor<Commodity> {
 
+    Commodity findOneById(long id);
+
     @Query(value = "FROM Commodity as c join CommodityTag as t on c.id=t.commodityId " +
             "where t.tagId=:tagId and c.status=:status")
     Page<Commodity> findAllByTagId(@Param("tagId") long tagId, @Param("status") int commodityStatus, Pageable pageable);

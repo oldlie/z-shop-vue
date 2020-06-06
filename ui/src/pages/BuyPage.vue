@@ -4,7 +4,7 @@
   >
     <a-spin :spinning="loading">
       <h1>
-        提交订单
+        订单
         <span style="font-size:.7em">{{innerSn}}</span>
       </h1>
 
@@ -30,20 +30,25 @@
                 <a-avatar :src="item.thumb" shape="square" :size="64" icon="user" />
               </a-col-->
               <a-col :span="6">
-                <router-link :to="{ path: '/product/' + item['commodityId']}">{{item.commodityTitle}}</router-link>
+                <router-link
+                  :to="{ path: '/product/' + item['commodityId']}"
+                >{{item.commodityTitle}}</router-link>
+              </a-col>
+              <a-col :span="3">
+                <a-avatar :size="64" icon="gift" shape="square" :src="item.commodityImage" />
               </a-col>
               <a-col :span="6">
                 <p>{{item.formulaTitle}} {{item.formulaCount}} * {{item['price']['amount']}}</p>
               </a-col>
-              <a-col :span="6">
+              <a-col :span="3">
                 <p>{{item.formulaCount}}</p>
               </a-col>
               <a-col :span="3">
                 <p>
                   <span style="font-size:.8rem;color:#666">需要积分</span>
-                  <span style="color:#ff6700;font-size:1.1rem">
-                    {{item.formulaCount * item['price']['amount']}}
-                    </span>
+                  <span
+                    style="color:#ff6700;font-size:1.1rem"
+                  >{{item.formulaCount * item['price']['amount']}}</span>
                 </p>
               </a-col>
             </a-row>
@@ -64,8 +69,8 @@
             <span style="font-size:.8rem;color:rgb(136, 136, 136)">/{{balance}}</span>
           </a-col>
           <a-col :span="4">
-            <button class="fav-button active" @click="onSubmitOrder">
-              <span>提交订单</span>
+            <button class="fav-button active" @click="onSubmitOrder" :loading="submitLoading">
+              <span>结算订单</span>
             </button>
           </a-col>
         </a-row>
@@ -86,11 +91,12 @@ export default {
       addrViewModel: 0,
       addrData,
       data,
-
       address: {},
       totalPrice: "",
       balance: "",
-      items: []
+      items: [],
+      submitLoading: false,
+      allowSubmit: false
     };
   },
   mounted() {
@@ -110,7 +116,30 @@ export default {
       }
     },
     onSubmitOrder() {
-      this.$router.push("/order");
+      if (!this.address) {
+        this.$message.warning("请选择地址");
+        return;
+      }
+      console.log("submit order --->", this.totalPrice, this.balance);
+      if (Number(this.totalPrice) > Number(this.balance)) {
+        this.$message.warning("积分不够支付当前商品，请先兑换积分。");
+        return;
+      }
+      const url = `${this.apiUrl}/frontend/shopping-order/pay`;
+      const fd = new FormData();
+      fd.append("sn", this.innerSn);
+      this.submitLoading = true;
+      this.$g
+        .post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$router.push("/order");
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => (this.submitLoading = false))
+        .req();
     },
     initBuyInfo() {
       const url = `${this.apiUrl}/frontend/buy-info/${this.innerSn}`;
@@ -142,35 +171,12 @@ export default {
     },
     handleAddressChange(addr) {
       this.address = addr;
+      this.addrViewModel = 0;
     }
   }
 };
 </script>
 <style scoped>
-.cancel-button {
-  cursor: pointer;
-  width: 100%;
-  height: 48px;
-  border: 0;
-  color: rgb(136, 136, 136);
-  padding: 12px 0 10px 0;
-}
-.fav-button {
-  cursor: pointer;
-  width: 100%;
-  height: 48px;
-  color: #ff6700;
-  border: 1px solid #ff6700;
-  padding: 12px 0 10px 0;
-}
-.fav-button:hover {
-  color: #ffffff;
-  background: #ff6700;
-}
-.fav-button.active {
-  color: #ffffff;
-  background: #ff6700;
-}
 </style>
 
 

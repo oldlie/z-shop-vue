@@ -4,7 +4,6 @@
   >
     <a-spin :spinning="loading">
       <a-tabs defaultActiveKey="1" @change="onTabChange">
-<!--
         <a-tab-pane tab="基本信息" key="1">
           <a-form>
             <a-form-item
@@ -12,11 +11,14 @@
               :label-col="{ span: 5 }"
               :wrapper-col="{ span: 12 }"
             >{{username}}</a-form-item>
+            <!--
             <a-form-item label="Email" :label-col="{span:5}" :wrapper-col="{span:6}">
               <a-input type="email"></a-input>
             </a-form-item>
+            -->
           </a-form>
         </a-tab-pane>
+        <!--
         <a-tab-pane tab="安全信息" key="2">
           <a-form>
             <a-form-item label="Password" :label-col="{span:5}" :wrapper-col="{span:6}">
@@ -47,7 +49,7 @@
                 <a-form-item label="请输入序列号" :label-col="{span:5}" :wrapper-col="{span:6}">
                   <a-input v-model="sn"></a-input>
                 </a-form-item>
-                <a-form-item label="请输入密码" :label-col="{span:5}" :wrapper-col="{span:6}">
+                <a-form-item label="请输入兑换码" :label-col="{span:5}" :wrapper-col="{span:6}">
                   <a-input v-model="cardPassword"></a-input>
                 </a-form-item>
                 <a-form-item :wrapper-col="{offset: 5, span: 12}">
@@ -58,6 +60,7 @@
           </a-row>
         </a-tab-pane>
         
+        <a-tab-pane tab="订单信息" key="4"></a-tab-pane>
       </a-tabs>
     </a-spin>
   </div>
@@ -78,8 +81,9 @@ export default {
   },
   methods: {
     onTabChange(index) {
-      console.log('on tab change --->', index);
-      if (index === '3') {
+      if (index === '4') {
+        this.$router.push('/order');
+      } else if (index === '3') {
         this.initWallet();
       }
     },

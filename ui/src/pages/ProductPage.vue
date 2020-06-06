@@ -228,13 +228,15 @@ export default {
         this.$message.warning("请选择套餐");
         return;
       }
-      const url = `${this.apiUrl}/frontend/direct-order?\
-address=${this.address}&cid=${this.commodity.id}&ct=${this.commodity.title}\
-&fid=${this.buttonActiveId}&ft=${this.buttonActiveTitle}&price=${this.price}\
-&count=${this.count}`;
+      const url = `${this.apiUrl}/frontend/direct-order`;
+      const fd = new FormData();
+      fd.append('address', encodeURIComponent(this.address.info));
+      fd.append('cid', this.commodity.id);
+      fd.append('fid', this.buttonActiveId);
+      fd.append('count', this.count);
       this.submitting = true;
       this.$g
-        .post(url, {})
+        .post(url, fd)
         .cb(data => {
           if (data.status === 0) {
             this.$router.push(`/buy/${data.item}`);

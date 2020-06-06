@@ -1,11 +1,89 @@
 <template>
-  <div>
+  <a-spin :spinning="loading">
     <div
       :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '30px 0', 'width:': '100%','text-align':'left'}"
     >
       <h1>订单管理</h1>
 
-      <a-tabs defaultActiveKey="1" @change="onTabsChange">
+      <a-tabs defaultActiveKey="2" @change="onTabsChange">
+        <a-tab-pane tab="待支付" key="1">
+          <a-row class="inner-row" v-for="so in unpayData" :key="so.id">
+            <a-col :span="24">
+              <a-row class="inner-row">
+                <a-col :span="16">订单号: {{so.serialNumber}}</a-col>
+              </a-row>
+
+              <a-row class="inner-row" v-for="soi in so.items" :key="soi.id">
+                <a-col :span="7">{{soi.commodityTitle}}</a-col>
+                <a-col :span="4">
+                  <a-avatar :size="64" icon="gift" shape="square" :src="soi.commodityImage" />
+                </a-col>
+                <a-col :span="7">{{soi.formulaTitle}}</a-col>
+                <a-col :span="2">{{soi.formulaCount}}</a-col>
+                <a-col :span="4" style="text-align:right">{{soi.price['amount']}}</a-col>
+              </a-row>
+
+              <a-row class="inner-row">
+                <a-col :span="4">
+                  <button class="cancel-button active" @click="onSubmitOrder">
+                    <span>取消订单</span>
+                  </button>
+                </a-col>
+                <a-col :span="4" :offset="12">积分：{{so.totalMoney['amount']}}</a-col>
+                <a-col :span="4">
+                  <button class="fav-button active" @click="onSubmitOrder">
+                    <span>结算订单</span>
+                  </button>
+                </a-col>
+              </a-row>
+
+              <a-divider />
+            </a-col>
+          </a-row>
+        </a-tab-pane>
+        <a-tab-pane tab="待收货" key="2">
+          <a-row class="inner-row" v-for="so in onWayData" :key="so.id">
+            <a-col :span="24">
+              <a-row class="inner-row">
+                <a-col :span="16">
+                  <a-tag v-if="so.status === 1" color="#87d068">正在出库</a-tag>
+                  <a-tag v-if="so.status === 2" color="#87d068">已发货</a-tag>
+                  订单号: {{so.serialNumber}}
+                </a-col>
+              </a-row>
+
+              <a-row class="inner-row" v-for="soi in so.items" :key="soi.id">
+                <a-col :span="7">{{soi.commodityTitle}}</a-col>
+                <a-col :span="4">
+                  <a-avatar :size="64" icon="gift" shape="square" :src="soi.commodityImage" />
+                </a-col>
+                <a-col :span="7">{{soi.formulaTitle}}</a-col>
+                <a-col :span="2">{{soi.formulaCount}}</a-col>
+                <a-col :span="4" style="text-align:right">{{soi.price['amount']}}</a-col>
+              </a-row>
+
+              <a-row class="inner-row">
+                <a-col :span="4">积分：{{so.totalMoney['amount']}}</a-col>
+                <a-col
+                  :span="16"
+                  v-if="so.status === 2"
+                >{{so.postCompany}},快递单号：{{so.postSerialNumber}}</a-col>
+                <a-col :span="4">
+                  <button class="fav-button active" @click="onSubmitOrder">
+                    <span>确认收货</span>
+                  </button>
+                </a-col>
+              </a-row>
+
+              <a-divider />
+            </a-col>
+          </a-row>
+        </a-tab-pane>
+        <a-tab-pane tab="订单记录" key="3">
+          <a-list :dataSource="historyData"></a-list>
+        </a-tab-pane>
+
+        <!--
         <a-tab-pane tab="待收货" key="1">
           <a-list :dataSource="data">
             <a-list-item slot="renderItem" slot-scope="item">
@@ -15,7 +93,7 @@
                   <a-tag v-if="item.status === 1" color="#87d068">已出库</a-tag>
                 </a-col>
                 <a-col :span="2">
-                  <a-avatar :src="item.thumb" shape="square" :size="64" icon="user"/>
+                  <a-avatar :src="item.thumb" shape="square" :size="64" icon="user" />
                 </a-col>
                 <a-col :span="4">
                   <router-link :to="{ path: '/product/' + item['id']}">{{item.title}}</router-link>
@@ -41,7 +119,7 @@
             <a-list-item slot="renderItem" slot-scope="item">
               <a-row style="width:100%;margin: 20px 0;">
                 <a-col :span="2">
-                  <a-avatar :src="item.thumb" shape="square" :size="64" icon="user"/>
+                  <a-avatar :src="item.thumb" shape="square" :size="64" icon="user" />
                 </a-col>
                 <a-col :span="4">
                   <router-link :to="{ path: '/product/' + item['id']}">{{item.title}}</router-link>
@@ -55,7 +133,7 @@
                 <a-col :span="10">
                   <a-button v-if="item.id === 1" @click="onComment">评价订单</a-button>&nbsp;
                   <a-tag v-if="item.id === 0" color="red">
-                    <a-icon v-for="item in [1,2,3,4,5]" :key="item" type="star"/>
+                    <a-icon v-for="item in [1,2,3,4,5]" :key="item" type="star" />
                   </a-tag>&nbsp;
                   <a-button @click="onAfterSale">申请售后</a-button>
                 </a-col>
@@ -72,7 +150,7 @@
                   <a-tag v-if="item.status === 1" color="#87d068">换货中</a-tag>
                 </a-col>
                 <a-col :span="2">
-                  <a-avatar :src="item.thumb" shape="square" :size="64" icon="user"/>
+                  <a-avatar :src="item.thumb" shape="square" :size="64" icon="user" />
                 </a-col>
                 <a-col :span="4">
                   <router-link :to="{ path: '/product/' + item['id']}">{{item.title}}</router-link>
@@ -88,7 +166,7 @@
                       src="http://localhost:8080/zshop/img/pms.jpg"
                       v-for="item in [1,2,3,4,5]"
                       :key="item"
-                    >
+                    />
                   </p>
                 </a-col>
                 <a-col :span="8">
@@ -110,9 +188,10 @@
             </a-list-item>
           </a-list>
         </a-tab-pane>
+        -->
       </a-tabs>
     </div>
-  </div>
+  </a-spin>
 </template>
 <script>
 const data = [
@@ -142,17 +221,81 @@ export default {
   name: "OrderPage",
   data() {
     return {
-      data
+      loading: false,
+      data,
+      unpayData: [],
+      onWayData: [],
+      historyData: [],
+      total: 0,
+      page: 1,
+      size: 10
     };
   },
+  mounted() {
+    this.loadOnWayList();
+  },
   methods: {
-    onTabsChange() {},
+    onTabsChange(index) {
+      if (index === "1") {
+        this.loadUnpayList();
+      }
+    },
     onAfterSale() {
       this.$router.push("/after-sale");
     },
     onComment() {
       this.$router.push("/order/comment");
-    }
+    },
+    loadUnpayList() {
+      const url = `${this.apiUrl}/frontend/shopping-order/waiting-for-pay`;
+      this.loading = true;
+      this.$g
+        .get(url)
+        .cb(data => {
+          console.log("load unpay list--->", data);
+          if (data.status === 0) {
+            this.unpayData = data.list;
+            this.total = 0;
+          } else {
+            console.error("load unpay list error--->", data);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
+    },
+    loadOnWayList() {
+      const url = `${this.apiUrl}/frontend/shopping-order/before-confirmed/${this.page}/${this.size}`;
+      this.loading = true;
+      this.$g
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.onWayData = data.list;
+            this.total = data.total;
+          } else {
+            console.error("load on way list --->", data);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
+    },
+    loadHistory() {
+      const url = `${this.apiUrl}/frontend/shopping-order/history/${this.page}/${this.size}`;
+      this.loading = true;
+      this.$g
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.historyData = data.list;
+            this.total = data.total;
+          } else {
+            console.error("load history error--->", data);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
+    },
+    onSubmitOrder(item) {}
   }
 };
 </script>

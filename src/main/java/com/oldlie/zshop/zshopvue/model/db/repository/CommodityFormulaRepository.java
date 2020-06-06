@@ -12,4 +12,11 @@ public interface CommodityFormulaRepository extends JpaRepository<CommodityFormu
     void deleteAllByCommodityId(Long cid);
 
     List<CommodityFormula> findAllByCommodityIdOrderByIdAsc(Long cid);
+
+    /**
+     * Find commodity formula by commodity id
+     * @param commodityId commodity id
+     * @return formula
+     */
+    CommodityFormula findOneByCommodityId(long commodityId);
 }

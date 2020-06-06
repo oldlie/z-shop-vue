@@ -1,13 +1,13 @@
 package com.oldlie.zshop.zshopvue.service;
 
+import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.cs.SHOPPING_ORDER_STATUS;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
 import com.oldlie.zshop.zshopvue.model.front.BuyInfo;
-import com.oldlie.zshop.zshopvue.model.front.CommoditiesWithTag;
-import com.oldlie.zshop.zshopvue.model.front.CommodityWithFormula;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
+import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.utils.ObjectCopy;
@@ -39,7 +39,10 @@ public class ShoppingOrderService {
     private AddressRepository addressRepository;
 
     @Autowired
-    private CommodityFormulaRepository cfRepositry;
+    private CommodityRepository commodityRepository;
+
+    @Autowired
+    private CommodityFormulaRepository cfRepository;
 
     @Autowired
     private FinancialAccountRepository faRepository;
@@ -59,6 +62,10 @@ public class ShoppingOrderService {
     @Autowired
     private WalletRepository walletRepository;
 
+    /**
+     * 获取订单号
+     * @return shopping order serial number
+     */
     @Transactional(rollbackFor = Exception.class)
     private String sn() {
         Calendar calendar = Calendar.getInstance();
@@ -97,11 +104,8 @@ public class ShoppingOrderService {
      * @param uid user id
      * @param address address
      * @param commodityId commodity id
-     * @param commodityTitle commodity title
      * @param formulaId formula id
-     * @param formulaTitle formula title
      * @param formulaCount formula count
-     * @param price price
      * @param status status
      * @return sn
      */
@@ -109,20 +113,41 @@ public class ShoppingOrderService {
     public SimpleResponse<String> shoppingOrder(long uid,
                                                  String address,
                                                  long commodityId,
-                                                 String commodityTitle,
                                                  long formulaId,
-                                                 String formulaTitle,
                                                  int formulaCount,
-                                                 Money price,
                                                  int status) {
         SimpleResponse<String> response = new SimpleResponse<>();
 
         String sn = sn();
 
+        Commodity commodity = this.commodityRepository.findOneById(commodityId);
+        if (commodity == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("商品已经不存在了");
+            return response;
+        }
+        if (COMMODITY_STATUS.OFFLINE == commodity.getStatus()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("商品已经下架了");
+            return response;
+        }
+        CommodityFormula formula = this.cfRepository.findOneByCommodityId(commodityId);
+        if (formula == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("你选的规格已经不存在了");
+            return response;
+        }
+        if (formula.getInventory() < formulaCount) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("你选的规格库存不足");
+            return response;
+        }
+        Money total = formula.getPrice().multipliedBy(formulaCount);
+
         ShoppingOrder order = ShoppingOrder.builder()
                 .uid(uid)
                 .serialNumber(sn)
-                .totalMoney(price.multipliedBy(formulaCount))
+                .totalMoney(total)
                 .status(status)
                 .addressInfo(address)
                 .build();
@@ -132,11 +157,12 @@ public class ShoppingOrderService {
         ShoppingOrderItem item = ShoppingOrderItem.builder()
                 .shoppingOrderId(order.getId())
                 .commodityId(commodityId)
-                .commodityTitle(commodityTitle)
+                .commodityTitle(commodity.getTitle())
+                .commodityImage(commodity.getThumbnail())
                 .formulaId(formulaId)
-                .formulaTitle(formulaTitle)
+                .formulaTitle(formula.getTitle())
                 .formulaCount(formulaCount)
-                .price(price)
+                .price(formula.getPrice())
                 .status(status)
                 .build();
 
@@ -215,7 +241,7 @@ public class ShoppingOrderService {
         Collection<ShoppingOrderItem> items = order.getItems();
         List<CommodityFormula> cfList = new LinkedList<>();
         for (ShoppingOrderItem item : items) {
-            Optional<CommodityFormula> optional = this.cfRepositry.findById(item.getFormulaId());
+            Optional<CommodityFormula> optional = this.cfRepository.findById(item.getFormulaId());
             if (!optional.isPresent()) {
                 response.setStatus(HTTP_CODE.FAILED);
                 response.setMessage("商品【" + item.getCommodityTitle() + "】:"
@@ -245,7 +271,7 @@ public class ShoppingOrderService {
         balance = balance.minus(price);
         wallet.setBalance(balance);
 
-        this.cfRepositry.saveAll(cfList);
+        this.cfRepository.saveAll(cfList);
         this.walletRepository.save(wallet);
 
         order.setStatus(SHOPPING_ORDER_STATUS.OUT_OF_WAREHOUSE);
@@ -257,7 +283,7 @@ public class ShoppingOrderService {
         if (ffaList.getTotalElements() > 0) {
             fab = ffaList.getContent().get(0).getBalance();
         } else {
-            fab = Money.parse("￥ 0.00");
+            fab = Money.parse("CNY 0.00");
         }
         FinancialAccount fa = FinancialAccount.builder()
                 .optUid(uid)
@@ -325,6 +351,49 @@ public class ShoppingOrderService {
     }
 
     /**
+     * 获取待支付的订单信息。默认取最后的30条信息
+     * @param uid user id
+     * @return list of shopping order
+     */
+    public ListResponse<ShoppingOrder> listForWaitingPay(long uid) {
+        ListResponse<ShoppingOrder> response = new ListResponse<>();
+        Page<ShoppingOrder> page =this.repository.findAll(
+                (root, query, criteriaBuilder) -> {
+                    Predicate predicate1 = criteriaBuilder.equal(root.get("uid"), uid);
+                    Predicate predicate2 = criteriaBuilder.equal(root.get("status"), SHOPPING_ORDER_STATUS.PREPARING);
+                    return criteriaBuilder.and(predicate1, predicate2);
+                },
+                ZsTool.pageable(1, 30)
+        );
+        response.setList(page.getContent());
+        return response;
+    }
+
+    /**
+     * 获取用户的正在出库和快递中的订单列表
+     * @param uid user id
+     * @param index index of page
+     * @param size size of page
+     * @return list of shopping order
+     */
+    public PageResponse<ShoppingOrder> listBeforeConfirmed(long uid, int index, int size) {
+        PageResponse<ShoppingOrder> response = new PageResponse<>();
+        Page<ShoppingOrder> page = this.repository.findAll(
+                (root, query, criteriaBuilder) -> {
+                    Predicate predicate1 = criteriaBuilder.equal(root.get("uid"), uid);
+                    Predicate predicate2 = criteriaBuilder.equal(root.get("status"), SHOPPING_ORDER_STATUS.OUT_OF_WAREHOUSE);
+                    Predicate predicate3 = criteriaBuilder.equal(root.get("status"), SHOPPING_ORDER_STATUS.DELIVERING);
+                    Predicate predicate4 = criteriaBuilder.or(predicate2, predicate3);
+                    return criteriaBuilder.and(predicate1, predicate4);
+                },
+                ZsTool.pageable(index, size)
+        );
+        response.setTotal(page.getTotalElements());
+        response.setList(page.getContent());
+        return response;
+    }
+
+    /**
      * 用户方获取自己的历史记录
      * @param uid user id
      * @param pageIndex page index
@@ -335,7 +404,14 @@ public class ShoppingOrderService {
      */
     public PageResponse<ShoppingOrder> history(long uid, int pageIndex, int size, String orderBy, String direct) {
         PageResponse<ShoppingOrder> response = new PageResponse<>();
-        Page<ShoppingOrder> page = this.repository.findAllByUid(uid, ZsTool.pageable(pageIndex, size, orderBy, direct));
+        Page<ShoppingOrder> page = this.repository.findAll(
+                (root, query, cb) -> {
+                    Predicate predicate1 = cb.equal(root.get("uid"), uid);
+                    Predicate predicate2 = cb.ge(root.get("status"), SHOPPING_ORDER_STATUS.RECEIVED);
+                    return cb.and(predicate1, predicate2);
+                },
+                ZsTool.pageable(pageIndex, size, orderBy, direct)
+        );
         response.setList(page.getContent());
         response.setTotal(page.getTotalElements());
         return response;
@@ -403,39 +479,43 @@ public class ShoppingOrderService {
 
     /**
      * 取消订单
-     * @param uid
-     * @param id
-     * @param reason
-     * @return
+     * @param uid user id
+     * @param sn serial number
+     * @param reason reason
+     * @return response
      */
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse cancel(long uid, long id, String reason) {
+    public BaseResponse cancel(long uid, String sn, String reason) {
         BaseResponse response = new BaseResponse();
 
-        Optional<ShoppingOrder> opt = this.repository.findById(id);
-        if (!opt.isPresent()) {
-            response.setStatus(HTTP_CODE.FAILED);
-            response.setMessage("订单不存在了");
-            return response;
-        }
-
-        ShoppingOrder order = opt.get();
+        ShoppingOrder order = this.repository.findByUidAndSerialNumber(uid, sn);
         order.setStatus(SHOPPING_ORDER_STATUS.CANCELED);
         order.setCancelReason(reason);
         this.repository.save(order);
 
         Money money = order.getTotalMoney();
-
-//        FinancialAccount last = this.faRepository.findTop1(ZsTool.sort("id", "desc"));
-//
-//        FinancialAccount fa = FinancialAccount.builder()
-//                .optUid(uid)
-//                .money(money)
-//                .balance(last.getBalance().minus(money))
-//                .isAdd(FinancialAccount.EXPENSE)
-//                .comment(uid + " 取消订单，支出：" + money.toString())
-//                .build();
-//        this.faRepository.save(fa);
+        Page<FinancialAccount> page = this.faRepository.findAll(ZsTool.pageable(0, 3));
+        if (page.getTotalElements() < 0) {
+            FinancialAccount fa = FinancialAccount.builder()
+                    .optUid(uid)
+                    .money(money)
+                    .balance(money)
+                    .isAdd(FinancialAccount.EXPENSE)
+                    .comment(uid + " 取消订单，支出：" + money.toString())
+                    .build();
+            this.faRepository.save(fa);
+        } else {
+            List<FinancialAccount> list = page.getContent();
+            FinancialAccount last = list.get(0);
+            FinancialAccount fa = FinancialAccount.builder()
+                    .optUid(uid)
+                    .money(money)
+                    .balance(last.getBalance().minus(money))
+                    .isAdd(FinancialAccount.EXPENSE)
+                    .comment(uid + " 取消订单，支出：" + money.toString())
+                    .build();
+            this.faRepository.save(fa);
+        }
 
         return response;
     }

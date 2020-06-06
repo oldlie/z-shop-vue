@@ -23,6 +23,7 @@ public class ShoppingOrderItem extends BaseEO {
     private Long shoppingOrderId;
     private Long commodityId;
     private String commodityTitle;
+    private String commodityImage;
     private Long formulaId;
     private String formulaTitle;
     private int formulaCount;
