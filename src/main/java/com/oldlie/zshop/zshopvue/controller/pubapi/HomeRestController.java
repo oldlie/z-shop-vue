@@ -14,10 +14,7 @@ import com.oldlie.zshop.zshopvue.service.CarouselService;
 import com.oldlie.zshop.zshopvue.service.CommodityService;
 import com.oldlie.zshop.zshopvue.service.QuickNavTagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/public/home")
@@ -87,9 +84,9 @@ public class HomeRestController {
     }
 
     @GetMapping("/articles/{tagId}/{page}/{size}")
-    public ListResponse<Article> articles(@RequestParam("tagId") long tagId,
-                                          @RequestParam("page") int page,
-                                          @RequestParam("size") int size) {
+    public ListResponse<Article> articles(@PathVariable("tagId") long tagId,
+                                          @PathVariable("page") int page,
+                                          @PathVariable("size") int size) {
         return this.articleService.homeArticles(tagId, page, size);
     }
 }

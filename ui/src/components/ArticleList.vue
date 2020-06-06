@@ -45,16 +45,18 @@ for (let i = 0; i < 23; i++) {
 export default {
   name: "ArticleList",
   props: {
-    articles: Array
+    articles: Array,
+    total: Number,
   },
   data() {
     return {
       listData,
       pagination: {
         onChange: page => {
-          console.log(page);
+          this.$emit('articlePageChangeEvent', page);
         },
-        pageSize: 10
+        pageSize: 10,
+        total: this.total
       },
       actions: [
         { type: "star-o", text: "156" },
