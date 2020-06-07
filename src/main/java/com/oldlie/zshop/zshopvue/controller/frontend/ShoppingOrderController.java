@@ -79,7 +79,8 @@ public class ShoppingOrderController {
     }
 
     /**
-     * 申请取消订单
+     * 申请取消订单，订单状态是出库状态，还没有发快递时可以由用户提交取消订单的申请
+     * 一旦出现金额变化，取消这个操作务必仅能由管理员操作，避免出现安全问题
      * 1, 订单未支付；
      * 2， 订单未发货；
      * 用户申请之后，订单处于冻结状态
@@ -91,18 +92,17 @@ public class ShoppingOrderController {
     }
 
     /**
-     * 取消订单
-     * 1. 有支付的返还支付金额
-     * @param serialNumber 订单号
-     * @return result
+     * 在支付之前用户可以取消订单，这时仅涉及订单的状态操作，不涉及用户账户和系统账户的操作
+     * @param sn sn
+     * @param reason reason
+     * @param uid user id
+     * @return response
      */
-    @PostMapping(value = "/shopping-order/cancel", consumes = {
-            MediaType.MULTIPART_FORM_DATA_VALUE
-    })
-    public BaseResponse cancelOrder(@RequestParam("sn") String serialNumber,
-                                    @RequestParam("reason") String reason,
-                                    @SessionAttribute("uid") long uid) {
-        return this.service.cancel(uid, serialNumber, reason);
+    @PostMapping(value = "/shopping-order/cancel")
+    public BaseResponse cancelBeforePay(@RequestParam("sn") String sn,
+                                        @RequestParam("reason") String reason,
+                                        @SessionAttribute("uid") long uid) {
+        return this.service.cancelBeforePay(uid, sn, reason);
     }
 
     /**
@@ -112,11 +112,21 @@ public class ShoppingOrderController {
      * @param serialNumber 订单号
      * @return result
      */
-    public BaseResponse completeOrder(@RequestParam("sn") String serialNumber) {
-        return null;
+    @PostMapping(value = "/shopping-order/complete", consumes = {
+            MediaType.MULTIPART_FORM_DATA_VALUE
+    })
+    public BaseResponse completeOrder(@RequestParam("sn") String serialNumber,
+                                      @SessionAttribute("uid") long uid) {
+        return this.service.completeOrder(uid, serialNumber);
     }
 
 
+    /**
+     * 获取用户的购买信息，用于生成一张订单
+     * @param sn serial number
+     * @param uid user id
+     * @return buy information
+     */
     @GetMapping(value = "/buy-info/{sn}")
     public SimpleResponse<BuyInfo> buyInfo(@PathVariable("sn") String sn,
                                            @SessionAttribute("uid") long uid) {

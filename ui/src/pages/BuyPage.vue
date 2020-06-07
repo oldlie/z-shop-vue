@@ -9,11 +9,6 @@
       </h1>
 
       <div v-if="addrViewModel === 0" style="margin: 40px 0 30px 0">
-        <!--
-        <span style="padding-right:20px;font-weight:bold;color:#333;display:inline-block">赵钱孙李先生</span>
-        <span style="padding-right:20px;display:inline-block">13412345678</span>
-        <span style="padding-right:20px;display:inline-block">北京市 北京市 海淀区 北外太平庄50号</span>
-        -->
         {{address.info}}
         <a @click="onAddrViewModelChange(1)">[选择地址]</a>
       </div>
@@ -56,10 +51,10 @@
         </a-list>
       </div>
 
-      <div style="margin: 20px 0 30px 0;text-align:right;">
+      <div style="margin: 20px 0 30px 0;text-align:right;" v-if="allowSubmit">
         <a-row :style="{'width': '100%'}">
           <a-col :span="4">
-            <button class="cancel-button">
+            <button class="cancel-button" @click="cancel">
               <span>取消订单</span>
             </button>
           </a-col>
@@ -96,7 +91,7 @@ export default {
       balance: "",
       items: [],
       submitLoading: false,
-      allowSubmit: false
+      allowSubmit: true
     };
   },
   mounted() {
@@ -112,8 +107,6 @@ export default {
   methods: {
     onAddrViewModelChange(model) {
       this.addrViewModel = model;
-      if (this.addrViewModel === 1) {
-      }
     },
     onSubmitOrder() {
       if (!this.address) {
@@ -152,7 +145,13 @@ export default {
             const info = data.item;
             if (this.innerSn !== info["sn"]) {
               this.$message.error("订单号不正确");
+              this.allowSubmit = false;
               return;
+            }
+            console.log(info['status']);
+            if (Number(info['status']) !== 0) {
+              this.$message.success('订单已经处理过了，请不要重复处理');
+              this.allowSubmit = false;
             }
             this.address = info["address"];
             if (!this.address) {
@@ -172,6 +171,24 @@ export default {
     handleAddressChange(addr) {
       this.address = addr;
       this.addrViewModel = 0;
+    },
+    cancel () {
+      const url = `${this.apiUrl}/frontend/shopping-order/cancel`;
+      const fd = new FormData();
+      fd.append('sn', this.innerSn);
+      fd.append('reason', '用户取消');
+      this.loading = true;
+      this.$g.post(url, fd)
+      .cb(data => {
+        if (data.status === 0) {
+          this.$message.success('订单已经取消');
+          this.allowSubmit = false;
+        } else {
+          this.$message.error(data.message);
+        }
+      })
+      .fcb(() => this.loading = false)
+      .req();
     }
   }
 };

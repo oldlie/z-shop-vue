@@ -64,7 +64,7 @@ public class AdminShoppingOrderController {
 
     /**
      * 管理员取消订单
-     * @param id order id
+     * @param sn order serial number
      * @param reason cancel reason
      * @param uid user id
      * @return base response
@@ -73,9 +73,9 @@ public class AdminShoppingOrderController {
             MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             MediaType.APPLICATION_JSON_UTF8_VALUE
     })
-    public BaseResponse cancel(@RequestParam("id") long id,
+    public BaseResponse cancel(@RequestParam("sn") String sn,
                                @RequestParam("reason") String reason,
                                @SessionAttribute("uid") long uid) {
-        return this.service.cancel(uid, id, reason);
+        return this.service.cancel(uid, sn, reason);
     }
 }

@@ -1,5 +1,8 @@
 package com.oldlie.zshop.zshopvue.filter;
 
+import com.google.gson.Gson;
+import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
+import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.service.UserService;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +54,12 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             authentication = getAuthentication(request);
         } catch (Exception e) {
             e.printStackTrace();
+            BaseResponse baseResponse = new BaseResponse();
+            baseResponse.setStatus(HTTP_CODE.EXPIRED);
+            baseResponse.setMessage("登录凭证过期，请重新登录");
+            Gson gson = new Gson();
+            response.getWriter().write(gson.toJson(baseResponse));
+            response.getWriter().flush();
             return;
         }
 

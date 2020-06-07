@@ -18,5 +18,6 @@ public class BuyInfo {
     private Address address;
     private String totalPrice;
     private String balance;
+    private int status;
     private Collection<ShoppingOrderItem> items;
 }

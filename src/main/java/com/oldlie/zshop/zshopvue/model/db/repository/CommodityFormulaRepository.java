@@ -18,5 +18,5 @@ public interface CommodityFormulaRepository extends JpaRepository<CommodityFormu
      * @param commodityId commodity id
      * @return formula
      */
-    CommodityFormula findOneByCommodityId(long commodityId);
+    CommodityFormula findOneByIdAndCommodityId(long id, long commodityId);
 }

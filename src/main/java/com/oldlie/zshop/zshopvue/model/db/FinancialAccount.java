@@ -1,13 +1,11 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.joda.money.Money;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * 本系统的金融账号，用户系统的金融流水
@@ -18,7 +16,10 @@ import javax.persistence.Entity;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Entity(name = "t_financial_account")
+@Entity
+@NoArgsConstructor
+@Table(name = "t_financial_account")
+@ToString
 public class FinancialAccount extends BaseEO {
     /**
      * 触发操作的用户ID

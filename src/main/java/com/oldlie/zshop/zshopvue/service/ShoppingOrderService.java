@@ -131,7 +131,7 @@ public class ShoppingOrderService {
             response.setMessage("商品已经下架了");
             return response;
         }
-        CommodityFormula formula = this.cfRepository.findOneByCommodityId(commodityId);
+        CommodityFormula formula = this.cfRepository.findOneByIdAndCommodityId(formulaId, commodityId);
         if (formula == null) {
             response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("你选的规格已经不存在了");
@@ -478,7 +478,29 @@ public class ShoppingOrderService {
     }
 
     /**
-     * 取消订单
+     * 用户自己在结算支付前取消订单，不涉及用户以及系统账户的金额变动
+     * @param uid user id
+     * @param sn serial number
+     * @param reason reason
+     * @return response
+     */
+    public BaseResponse cancelBeforePay(long uid, String sn, String reason) {
+        BaseResponse response = new BaseResponse();
+        ShoppingOrder order = this.repository.findByUidAndSerialNumber(uid, sn);
+        if (order == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("订单不存在了");
+            return response;
+        }
+        order.setStatus(SHOPPING_ORDER_STATUS.CANCELED);
+        order.setCancelReason(reason);
+        this.repository.save(order);
+
+        return response;
+    }
+
+    /**
+     * 在支付之用户后取消订单
      * @param uid user id
      * @param sn serial number
      * @param reason reason
@@ -554,6 +576,7 @@ public class ShoppingOrderService {
                 BuyInfo.builder()
                         .orderId(order.getId())
                         .sn(sn)
+                        .status(order.getStatus())
                         .address(da)
                         .items(items)
                         .totalPrice(total.toString().replace("CNY ", ""))
