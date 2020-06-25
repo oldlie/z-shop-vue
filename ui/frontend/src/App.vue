@@ -137,16 +137,13 @@ export default {
         .req();
     },
     searchCommodities() {
-      console.log("click search btn --->", this.searchText);
       if (!this.searchText.value || this.searchText.value === "") {
-        console.log("empty...");
         this.searchText.status = "error";
         this.searchText.help = "请填写商品名称";
         return;
       }
       this.searchText.status = "success";
       this.searchText.help = "";
-      console.log("go to commodities");
       this.$router.push(`/products?t=${this.searchText.value}`);
     }
   }

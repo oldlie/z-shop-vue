@@ -86,7 +86,7 @@ public class InitService {
         }
         User adminUser = this.userRepository.findFirstByUsername("admin");
         if (adminUser == null) {
-            this.userService.initUser("admin", "admin", role);
+            this.userService.initUser("admin", "admin@123", role);
         }
         User normalUser = this.userRepository.findFirstByUsername("user");
         if (normalUser == null) {
