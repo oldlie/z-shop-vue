@@ -1,10 +1,15 @@
 <template>
   <div>
-    <a-row>
+    <a-row :gutter="4">
       <a-col :span="4">
         <sidebar :index="['2', '2-1']" />
       </a-col>
       <a-col :span="20">
+        <a-row class="inner-row">
+          <a-col :span="24">
+            <h2>首页轮播图</h2>
+          </a-col>
+        </a-row>
         <a-row v-if="isShowForm" class="inner-row">
           <a-form :form="form" @submit="handleSubmit">
             <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="标题">
@@ -83,7 +88,7 @@
                 style="left: 10px;zIndex: 1"
               >
                 <a-icon type="left-circle" />
-                <input type="hidden" :value="props">
+                <input type="hidden" :value="props" />
               </div>
               <div
                 slot="nextArrow"
@@ -91,7 +96,7 @@
                 class="custom-slick-arrow"
                 style="right: 10px"
               >
-              <input type="hidden" :value="props">
+                <input type="hidden" :value="props" />
                 <a-icon type="right-circle" />
               </div>
               <div v-for="item in list" :key="item.id">
@@ -180,7 +185,8 @@ export default {
   },
   mounted() {
     const url = `/backend/carousels`;
-    this.$h.get(url)
+    this.$h
+      .get(url)
       .cb(data => {
         if (data.status === 0) {
           this.list = data.list ? data.list : [];

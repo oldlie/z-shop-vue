@@ -33,4 +33,8 @@ public class ZsTool {
     public static Pageable pageable(int page, int size) {
         return pageable(page, size, "id", "desc");
     }
+
+    public static long unboxLong(Long l) {
+        return l == null ? 0 : l.longValue();
+    }
 }

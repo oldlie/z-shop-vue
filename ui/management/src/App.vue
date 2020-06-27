@@ -1,7 +1,9 @@
 <template>
   <div id="app">
-    <a-layout-header style="background-color:#f0f2f5"></a-layout-header>
-    <a-layout-content>
+    <a-layout-header style="background-color:#f0f2f5">
+      <span>后台管理</span>
+    </a-layout-header>
+    <a-layout-content style="min-height:350px">
       <router-view></router-view>
     </a-layout-content>
     <a-layout-footer>

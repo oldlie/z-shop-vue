@@ -8,11 +8,17 @@ Vue.use(VueRouter)
 
 import App from './App.vue'
 
+import HomeArticleTagsComponent from './components/HomeArticleTagsComponent'
+Vue.component('home-article-tags', HomeArticleTagsComponent)
+
+import HomeCommodityTagsComponent from './components/HomeCommodityTagsComponent'
+Vue.component('home-commodity-tags', HomeCommodityTagsComponent)
+
 import SidebarComponent from './components/SidebarComponent'
 Vue.component('sidebar', SidebarComponent);
 
-import TagsListComponent from './components/TagsListComponent'
-Vue.component('tags', TagsListComponent)
+import QuickNavTagsComponent from './components/QuickNavTagsComponent'
+Vue.component('quick-nav-tags', QuickNavTagsComponent)
 
 Vue.config.productionTip = false
 Vue.use(Antd)

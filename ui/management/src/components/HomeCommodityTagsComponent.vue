@@ -28,7 +28,7 @@
 </template>
 <script>
 export default {
-  props: ["title", "rootId", "delay", "saveUrl", "deleteUrl", "checkedUrl"],
+  props: ["title", "rootId", "delay"],
   data() {
     return {
       loading: false,
@@ -50,7 +50,6 @@ export default {
   },
   methods: {
     loadTags(id) {
-      console.log('id', id);
       const url = `/backend/tags/${id}`;
       this.loading = true;
       this.$h
@@ -62,14 +61,26 @@ export default {
             this.$message.error(data.message);
           }
         })
-        .fcb(() => (this.loading = false))
+        .fcb(() => {
+          this.loading = false;
+          this.loadchecked();
+        })
         .req();
     },
     loadchecked() {
-      if (!this.checkedUrl) {
-        console.error("没有指定已选中的tags")
-        return;
-      }
+      const url = `/backend/home-commodity-tags`;
+      this.loading = true;
+      this.$h
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.checkedTags = data.list;
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
     },
     check(tag) {
       let existed = this.checkedTags.filter(x => x.id === tag.id);
@@ -77,20 +88,21 @@ export default {
         this.$message.warning("该标签已经添加了!");
         return;
       }
-      const url = `/backend/quick-nav-tag`;
+      const url = `/backend/home-tag`;
       this.loading = true;
       let params = {
         tagId: tag.id,
         tagTitle: tag.title,
         sequence: 0
       };
-      this.$h.post(url, params)
-      .cb(data => {
+      this.$h
+        .post(url, params)
+        .cb(data => {
           if (data.status === 0) {
             this.checkedTags.push(tag);
             this.$message.success("已保存");
           } else {
-            this.$message.error(decodeURIComponent(data.message))
+            this.$message.error(decodeURIComponent(data.message));
           }
         })
         .fcb(() => {
@@ -107,8 +119,22 @@ export default {
       let tag = this.checkedPath.pop();
       this.loadTags(tag.id);
     },
-    uncheck(item) {}
-    
+    uncheck(item) {
+      const url = `/backend/home-tag/${item.id}`;
+      this.loading = true;
+      this.$h
+        .delete(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.checkedTags = this.checkedTags.filter(x => x.id !== item.id);
+            this.$message.success("已删除");
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
+    }
   }
 };
 </script>

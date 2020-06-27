@@ -51,7 +51,7 @@ public class TagService {
         SimpleResponse<Long> response = new SimpleResponse<>();
         Tag tag = request.getBody();
         Tag target = null;
-        if (tag.getId() > 0) {
+        if (ZsTool.unboxLong(tag.getId()) > 0) {
             target = this.tagRepository.findById(tag.getId()).orElseGet(null);
             if (target == null) {
                 response.setStatus(HTTP_CODE.FAILED);
@@ -63,10 +63,10 @@ public class TagService {
         }
         target.setCategory(tag.getCategory());
         target.setTagOrder(tag.getTagOrder());
-        target.setParentId(tag.getParentId());
+        target.setParentId(ZsTool.unboxLong(tag.getParentId()));
         target.setTitle(tag.getTitle());
 
-        if (target.getParentId() > 0 && tag.getId() <= 0) {
+        if (ZsTool.unboxLong(target.getParentId()) > 0 && ZsTool.unboxLong(tag.getId()) <= 0) {
             // 仅在新增时增加父节点的 child count
             // 且要求前端保证不能修改父节点 id
             Tag parent = this.tagRepository.findById(target.getParentId()).orElse(null);
