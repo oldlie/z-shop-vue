@@ -53,6 +53,9 @@ public class ZShopVueApplication implements ApplicationListener<ContextRefreshed
 	@SuppressWarnings("unchecked")
 	public FilterRegistrationBean simpleCorsFilter() {
 		List<String> origins = new ArrayList<>();
+		origins.add("http://localhost");
+		origins.add("http://localhost:80");
+		origins.add("http://127.0.0.1:80");
 		origins.add("http://localhost:8080");
 		origins.add("http://localhost:8081");
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

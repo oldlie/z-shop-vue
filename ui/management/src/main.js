@@ -32,7 +32,7 @@ Vue.use(VueCookie)
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
-axios.defaults.baseURL = 'http://localhost:8090';
+axios.defaults.baseURL = 'http://localhost/api';
 axios.defaults.withCredentials = true;
 axios.defaults.headers = {
   'X-Requested-With': 'XMLHttpRequest',

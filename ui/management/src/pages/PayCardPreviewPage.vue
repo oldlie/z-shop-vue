@@ -7,6 +7,11 @@
       <a-col :span="20">
         <a-row class="inner-row">
           <a-col :span="24">
+            <h2>兑换卡</h2>
+          </a-col>
+        </a-row>
+        <a-row class="inner-row">
+          <a-col :span="24">
             <router-link :to="'/cards'">
               <a-icon type="table" />卡片列表
             </router-link>

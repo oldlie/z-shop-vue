@@ -184,7 +184,7 @@ export default {
         .post(url, { title: this.newCommodityTitle })
         .cb(data => {
           if (data.status === 0) {
-            this.$router.push(`/commdoity/${data.item}`);
+            this.$router.push(`/commodity/${data.item}`);
           }
         })
         .fcb(() => (this.confirmLoading = false))
