@@ -11,6 +11,9 @@ import CommoditiesPage from './pages/CommoditiesPage'
 import DashboardPage from './pages/DashboardPage'
 import HomeNavPage from './pages/HomeNavPage'
 import LoginPage from './pages/LoginPage'
+import PayCardPage from './pages/PayCardPage'
+import PayCardPreviewPage from './pages/PayCardPreviewPage'
+import PayCardsPage from './pages/PayCardsPage'
 import TagPage from './pages/TagPage'
 import NotFoundPage from './pages/404'
 
@@ -25,6 +28,9 @@ export default new Router({
     { path: '/commodity/:id', name: 'commodity', component: CommodityPage},
     { path: '/commodities', name: 'commodities', component: CommoditiesPage},
     { path: '/home-nav', name: 'homeNave', component: HomeNavPage},
+    { path: '/card', name: 'card', component: PayCardPage},
+    { path: '/card-preview/:id', name: 'cardPreview', component: PayCardPreviewPage},
+    { path: '/cards', name: 'cards', component: PayCardsPage},
     { path: '/tags', name: 'tags', component: TagPage},
     { path: "/*", name: '404', component: NotFoundPage}
   ]

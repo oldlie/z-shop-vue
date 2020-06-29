@@ -175,7 +175,7 @@ export default {
             this.dataSet = data.list;
             console.log("data set --->", this.dataSet);
           } else {
-            this.$message.error(data.message);
+            this.$message.error(decodeURIComponent(data.message));
           }
         })
         .fcb(() => (this.listLoading = false))
@@ -203,7 +203,7 @@ export default {
             this.dataSet = _t;
             this.$message.success("已删除");
           } else if (data.status === 1) {
-            this.$message.warn(data.message);
+            this.$message.warn(decodeURIComponent(data.message));
           }
         })
         .fcb(() => (this.listLoading = false))

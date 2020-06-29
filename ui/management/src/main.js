@@ -17,6 +17,9 @@ Vue.component('home-commodity-tags', HomeCommodityTagsComponent)
 import SidebarComponent from './components/SidebarComponent'
 Vue.component('sidebar', SidebarComponent);
 
+import  PayCardSellComponent from './components/PayCardSellComponent'
+Vue.component('pay-card-sell', PayCardSellComponent);
+
 import QuickNavTagsComponent from './components/QuickNavTagsComponent'
 Vue.component('quick-nav-tags', QuickNavTagsComponent)
 
