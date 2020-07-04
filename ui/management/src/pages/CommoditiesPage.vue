@@ -18,7 +18,12 @@
         </a-row>
         <a-row class="inner-row">
           <a-col :span="24">
-            <a-table :columns="columns" :dataSource="dataSet" :loading="tableLoading">
+            <a-table
+              :columns="columns"
+              :dataSource="dataSet"
+              :loading="tableLoading"
+              :pagination="false"
+            >
               <span slot="thumbnail" slot-scope="url">
                 <img v-if="!!url" :src="url" alt="首页图" width="32px" height="32px" />
                 <img
@@ -51,6 +56,17 @@
                 </template>
               </span>
             </a-table>
+          </a-col>
+        </a-row>
+        <a-row class="inner-row">
+          <a-col :span="24">
+            <a-pagination
+              size="small"
+              :total="total"
+              :pageSize="pagination.size"
+              :current="pagination.index"
+              @change="paginationChange"
+            />
           </a-col>
         </a-row>
       </a-col>
@@ -121,6 +137,7 @@ export default {
       columns,
       dataSet: [],
       tableLoading: false,
+      total: 0,
       pagination: {
         index: 1,
         size: 10,
@@ -209,6 +226,7 @@ ${this.pagination.order}`;
         .cb(data => {
           console.log("data", data);
           self.dataSet = data.list;
+          this.total = data.total;
         })
         .fcb(() => (self.tableLoading = false))
         .req();
@@ -246,6 +264,10 @@ ${this.pagination.order}`;
         })
         .fcb()
         .req();
+    },
+    paginationChange(page) {
+      this.pagination.index = page;
+      this.loadCommodities();
     }
   }
 };

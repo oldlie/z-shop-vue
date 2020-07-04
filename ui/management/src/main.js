@@ -59,7 +59,8 @@ const Http = function () {
     let token = VueCookie.get('token');
     let auth = 'ZShop ' + token;
     if ('get' === method) {
-      if (params !== null) {
+      if (params) {
+        console.log('get --->', params);
         let _arr = [];
         for (let key in params) {
           _arr.push(key + '=' + encodeURIComponent(params[key]));

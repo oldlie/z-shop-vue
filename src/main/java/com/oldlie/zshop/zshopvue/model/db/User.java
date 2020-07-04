@@ -29,6 +29,11 @@ public class User implements UserDetails {
     private String nickname;
     @Column(name = "pwd")
     private String password;
+    /**
+     * 用户支付密码，可以明文存储，仅6位数字
+     */
+    @Column(columnDefinition = "char(6) default '888888'")
+    private String payPassword;
     @Column(columnDefinition = "BIT default 1")
     private boolean isAccountNonExpired;
     @Column(columnDefinition = "BIT default 1")

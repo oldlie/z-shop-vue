@@ -3,6 +3,8 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+import AccountPage from './pages/AccountPage'
+import AccountsPage from './pages/AccountsPage'
 import ArticlePage from './pages/ArticlePage'
 import ArticlesPage from './pages/ArticlesPage'
 import CarouselPage from './pages/CarouselPage'
@@ -20,6 +22,8 @@ import NotFoundPage from './pages/404'
 export default new Router({
   routes: [
     { path: '/', name: 'index', component: LoginPage},
+    { path: '/account/:id', name: 'account', component: AccountPage},
+    { path: '/accounts', name: 'accounts', component: AccountsPage},
     { path: '/article/:id', name: 'article', component: ArticlePage},
     { path: '/articles', name: 'articles', component: ArticlesPage},
     { path: '/login', name: 'login', component: LoginPage},

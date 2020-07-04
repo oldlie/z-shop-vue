@@ -2,17 +2,17 @@ package com.oldlie.zshop.zshopvue.model.db;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-@Entity(name = "t_role")
+@Entity
 @AllArgsConstructor
 @Builder
 @Data
 @EqualsAndHashCode
 @NoArgsConstructor
+@Table(name = "t_role", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")
+})
 @ToString
 public class Role {
     @Id

@@ -80,8 +80,8 @@ public class InitService {
         if (userRole == null) {
             userRole = this.roleRepository.save(
                     Role.builder()
-                            .name("ADMIN")
-                            .title("管理员")
+                            .name("USER")
+                            .title("注册用户")
                             .build());
         }
         User adminUser = this.userRepository.findFirstByUsername("admin");

@@ -45,7 +45,7 @@
           </router-link>
         </a-menu-item>
         <a-menu-item key="7">
-          <router-link :to="'/users'">
+          <router-link :to="'/accounts'">
             <a-icon type="user" />
             <span>用户管理</span>
           </router-link>
