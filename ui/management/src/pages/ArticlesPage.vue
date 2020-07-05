@@ -5,71 +5,69 @@
         <sidebar :index="['5']" />
       </a-col>
       <a-col :span="20">
-        <a-col :span="20">
+        <a-row class="inner-row">
+          <a-col :span="24">
+            <h2>文章列表</h2>
+          </a-col>
+        </a-row>
+        <a-row class="inner-row" v-if="view === 'form'">
           <a-row class="inner-row">
             <a-col :span="24">
-              <h2>文章列表</h2>
+              <a-button @click="showArticles" icon="table" type="link">显示列表</a-button>
             </a-col>
           </a-row>
-          <a-row class="inner-row" v-if="view === 'form'">
-            <a-row class="inner-row">
-              <a-col :span="24">
-                <a-button @click="showArticles" icon="table" type="link">显示列表</a-button>
-              </a-col>
-            </a-row>
 
-            <admin-article :articleId="articleId"></admin-article>
-          </a-row>
+          <admin-article :articleId="articleId"></admin-article>
+        </a-row>
 
-          <a-row class="inner-row" v-if="view === 'table'">
-            <a-row class="inner-row">
-              <a-col :span="24">
-                <a-button @click="addArticle('form')" icon="plus" type="link">写文章</a-button>
-                <a-divider type="vertical"></a-divider>
-              </a-col>
-            </a-row>
+        <a-row class="inner-row">
+          <a-col :span="24">
+            <a-button @click="addArticle('form')" icon="plus" type="link">写文章</a-button>
+            <a-divider type="vertical"></a-divider>
+          </a-col>
+        </a-row>
 
-            <a-table :columns="columns" :dataSource="list" :pagination="false">
-              <span slot="title" slot-scope="record">
-                <div
-                  style="width:240px; white-space: nowrap;  overflow: hidden;  text-overflow: ellipsis;"
-                >{{record.title}}</div>
-              </span>
-              <span slot="summary" slot-scope="record">
-                <div
-                  style="width:240px; white-space: nowrap;  overflow: hidden;  text-overflow: ellipsis;"
-                >{{record.summary}}</div>
-              </span>
-              <span slot="action" slot-scope="record">
-                <a href="javascript:;" @click="editArticle(record)">
-                  <a-icon type="edit"></a-icon>
+        <a-spin :spinning="loading">
+          <a-table :columns="columns" :dataSource="list" :pagination="false">
+            <span slot="title" slot-scope="record">
+              <div
+                style="width:240px; white-space: nowrap;  overflow: hidden;  text-overflow: ellipsis;"
+              >{{record.title}}</div>
+            </span>
+            <span slot="summary" slot-scope="record">
+              <div
+                style="width:240px; white-space: nowrap;  overflow: hidden;  text-overflow: ellipsis;"
+              >{{record.summary}}</div>
+            </span>
+            <span slot="action" slot-scope="record">
+              <a href="javascript:;" @click="editArticle(record)">
+                <a-icon type="edit"></a-icon>
+              </a>
+              <a-divider type="vertical"></a-divider>
+              <a-popconfirm
+                title="删除"
+                @confirm="confirmDeleteArticle(record)"
+                @cancel="cancelDeleteArticle"
+                okText="确定"
+                cancelText="取消"
+              >
+                <a href="javascript:;" style="color:#f5222d">
+                  <a-icon type="delete"></a-icon>
                 </a>
-                <a-divider type="vertical"></a-divider>
-                <a-popconfirm
-                  title="删除"
-                  @confirm="confirmDeleteArticle(record)"
-                  @cancel="cancelDeleteArticle"
-                  okText="确定"
-                  cancelText="取消"
-                >
-                  <a href="javascript:;" style="color:#f5222d">
-                    <a-icon type="delete"></a-icon>
-                  </a>
-                </a-popconfirm>
-              </span>
-            </a-table>
-          </a-row>
+              </a-popconfirm>
+            </span>
+          </a-table>
+        </a-spin>
 
-          <a-row class="inner-row">
-            <a-pagination
-              size="small"
-              :total="total"
-              :pageSize="size"
-              :current="index"
-              @change="paginationChange"
-            />
-          </a-row>
-        </a-col>
+        <a-row class="inner-row">
+          <a-pagination
+            size="small"
+            :total="total"
+            :pageSize="size"
+            :current="index"
+            @change="paginationChange"
+          />
+        </a-row>
       </a-col>
     </a-row>
   </div>
@@ -109,6 +107,7 @@ export default {
   methods: {
     loadArticles() {
       const url = `/backend/articles/${this.index}-${this.size}-${this.orderBy}-${this.order}`;
+      this.loading = true;
       this.$h
         .get(url)
         .cb(data => {
@@ -117,10 +116,12 @@ export default {
             this.list = data.list;
             this.total = data.total;
           } else {
-            console.error(data);
+            console.error(decodeURIComponent(data));
           }
         })
-        .fcb()
+        .fcb(() => {
+          this.loading = false;
+        })
         .req();
     },
     paginationChange(page, pageSize) {

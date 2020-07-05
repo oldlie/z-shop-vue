@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <a-layout-header style="background-color:#f0f2f5">
+    <a-layout-header style="background-color:#f0f2f5;height:32px;line-height:32px;">
       <span>后台管理</span>
     </a-layout-header>
     <a-layout-content style="min-height:350px">
@@ -53,7 +53,8 @@ export default {
 
 <style>
 #app {
-  min-width: 1200px;
+  min-width: 1100px;
   box-sizing: border-box;
+  padding: 0 2px 0 0;
 }
 </style>

@@ -50,7 +50,13 @@
             <span>用户管理</span>
           </router-link>
         </a-menu-item>
-        <a-menu-item key="8">
+       <a-menu-item key="9">
+          <router-link :to="'/orders'">
+            <a-icon type="shopping-cart" />
+            <span>订单管理</span>
+          </router-link>
+        </a-menu-item>
+         <a-menu-item key="8">
           <router-link :to="'/setting'">
             <a-icon type="setting" />
             <span>系统管理</span>
