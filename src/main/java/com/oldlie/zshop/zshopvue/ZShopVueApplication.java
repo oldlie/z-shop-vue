@@ -30,6 +30,8 @@ public class ZShopVueApplication implements ApplicationListener<ContextRefreshed
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+		BCryptPasswordEncoder encoder = this.bCryptPasswordEncoder();
+		System.out.println(encoder.encode("admin@123"));
 		InitService service = contextRefreshedEvent.getApplicationContext().getBean(InitService.class);
 		service.init();
 	}

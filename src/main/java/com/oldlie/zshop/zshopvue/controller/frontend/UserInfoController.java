@@ -35,6 +35,21 @@ public class UserInfoController {
 
     @PostMapping(value = "/nickname")
     public BaseResponse user(@RequestParam("nickname") String nickname, @SessionAttribute("uid") long uid) {
-        return this.userService.updateNickname(uid, nickname);
+        return this.userService.resetNickname(uid, nickname);
+    }
+
+    @PostMapping(value = "/password")
+    public BaseResponse password(@RequestParam("oldPwd") String oldPwd,
+                                 @RequestParam("newPwd") String newPwd,
+                                 @SessionAttribute("uid") long uid) {
+        return this.userService.resetPassword(uid, oldPwd, newPwd);
+    }
+
+    @PostMapping(value = "/pay-password")
+    public BaseResponse payPassword(@RequestParam("password") String password,
+                                    @RequestParam("payPwd") String payPassword,
+                                    @SessionAttribute("uid") long uid
+                                    ) {
+        return this.userService.resetPayPassword(uid, password, payPassword);
     }
 }

@@ -176,7 +176,7 @@ public class UserService implements UserDetailsService {
      * @param nickname user nickname
      * @return BaseResponse
      */
-    public BaseResponse updateNickname(long uid, String nickname) {
+    public BaseResponse resetNickname(long uid, String nickname) {
         BaseResponse response = new BaseResponse();
         if (StringUtils.isEmpty(nickname)) {
             response.setStatus(HTTP_CODE.FAILED);
@@ -192,6 +192,32 @@ public class UserService implements UserDetailsService {
             x.setNickname(nickname);
             this.userRepository.save(x);
         } );
+        return response;
+    }
+
+    /**
+     * 重置密码
+     * @param uid user id
+     * @param oldPassword old password
+     * @param newPassword new password
+     * @return BaseResponse
+     */
+    public BaseResponse resetPassword(long uid, String oldPassword, String newPassword) {
+        BaseResponse response = new BaseResponse();
+        Optional<User> optionalUser = this.userRepository.findById(uid);
+        if (!optionalUser.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("账户不存在了，请重新登录");
+            return response;
+        }
+        User user = optionalUser.get();
+        if (!this.bCryptPasswordEncoder.matches(oldPassword, user.getPassword())) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("原密码不正确");
+            return response;
+        }
+        user.setPassword(this.bCryptPasswordEncoder.encode(newPassword));
+        this.userRepository.save(user);
         return response;
     }
 
@@ -218,6 +244,38 @@ public class UserService implements UserDetailsService {
         }
         User user = userOptional.get();
         user.setPayPassword(password);
+        this.userRepository.save(user);
+        return response;
+    }
+
+    /**
+     * 重置支付密码
+     * @param uid user id
+     * @param password account password
+     * @param payPwd pay password
+     * @return BaseResponse
+     */
+    public BaseResponse resetPayPassword(long uid, String password, String payPwd) {
+        BaseResponse response = new BaseResponse();
+        String pattern = "^\\d{6}$";
+        if (!Pattern.matches(pattern, payPwd)) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("支付密码为6位数字");
+            return response;
+        }
+        Optional<User> userOptional = this.userRepository.findById(uid);
+        if (!userOptional.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("账号不存在了，请刷新列表");
+            return response;
+        }
+        User user = userOptional.get();
+        if (!this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("密码不正确");
+            return response;
+        }
+        user.setPayPassword(payPwd);
         this.userRepository.save(user);
         return response;
     }
