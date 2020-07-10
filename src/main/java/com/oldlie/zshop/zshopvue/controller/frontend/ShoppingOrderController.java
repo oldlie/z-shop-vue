@@ -74,8 +74,9 @@ public class ShoppingOrderController {
             MediaType.MULTIPART_FORM_DATA_VALUE
     })
     public BaseResponse payOrder(@RequestParam("sn") String serialNumber,
+                                 @RequestParam("pwd") String payPassword,
                                  @SessionAttribute("uid") long uid) {
-        return this.service.payOrder(uid, serialNumber);
+        return this.service.payOrder(uid, serialNumber, payPassword);
     }
 
     /**

@@ -64,12 +64,44 @@
             <span style="font-size:.8rem;color:rgb(136, 136, 136)">/{{balance}}</span>
           </a-col>
           <a-col :span="4">
-            <button class="fav-button active" @click="onSubmitOrder" :loading="submitLoading">
+            <button class="fav-button active" @click="visible = true" :loading="submitLoading">
               <span>结算订单</span>
             </button>
           </a-col>
         </a-row>
       </div>
+      <a-modal
+        v-model="visible"
+        title="结算订单"
+        @ok="onSubmitOrder"
+        okText="提交"
+        cancelText="取消"
+        @cancel="visible = false"
+      >
+        <p>请输入支付密码：</p>
+        <p>
+          <a-row class="inner-row" :gutter="6">
+            <a-col :span="2">
+              <a-input v-model="pwd1" maxLength="1" placeholder="0" />
+            </a-col>
+            <a-col :span="2">
+              <a-input v-model="pwd2" maxLength="1" placeholder="0" />
+            </a-col>
+            <a-col :span="2">
+              <a-input v-model="pwd3" maxLength="1" placeholder="0" />
+            </a-col>
+            <a-col :span="2">
+              <a-input v-model="pwd4" maxLength="1" placeholder="0" />
+            </a-col>
+            <a-col :span="2">
+              <a-input v-model="pwd5" maxLength="1" placeholder="0" />
+            </a-col>
+            <a-col :span="2">
+              <a-input v-model="pwd6" maxLength="1" placeholder="0" />
+            </a-col>
+          </a-row>
+        </p>
+      </a-modal>
     </a-spin>
   </div>
 </template>
@@ -91,7 +123,14 @@ export default {
       balance: "",
       items: [],
       submitLoading: false,
-      allowSubmit: true
+      allowSubmit: true,
+      visible: false,
+      pwd1: "",
+      pwd2: "",
+      pwd3: "",
+      pwd4: "",
+      pwd5: "",
+      pwd6: ""
     };
   },
   mounted() {
@@ -118,9 +157,11 @@ export default {
         this.$message.warning("积分不够支付当前商品，请先兑换积分。");
         return;
       }
+      let pwd = this.pwd1 + this.pwd2 + this.pwd3 + this.pwd4 + this.pwd5 + this.pwd6;
       const url = `${this.apiUrl}/frontend/shopping-order/pay`;
       const fd = new FormData();
       fd.append("sn", this.innerSn);
+      fd.append("pwd", pwd);
       this.submitLoading = true;
       this.$g
         .post(url, fd)
@@ -128,7 +169,7 @@ export default {
           if (data.status === 0) {
             this.$router.push("/order");
           } else {
-            this.$message.error(data.message);
+            this.$message.error(decodeURIComponent(data.message));
           }
         })
         .fcb(() => (this.submitLoading = false))
@@ -148,9 +189,9 @@ export default {
               this.allowSubmit = false;
               return;
             }
-            console.log(info['status']);
-            if (Number(info['status']) !== 0) {
-              this.$message.success('订单已经处理过了，请不要重复处理');
+            console.log(info["status"]);
+            if (Number(info["status"]) !== 0) {
+              this.$message.success("订单已经处理过了，请不要重复处理");
               this.allowSubmit = false;
             }
             this.address = info["address"];
@@ -172,23 +213,24 @@ export default {
       this.address = addr;
       this.addrViewModel = 0;
     },
-    cancel () {
+    cancel() {
       const url = `${this.apiUrl}/frontend/shopping-order/cancel`;
       const fd = new FormData();
-      fd.append('sn', this.innerSn);
-      fd.append('reason', '用户取消');
+      fd.append("sn", this.innerSn);
+      fd.append("reason", "用户取消");
       this.loading = true;
-      this.$g.post(url, fd)
-      .cb(data => {
-        if (data.status === 0) {
-          this.$message.success('订单已经取消');
-          this.allowSubmit = false;
-        } else {
-          this.$message.error(data.message);
-        }
-      })
-      .fcb(() => this.loading = false)
-      .req();
+      this.$g
+        .post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("订单已经取消");
+            this.allowSubmit = false;
+          } else {
+            this.$message.error(data.message);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
     }
   }
 };

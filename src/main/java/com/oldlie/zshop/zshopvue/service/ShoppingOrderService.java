@@ -60,6 +60,9 @@ public class ShoppingOrderService {
     private ShoppingOrderSerialRepository serialRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private WalletRepository walletRepository;
 
     /**
@@ -221,8 +224,22 @@ public class ShoppingOrderService {
      * @return response
      */
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse payOrder(long uid, String sn) {
+    public BaseResponse payOrder(long uid, String sn, String payPassword) {
         BaseResponse response = new BaseResponse();
+
+        Optional<User> optionalUser = this.userRepository.findById(uid);
+        if (!optionalUser.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("当前账户不存在了，请重新登录");
+            return response;
+        }
+
+        User user = optionalUser.get();
+        if (!user.getPayPassword().equals(payPassword)) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("支付密码错误");
+            return response;
+        }
 
         Wallet wallet = this.walletRepository.findOneByUid(uid);
         if (wallet == null) {

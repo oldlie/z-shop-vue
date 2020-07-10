@@ -19,7 +19,7 @@
             <img
               width="128px"
               height="128px"
-              src="http://localhost/resources/images/wd.jpg"
+              src="http://39.96.190.31/resources/images/wd.jpg"
               alt="知人甄选"
             />
           </p>
