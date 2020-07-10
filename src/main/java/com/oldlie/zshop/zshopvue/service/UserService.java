@@ -163,7 +163,35 @@ public class UserService implements UserDetailsService {
             response.setMessage("该账号不存在了");
             return response;
         }
-        response.setItem(optional.get());
+        User user = optional.get();
+        user.setPassword("");
+        user.setPayPassword("");
+        response.setItem(user);
+        return response;
+    }
+
+    /**
+     * 更新用户昵称
+     * @param uid user id
+     * @param nickname user nickname
+     * @return BaseResponse
+     */
+    public BaseResponse updateNickname(long uid, String nickname) {
+        BaseResponse response = new BaseResponse();
+        if (StringUtils.isEmpty(nickname)) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("昵称是空的");
+            return response;
+        }
+        if (nickname.length() > 128) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("昵称最大字符不超过128");
+            return response;
+        }
+        this.userRepository.findById(uid).ifPresent(x -> {
+            x.setNickname(nickname);
+            this.userRepository.save(x);
+        } );
         return response;
     }
 

@@ -49,7 +49,7 @@ const routes = [
   { path: '/order/comment', component: CommentOrderPage },
   { path: '/order', component: OrderPage },
   { path: '/profile', component: UserProfilePage },
-  ]
+]
 
 const router = new VueRouter({
   routes // (缩写) 相当于 routes: routes
@@ -72,6 +72,7 @@ Vue.use(VueCookies)
 Vue.prototype.apiUrl = 'http://localhost/api/';
 Vue.prototype.bus = new Vue();
 Vue.prototype.$g = window.G;
+Vue.prototype.$message['me'] = (message) => { Vue.prototype.$message.error(decodeURIComponent(message)) };
 
 new Vue({
   router,
