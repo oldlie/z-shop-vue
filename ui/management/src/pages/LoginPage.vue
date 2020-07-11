@@ -98,7 +98,7 @@ export default {
           this.$cookie.set('token', token);
           this.$router.push('/dashboard');
         } else {
-          this.$message.error(data.message);
+          this.$message.me(data.message);
         }
       })
       .fcb(() => {

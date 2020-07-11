@@ -182,7 +182,7 @@ export default {
             this.username = item["username"];
             this.nickname.value = item["nickname"];
           } else {
-            this.$message.error(decodeURIComponent(data["message"]));
+            this.$message.me(decodeURIComponent(data["message"]));
           }
         })
         .fcb(() => (this.loading = false))
@@ -342,7 +342,7 @@ export default {
             this.balance = data.item["amount"];
           } else {
             console.error("exchange card --->", data);
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

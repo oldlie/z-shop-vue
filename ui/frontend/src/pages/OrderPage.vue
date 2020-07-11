@@ -217,7 +217,7 @@ export default {
             this.$message.success("订单已经取消");
             this.loadUnpayList();
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))
@@ -235,7 +235,7 @@ export default {
             this.$message.success("订单已完成");
             this.loadOnWayList();
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

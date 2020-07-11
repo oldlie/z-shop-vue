@@ -147,7 +147,7 @@ export default {
             this.list = arr;
             this.total = data.total;
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

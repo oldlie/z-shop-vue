@@ -147,7 +147,7 @@ export default {
             this.payCard = data.item;
             this.ids.push(this.payCard.id);
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

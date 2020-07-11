@@ -58,7 +58,7 @@ export default {
           if (data.status === 0) {
             this.tags = data.list;
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => {
@@ -76,7 +76,7 @@ export default {
           if (data.status === 0) {
             this.checkedTags = data.list;
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))
@@ -129,7 +129,7 @@ export default {
             this.checkedTags = this.checkedTags.filter(x => x.id !== item.id);
             this.$message.success("已删除");
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

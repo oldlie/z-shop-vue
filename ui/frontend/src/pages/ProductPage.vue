@@ -260,7 +260,7 @@ export default {
           if (data.status === 0) {
             this.$router.push(`/buy/${data.item}`);
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
             console.error(data);
           }
         })

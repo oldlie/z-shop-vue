@@ -130,7 +130,7 @@ export default {
             if (data.status === 0) {
               this.$message.success("已保存");
             } else {
-              this.$message.error(data.message);
+              this.$message.me(data.message);
             }
           })
           .fcb(() => (this.loading = false))

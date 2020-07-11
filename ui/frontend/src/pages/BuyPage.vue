@@ -169,7 +169,7 @@ export default {
           if (data.status === 0) {
             this.$router.push("/order");
           } else {
-            this.$message.error(decodeURIComponent(data.message));
+            this.$message.me(decodeURIComponent(data.message));
           }
         })
         .fcb(() => (this.submitLoading = false))
@@ -202,7 +202,7 @@ export default {
             this.balance = info["balance"];
             this.items = info["items"];
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
             console.error("init buy info --->", data);
           }
         })
@@ -226,7 +226,7 @@ export default {
             this.$message.success("订单已经取消");
             this.allowSubmit = false;
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

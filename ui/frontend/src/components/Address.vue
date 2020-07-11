@@ -166,7 +166,7 @@ export default {
           if (data.status === 0) {
             this.data = data.list;
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
             console.error("init data error --->", data);
           }
         })
@@ -181,7 +181,7 @@ export default {
           if (data.status === 0) {
             this.initAddress();
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb()
@@ -205,7 +205,7 @@ export default {
             this.$emit('defaultAddressEvent', item);
             this.initAddress();
           } else {
-            this.$message.error(data.message);
+            this.$message.me(data.message);
           }
         })
         .fcb()
