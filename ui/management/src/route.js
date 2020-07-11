@@ -13,6 +13,7 @@ import CommoditiesPage from './pages/CommoditiesPage'
 import DashboardPage from './pages/DashboardPage'
 import HomeNavPage from './pages/HomeNavPage'
 import LoginPage from './pages/LoginPage'
+import OrdersPage from './pages/OrdersPage'
 import PayCardPage from './pages/PayCardPage'
 import PayCardPreviewPage from './pages/PayCardPreviewPage'
 import PayCardsPage from './pages/PayCardsPage'
@@ -35,6 +36,7 @@ export default new Router({
     { path: '/card', name: 'card', component: PayCardPage},
     { path: '/card-preview/:id', name: 'cardPreview', component: PayCardPreviewPage},
     { path: '/cards', name: 'cards', component: PayCardsPage},
+    { path: '/orders', name: 'orders', component: OrdersPage},
     { path: '/tags', name: 'tags', component: TagPage},
     { path: "/*", name: '404', component: NotFoundPage}
   ]

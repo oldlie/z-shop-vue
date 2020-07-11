@@ -3,7 +3,7 @@
     :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '30px 0', 'width:': '100%','text-align':'left'}"
   >
     <a-spin :spinning="loading">
-      <a-tabs defaultActiveKey="2" @change="onTabChange">
+      <a-tabs defaultActiveKey="1" @change="onTabChange">
         <a-tab-pane tab="基本信息" key="1">
           <a-form>
             <a-form-item

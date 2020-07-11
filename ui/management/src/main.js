@@ -168,6 +168,8 @@ const Http = function () {
   }
 }
 
+Vue.prototype.$message['me'] = (message) => { Vue.prototype.$message.error(decodeURIComponent(message)) };
+
 Vue.prototype.$h = {
   submitForm(url, method, params, target) {
     var _form = document.getElementById("postForm");

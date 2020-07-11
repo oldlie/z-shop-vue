@@ -14,7 +14,7 @@
         </span>
       </template>
       -->
-      <img slot="extra" width="272" alt="logo" :src="item.imageUrl" />
+      <img slot="extra" style="height: 200px; width: 300px;object-fit:cover" alt="logo" :src="item.imageUrl" />
       <a-list-item-meta :description="item.description">
         <div slot="title" :href="item.href">
           <!--

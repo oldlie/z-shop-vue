@@ -470,6 +470,40 @@ public class ShoppingOrderService {
     }
 
     /**
+     * 用户新发起的订单
+     * @param index page index
+     * @param size page size
+     * @return Page of ShoppingOrder
+     */
+    public PageResponse<ShoppingOrder> newOrders(int index, int size) {
+        PageResponse<ShoppingOrder> response = new PageResponse<>();
+        Page<ShoppingOrder> page = this.repository.findAll(
+                (root, query, cb) -> cb.equal(root.get("status"), SHOPPING_ORDER_STATUS.OUT_OF_WAREHOUSE),
+                ZsTool.pageable(index, size)
+        );
+        response.setTotal(page.getTotalElements());
+        response.setList(page.getContent());
+        return response;
+    }
+
+    /**
+     * 在途的订单，即已经添加了快递信息的订单
+     * @param index page index
+     * @param size page size
+     * @return Page of ShoppingOrder
+     */
+    public PageResponse<ShoppingOrder> onWayOrder(int index, int size) {
+        PageResponse<ShoppingOrder> response = new PageResponse<>();
+        Page<ShoppingOrder> page = this.repository.findAll(
+                (root, query, cb) -> cb.equal(root.get("status"), SHOPPING_ORDER_STATUS.DELIVERING),
+                ZsTool.pageable(index, size)
+        );
+        response.setTotal(page.getTotalElements());
+        response.setList(page.getContent());
+        return response;
+    }
+
+    /**
      * 发货
      * @param uid user id
      * @param id id

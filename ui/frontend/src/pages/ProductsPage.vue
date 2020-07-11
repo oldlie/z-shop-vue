@@ -11,7 +11,7 @@
         <a-col :span="6" v-for="item in products" :key="item['id']">
           <a :href="`#/product/${item.id}`" target="_blank">
             <a-card hoverable class="product-card">
-              <img :alt="item['title']" :src="item['thumbnail']" slot="cover" />
+              <img :alt="item['title']" :src="item['thumbnail']" slot="cover"  style="height: 238px; width: 238px;object-fit:cover"/>
               <a-card-meta :title="item['title']">
                 <template slot="description">{{item['introduction']}}</template>
               </a-card-meta>
@@ -81,7 +81,7 @@ export default {
   height: 400px;
   margin: 10px;
   text-align: center;
-  margin: 0 auto;
+  margin: 0 auto 25px auto;
 }
 </style>
 

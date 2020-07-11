@@ -44,6 +44,30 @@ public class AdminShoppingOrderController {
     }
 
     /**
+     * 获取用户提交的最新的订单
+     * @param page page index
+     * @param size page size
+     * @return Page of ShoppingOrder
+     */
+    @GetMapping(value = "/shopping-order/new-list")
+    public PageResponse<ShoppingOrder> newOrders(@RequestParam("page") int page,
+                                                 @RequestParam("size") int size) {
+        return this.service.newOrders(page, size);
+    }
+
+    /**
+     * 获取已经发快递的订单
+     * @param page page index
+     * @param size page size
+     * @return Page of ShoppingOrder
+     */
+    @GetMapping(value = "/shopping-order/on-way-list")
+    public PageResponse<ShoppingOrder>  onWayOrders(@RequestParam("page") int page,
+                                                    @RequestParam("size") int size) {
+        return this.service.onWayOrder(page, size);
+    }
+
+    /**
      * 订单发货
      * @param id order id
      * @param postSerialNumber 快递单号
