@@ -76,6 +76,7 @@ public class AdminShoppingOrderController {
      * @return base response
      */
     @PostMapping(value = "/shopping-order/delivering", consumes = {
+            MediaType.MULTIPART_FORM_DATA_VALUE,
             MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             MediaType.APPLICATION_JSON_UTF8_VALUE
     })
@@ -94,6 +95,7 @@ public class AdminShoppingOrderController {
      * @return base response
      */
     @PostMapping(value = "/shopping-order/cancel", consumes = {
+            MediaType.MULTIPART_FORM_DATA_VALUE,
             MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             MediaType.APPLICATION_JSON_UTF8_VALUE
     })

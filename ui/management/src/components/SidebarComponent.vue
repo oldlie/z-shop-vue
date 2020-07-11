@@ -59,7 +59,7 @@
         <a-menu-item key="10">
           <router-link :to="'/order-line'">
             <a-icon type="money-collect" />
-            <span>流水管理</span>
+            <span>流水记录</span>
           </router-link>
         </a-menu-item>
         <a-menu-item key="8">
