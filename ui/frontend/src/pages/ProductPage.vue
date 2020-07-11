@@ -40,12 +40,24 @@
                     class="sliderWrap"
                     style="width: auto; position: relative;"
                   >
-                    <img
+                    <!--img
                       data-src="//i8.mifile.cn/a1/pms_1550642240.48638886.jpg"
                       class="slider done"
-                      style="float: none; list-style: outside none none; width: 540px; z-index: 50; display: block;"
+                      style="float: none; list-style: outside none none; width: 540px; height: 540px;object-fit:cover; z-index: 50; display: block;"
                       :src="commodity.thumbnail"
-                    />
+                    /-->
+                    <a-carousel arrows dots-class="slick-dots slick-thumb" 
+                    style="background: #ffffff; width: 540px; height: 540px;object-fit:cover;">
+                      <a slot="customPaging" slot-scope="props">
+                        <img :src="images[props.i]" />
+                      </a>
+                      <div v-for="image in images">
+                        <img
+                          style="float: none; list-style: outside none none; width: 460px; height: 460px;object-fit:cover; z-index: 50; display: block;"
+                          :src="image"
+                        />
+                      </div>
+                    </a-carousel>
                   </div>
                 </a-col>
                 <a-col :span="12" :style="{'text-align': 'left'}">
@@ -169,7 +181,8 @@ export default {
       buttonType,
       address: {},
       count: 1,
-      submitting: false
+      submitting: false,
+      images: []
     };
   },
   mounted() {
@@ -193,10 +206,16 @@ export default {
       this.$g
         .get(url)
         .cb(data => {
+          console.log("load --->", data);
           if (data.status === 0) {
             this.commodity = data.item["commodity"];
             this.formulas = data.item["formulas"];
             this.profile = data.item["profile"];
+            if (this.profile["images"]) {
+              this.images = this.profile["images"].split(",");
+            } else {
+              this.images = [this.commodity["thumbnail"]];
+            }
             let f = this.formulas[0];
             this.price = f["price"]["amount"];
             const spec = JSON.parse(this.profile.specification);
@@ -230,10 +249,10 @@ export default {
       }
       const url = `${this.apiUrl}/frontend/direct-order`;
       const fd = new FormData();
-      fd.append('address', encodeURIComponent(this.address.info));
-      fd.append('cid', this.commodity.id);
-      fd.append('fid', this.buttonActiveId);
-      fd.append('count', this.count);
+      fd.append("address", encodeURIComponent(this.address.info));
+      fd.append("cid", this.commodity.id);
+      fd.append("fid", this.buttonActiveId);
+      fd.append("count", this.count);
       this.submitting = true;
       this.$g
         .post(url, fd)
@@ -313,6 +332,42 @@ h2 {
   display: inline-block;
   *zoom: 1;
   *display: inline;
+}
+.ant-carousel >>> .slick-slide {
+  text-align: center;
+  height: 460px;
+  line-height: 460px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.ant-carousel >>> .slick-slide h3 {
+  color: #fff;
+}
+
+.ant-carousel >>> .slick-dots {
+  height: auto;
+}
+.ant-carousel >>> .slick-slide img {
+  border: 5px solid #fff;
+  display: block;
+  margin: auto;
+  max-width: 80%;
+}
+.ant-carousel >>> .slick-thumb {
+  bottom: -45px;
+}
+.ant-carousel >>> .slick-thumb li {
+  width: 60px;
+  height: 45px;
+}
+.ant-carousel >>> .slick-thumb li img {
+  width: 100%;
+  height: 100%;
+  filter: grayscale(100%);
+}
+.ant-carousel >>> .slick-thumb li.slick-active img {
+  filter: grayscale(0%);
 }
 </style>
 
