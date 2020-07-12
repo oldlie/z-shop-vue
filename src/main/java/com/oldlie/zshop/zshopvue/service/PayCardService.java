@@ -2,14 +2,8 @@ package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.cs.MONEY_EXCHANGE;
-import com.oldlie.zshop.zshopvue.model.db.ExchangeRecord;
-import com.oldlie.zshop.zshopvue.model.db.PayCard;
-import com.oldlie.zshop.zshopvue.model.db.PayCardLog;
-import com.oldlie.zshop.zshopvue.model.db.Wallet;
-import com.oldlie.zshop.zshopvue.model.db.repository.ExchangeRecordRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.PayCardLogRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.PayCardRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.WalletRepository;
+import com.oldlie.zshop.zshopvue.model.db.*;
+import com.oldlie.zshop.zshopvue.model.db.repository.*;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
@@ -38,6 +32,8 @@ public class PayCardService {
 
     @Autowired
     private ExchangeRecordRepository erRepository;
+    @Autowired
+    private UserCardRepository userCardRepository;
     @Autowired
     private WalletRepository walletRepository;
 
@@ -218,15 +214,30 @@ public class PayCardService {
         return response;
     }
 
+    /**
+     * 出售卡片
+     * @param idStr ids's string
+     * @param customer customer name
+     * @param customerPhone customer phone
+     * @param amount amount
+     * @param customerId customer id
+     * @param assign assign system user
+     * @param uid user id of sold
+     * @param username username of sold
+     * @return BaseResponse
+     */
     @Transactional
     public BaseResponse sold(final String idStr,
                              final String customer,
                              final String customerPhone,
                              final String amount,
+                             final long customerId,
+                             final int assign,
                              final long uid,
                              final String username) {
         BaseResponse response = new BaseResponse();
         String[] ids = idStr.split(",");
+        List<UserCard> userCardList = new LinkedList<>();
         for (String _id : ids) {
             long id = Long.parseLong(_id);
             this.payCardRepository.findById(id).ifPresent(x -> {
@@ -236,6 +247,12 @@ public class PayCardService {
                 x.setIsSoldOut(1);
                 this.payCardRepository.save(x);
             });
+            if (assign == 1) {
+                userCardList.add(UserCard.builder()
+                        .uid(customerId)
+                        .cardId(id)
+                        .build());
+            }
             this.payCardLogRepository.save(
                     PayCardLog.builder()
                             .cardId(id)
@@ -245,6 +262,11 @@ public class PayCardService {
                             .opt(2)
                             .build()
             );
+        }
+
+        if (assign == 1) {
+            // 直接将卡片分配到系统内的账户
+            this.userCardRepository.saveAll(userCardList);
         }
 
         return response;

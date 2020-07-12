@@ -81,14 +81,29 @@ public class AdminPayCardController {
         return this.payCardService.payCard(id);
     }
 
+    /**
+     * 出售卡片，
+     * <p>如果assign == 1 则表示将卡片直接分配给系统内的账号</p>
+     * @param id card id
+     * @param customer customer name
+     * @param customerPhone customer phone
+     * @param amount 售价
+     * @param customerId 系统内用户购买
+     * @param assign 是否直接分配到系统内账户
+     * @param uid user id
+     * @param username username
+     * @return BaseResponse
+     */
     @PostMapping(value = "/pay-card/sold")
     public BaseResponse sell(@RequestParam @NotEmpty String id,
                              @RequestParam @NotEmpty String customer,
                              @RequestParam @NotEmpty String customerPhone,
                              @RequestParam @NotEmpty String amount,
+                             @RequestParam long customerId,
+                             @RequestParam int assign,
                              @SessionAttribute("uid") long uid,
                              @SessionAttribute("username") String username) {
-        return this.payCardService.sold(id, customer, customerPhone, amount, uid, username);
+        return this.payCardService.sold(id, customer, customerPhone, amount, customerId, assign, uid, username);
     }
 
     /**
