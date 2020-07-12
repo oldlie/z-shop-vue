@@ -11,9 +11,11 @@ import CarouselPage from './pages/CarouselPage'
 import CommodityPage from './pages/CommodityPage'
 import CommoditiesPage from './pages/CommoditiesPage'
 import DashboardPage from './pages/DashboardPage'
+import ExchangesPage from './pages/ExchangesPage'
 import FinancialPage from './pages/FinancialPage'
 import HomeNavPage from './pages/HomeNavPage'
 import LoginPage from './pages/LoginPage'
+import LogsPage from './pages/PayCardLogsPage'
 import OrdersPage from './pages/OrdersPage'
 import PayCardPage from './pages/PayCardPage'
 import PayCardPreviewPage from './pages/PayCardPreviewPage'
@@ -33,8 +35,10 @@ export default new Router({
     { path: '/carousel', name: 'carousel', component: CarouselPage},
     { path: '/commodity/:id', name: 'commodity', component: CommodityPage},
     { path: '/commodities', name: 'commodities', component: CommoditiesPage},
+    { path: '/exchanges', name: 'exchanges', component: ExchangesPage},
     { path: '/financial', name: 'financial', component: FinancialPage},
     { path: '/home-nav', name: 'homeNave', component: HomeNavPage},
+    { path: '/logs', name: 'logs', component: LogsPage},
     { path: '/card', name: 'card', component: PayCardPage},
     { path: '/card-preview/:id', name: 'cardPreview', component: PayCardPreviewPage},
     { path: '/cards', name: 'cards', component: PayCardsPage},

@@ -1,6 +1,8 @@
 package com.oldlie.zshop.zshopvue.controller.backend;
 
+import com.oldlie.zshop.zshopvue.model.db.ExchangeRecord;
 import com.oldlie.zshop.zshopvue.model.db.PayCard;
+import com.oldlie.zshop.zshopvue.model.db.PayCardLog;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
@@ -87,5 +89,29 @@ public class AdminPayCardController {
                              @SessionAttribute("uid") long uid,
                              @SessionAttribute("username") String username) {
         return this.payCardService.sold(id, customer, customerPhone, amount, uid, username);
+    }
+
+    /**
+     * 获取兑换记录列表
+     * @param page page
+     * @param size size
+     * @return Page of ExchangeRecord
+     */
+    @GetMapping(value = "/pay-card/exchange")
+    public PageResponse<ExchangeRecord> exchangeRecordPageResponse(@RequestParam("page") int page,
+                                                                   @RequestParam("size") int size) {
+        return this.payCardService.exchangeRecordPage(page, size);
+    }
+
+    /**
+     * 获取兑换卡操作记录
+     * @param page page
+     * @param size size
+     * @return Page Of Log
+     */
+    @GetMapping(value = "/pay-card/logs")
+    public PageResponse<PayCardLog> payCardLogPageResponse(@RequestParam("page") int page,
+                                                           @RequestParam("size") int size) {
+        return this.payCardService.payCardLogList(page, size);
     }
 }

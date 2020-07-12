@@ -16,6 +16,14 @@
             <router-link :to="'/card'">
               <a-icon type="plus" />添加卡片
             </router-link>
+            <a-divider type="vertical" />
+            <router-link :to="'/exchanges'">
+              <a-icon type="table" />兑换列表
+            </router-link>
+            <a-divider type="vertical" />
+            <router-link :to="'/logs'">
+              <a-icon type="table" />操作列表
+            </router-link>
           </a-col>
         </a-row>
 

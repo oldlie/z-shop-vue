@@ -11,7 +11,6 @@ import com.oldlie.zshop.zshopvue.model.db.repository.PayCardLogRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.PayCardRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.WalletRepository;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
-import com.oldlie.zshop.zshopvue.model.response.ListResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.utils.ZsTool;
@@ -19,10 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.Predicate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -52,6 +51,18 @@ public class PayCardService {
         this.payCardLogRepository = payCardLogRepository;
     }
 
+    /**
+     * 创建一张兑换卡
+     * @param title card title
+     * @param note node
+     * @param validDay 有效期
+     * @param denomination 面额
+     * @param amount 售价
+     * @param latestExchangeDate 卡片最晚兑换日期
+     * @param uid 创建卡片的账号ID
+     * @param username 创建卡片时账号的名称
+     * @return BaseResponse
+     */
     public BaseResponse payCard(String title, String note, int validDay, String denomination, String amount,
                                 String latestExchangeDate, long uid, String username) {
         BaseResponse response = new BaseResponse();
@@ -65,6 +76,19 @@ public class PayCardService {
         return response;
     }
 
+    /**
+     * 批量创建兑换卡
+     * @param title card title
+     * @param node node
+     * @param validDay valid day
+     * @param denomination denomination
+     * @param amount sold amount
+     * @param latestExchangeDate latest exchange date
+     * @param uid user id who creates card
+     * @param username user name when the card created
+     * @param count card count
+     * @return BaseResponse
+     */
     public BaseResponse payCards(String title, String node, int validDay, String denomination, String amount,
                                  String latestExchangeDate, long uid, String username, int count) {
         BaseResponse response = new BaseResponse();
@@ -331,6 +355,61 @@ public class PayCardService {
 
         response.setItem(balance);
 
+        return response;
+    }
+
+    // endregion
+    // region 附加的记录信息
+
+    /**
+     * 管理员获取所有的兑换记录
+     * @param index page index
+     * @param size page size
+     * @return Page of ExchangeRecord
+     */
+    public PageResponse<ExchangeRecord> exchangeRecordPage(int index, int size) {
+        PageResponse<ExchangeRecord> response = new PageResponse<>();
+        Page<ExchangeRecord> page = this.erRepository.findAll(
+                (root, query, cb) -> cb.equal(root.get("category"), MONEY_EXCHANGE.PAY_CARD_EXCHANGE),
+                ZsTool.pageable(index, size)
+        );
+        response.setTotal(page.getTotalElements());
+        response.setList(page.getContent());
+        return response;
+    }
+
+    /**
+     * 用户获取自己的兑换卡兑换记录
+     * @param uid user id
+     * @param index page index
+     * @param size page size
+     * @return Page of ExchangeRecord
+     */
+    public PageResponse<ExchangeRecord> exchangeRecordPage(long uid, int index, int size) {
+        PageResponse<ExchangeRecord> response = new PageResponse<>();
+        Page<ExchangeRecord> page = this.erRepository.findAll(
+                (root, query, cb) -> {
+                    Predicate predicate = cb.equal(root.get("uid"), uid);
+                    Predicate predicate1 = cb.equal(root.get("category"), MONEY_EXCHANGE.PAY_CARD_EXCHANGE);
+                    return cb.and(predicate, predicate1);
+                },
+                ZsTool.pageable(index, size));
+        response.setTotal(page.getTotalElements());
+        response.setList(page.getContent());
+        return response;
+    }
+
+    /**
+     * 管理员获取卡片操作记录
+     * @param index page index
+     * @param size page size
+     * @return Page Of ExchangeRecord
+     */
+    public PageResponse<PayCardLog> payCardLogList(int index, int size) {
+        PageResponse<PayCardLog> response = new PageResponse<>();
+        Page<PayCardLog> page = this.payCardLogRepository.findAll(ZsTool.pageable(index, size));
+        response.setList(page.getContent());
+        response.setTotal(page.getTotalElements());
         return response;
     }
 
