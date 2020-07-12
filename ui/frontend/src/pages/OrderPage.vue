@@ -67,10 +67,17 @@
 
               <a-row class="inner-row">
                 <a-col :span="4">总价：{{so.totalMoney['amount']}}</a-col>
-                <a-col
-                  :span="16"
-                  v-if="so.status === 2"
-                >{{so.postCompany}},快递单号：{{so.postSerialNumber}}</a-col>
+                <a-col :span="16">
+                  <template>
+                    <div v-if="so.status === 2">
+                      <span>{{so.updateDate}}</span>
+                      <span>&nbsp;&nbsp;已发&nbsp;&nbsp;</span>
+                      <span
+                        style="font-size:1.1em;font-weight:bold;"
+                      >{{so.postCompany}},单号：{{so.postSerialNumber}}</span>
+                    </div>
+                  </template>
+                </a-col>
                 <a-col :span="4">
                   <button class="fav-button active" @click="onCompleteOrder(so)">
                     <span>确认收货</span>

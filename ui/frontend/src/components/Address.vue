@@ -100,6 +100,9 @@ export default {
   methods: {
     changeViewMode(model) {
       this.viewModel = model;
+      if (this.viewModel === 1) {
+        this.initAddress();
+      }
     },
     onSubmit() {
       console.log("on submit");

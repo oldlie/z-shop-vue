@@ -65,7 +65,7 @@ public class AddressService {
         BaseResponse response = new BaseResponse();
         Address defAddress = this.addressRepository.findOneByUidAndIsDefault(uid, 1);
         if (defAddress != null) {
-            if (id != defAddress.getUid()) {
+            if (id != defAddress.getId()) {
                 defAddress.setIsDefault(0);
                 this.addressRepository.save(defAddress);
             } else {

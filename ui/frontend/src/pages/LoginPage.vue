@@ -85,7 +85,7 @@ export default {
             .callback(function(data) {
               if (data["status"] === 0) {
                 let token = data["item"];
-                self.$cookie.set("token", token, 7);
+                self.$cookie.set("token", token, 1);
                 let t = setTimeout(() => {
                   self.bus.$emit("updateUserInfoEvent");
                   clearTimeout(t);
