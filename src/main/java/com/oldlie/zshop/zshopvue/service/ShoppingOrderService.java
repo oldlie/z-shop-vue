@@ -307,7 +307,7 @@ public class ShoppingOrderService {
                 .isAdd(FinancialAccount.INCOME)
                 .money(price)
                 .balance(fab.plus(price))
-                .comment(uid + "支付订单：" + sn + "收入：" + price.toString())
+                .comment("用户" + user.getUsername() + "[" + uid + "]支付订单：" + sn + "收入：" + price.toString())
                 .build();
         this.faRepository.save(fa);
 
@@ -566,6 +566,13 @@ public class ShoppingOrderService {
         order.setCancelReason(reason);
         this.repository.save(order);
 
+        Wallet wallet = this.walletRepository.findOneByUid(uid);
+        if (wallet == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("你还没有支付账户，不能取消订单，请联系客户处理");
+            return response;
+        }
+
         Money money = order.getTotalMoney();
         Page<FinancialAccount> page = this.faRepository.findAll(ZsTool.pageable(0, 3));
         if (page.getTotalElements() < 0) {
@@ -574,7 +581,7 @@ public class ShoppingOrderService {
                     .money(money)
                     .balance(money)
                     .isAdd(FinancialAccount.EXPENSE)
-                    .comment(uid + " 取消订单：" + sn + "，支出：" + money.toString())
+                    .comment("用户" + uid + " 取消订单：" + sn + "，支出：" + money.toString())
                     .build();
             this.faRepository.save(fa);
         } else {
@@ -585,10 +592,13 @@ public class ShoppingOrderService {
                     .money(money)
                     .balance(last.getBalance().minus(money))
                     .isAdd(FinancialAccount.EXPENSE)
-                    .comment(uid + " 取消订单：" + sn + "，支出：" + money.toString())
+                    .comment("用户" + uid + " 取消订单：" + sn + "，支出：" + money.toString())
                     .build();
             this.faRepository.save(fa);
         }
+
+        wallet.setBalance(wallet.getBalance().plus(money));
+        this.walletRepository.save(wallet);
 
         return response;
     }
