@@ -307,7 +307,7 @@ public class ShoppingOrderService {
                 .isAdd(FinancialAccount.INCOME)
                 .money(price)
                 .balance(fab.plus(price))
-                .comment(uid + "购物增加系统收入：" + price.toString())
+                .comment(uid + "支付订单：" + sn + "收入：" + price.toString())
                 .build();
         this.faRepository.save(fa);
 
@@ -574,7 +574,7 @@ public class ShoppingOrderService {
                     .money(money)
                     .balance(money)
                     .isAdd(FinancialAccount.EXPENSE)
-                    .comment(uid + " 取消订单，支出：" + money.toString())
+                    .comment(uid + " 取消订单：" + sn + "，支出：" + money.toString())
                     .build();
             this.faRepository.save(fa);
         } else {
@@ -585,7 +585,7 @@ public class ShoppingOrderService {
                     .money(money)
                     .balance(last.getBalance().minus(money))
                     .isAdd(FinancialAccount.EXPENSE)
-                    .comment(uid + " 取消订单，支出：" + money.toString())
+                    .comment(uid + " 取消订单：" + sn + "，支出：" + money.toString())
                     .build();
             this.faRepository.save(fa);
         }
