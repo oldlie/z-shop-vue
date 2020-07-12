@@ -319,6 +319,7 @@ public class PayCardService {
                 + " 兑换卡:" + card.getSerialNumber();
 
         ExchangeRecord record = ExchangeRecord.builder()
+                .uid(uid)
                 .category(MONEY_EXCHANGE.PAY_CARD_EXCHANGE)
                 .correlationId(card.getId())
                 .exchangeMoney(card.getDenomination())

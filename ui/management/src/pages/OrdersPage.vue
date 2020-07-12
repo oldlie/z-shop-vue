@@ -66,7 +66,7 @@
                     </a-col>
                   </a-row>
                 </a-tab-pane>
-                <a-tab-pane tab="在途订单" key="2">
+                <a-tab-pane tab="发货订单" key="2">
                   <a-row class="inner-row" v-for="item in onWayList" :key="item.id">
                     <a-col :span="24">
                       <a-row class="inner-row">
@@ -90,10 +90,10 @@
                         <a-col :span="4" style="text-align:right">单价：{{item_.price['amount']}}</a-col>
                       </a-row>
                       <a-row class="inner-row"></a-row>
-                        <a-col :span="24">
-                          <p>已发快递：{{item.postCompany}} </p>
-                          <p>快递号单：{{item.postSerialNumber}}</p>
-                        </a-col>
+                      <a-col :span="24">
+                        <p>已发快递：{{item.postCompany}}</p>
+                        <p>快递号单：{{item.postSerialNumber}}</p>
+                      </a-col>
                       <a-divider />
                     </a-col>
                   </a-row>
@@ -164,6 +164,31 @@
                         :current="index"
                         @change="paginationChange"
                       />
+                    </a-col>
+                  </a-row>
+                </a-tab-pane>
+                <a-tab-pane tab="订单状态说明" key="4">
+                  <a-row class="inner-row">
+                    <a-col :span="16">
+                      <a-timeline mode="alternate">
+                        <a-timeline-item>用户点击购买</a-timeline-item>
+                        <a-timeline-item color="green">用户界面跳转到订单页面</a-timeline-item>
+                        <a-timeline-item>
+                          <a-icon slot="dot" type="bulb" style="font-size: 16px;" />待支付
+                        </a-timeline-item>
+                        <a-timeline-item>用户点击结算订单</a-timeline-item>
+                        <a-timeline-item>
+                          <a-icon slot="dot" type="bulb" style="font-size: 16px;" />正在出库
+                        </a-timeline-item>
+                        <a-timeline-item>管理员点击发货</a-timeline-item>
+                        <a-timeline-item>
+                          <a-icon slot="dot" type="bulb" style="font-size: 16px;" />已发货
+                        </a-timeline-item>
+                        <a-timeline-item>用户点击完成订单</a-timeline-item>
+                        <a-timeline-item>
+                          <a-icon slot="dot" type="bulb" style="font-size: 16px;" />已完成
+                        </a-timeline-item>
+                      </a-timeline>
                     </a-col>
                   </a-row>
                 </a-tab-pane>

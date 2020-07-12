@@ -11,6 +11,7 @@ import CarouselPage from './pages/CarouselPage'
 import CommodityPage from './pages/CommodityPage'
 import CommoditiesPage from './pages/CommoditiesPage'
 import DashboardPage from './pages/DashboardPage'
+import FinancialPage from './pages/FinancialPage'
 import HomeNavPage from './pages/HomeNavPage'
 import LoginPage from './pages/LoginPage'
 import OrdersPage from './pages/OrdersPage'
@@ -32,6 +33,7 @@ export default new Router({
     { path: '/carousel', name: 'carousel', component: CarouselPage},
     { path: '/commodity/:id', name: 'commodity', component: CommodityPage},
     { path: '/commodities', name: 'commodities', component: CommoditiesPage},
+    { path: '/financial', name: 'financial', component: FinancialPage},
     { path: '/home-nav', name: 'homeNave', component: HomeNavPage},
     { path: '/card', name: 'card', component: PayCardPage},
     { path: '/card-preview/:id', name: 'cardPreview', component: PayCardPreviewPage},
