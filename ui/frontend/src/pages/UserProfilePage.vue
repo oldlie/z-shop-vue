@@ -126,10 +126,13 @@
                   <a-input v-model="cardPassword"></a-input>
                 </a-form-item>
                 <a-form-item :wrapper-col="{offset: 5, span: 12}">
-                  <a-button @click="exchange" type="primary">兑换</a-button>
+                  <a-button @click="exchange" type="primary">充值</a-button>
                 </a-form-item>
               </a-form>
             </a-col>
+          </a-row>
+          <a-row class="inner-row">
+            <pay-card @exchanged="handleExchange"></pay-card>
           </a-row>
         </a-tab-pane>
 
@@ -277,7 +280,8 @@ export default {
         this.password1.help = `密码需包含且仅包含数字，字母以及字符"!@#$%^&*"`;
         return;
       }
-      this.payPwd.value = this.pwd1 + this.pwd2 + this.pwd3 + this.pwd4 + this.pwd5 + this.pwd6;
+      this.payPwd.value =
+        this.pwd1 + this.pwd2 + this.pwd3 + this.pwd4 + this.pwd5 + this.pwd6;
       reg = /^\d{4,6}$/;
       if (!reg.test(this.payPwd.value)) {
         this.payPwd.status = "warning";
@@ -291,17 +295,18 @@ export default {
       const fd = new FormData();
       fd.append("password", this.password1.value);
       fd.append("payPwd", this.payPwd.value);
-      this.$g.post(url, fd)
-      .cb(data => {
-        if (data.status === 0) {
-          this.$message.success('已保存');
-          this.payPwd.status = this.password1.status = "success";
-        } else {
-          this.$message.me(data.message);
-        }
-      })
-      .fcb(() => this.resetPayPwdLoading = false)
-      .req();
+      this.$g
+        .post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("已保存");
+            this.payPwd.status = this.password1.status = "success";
+          } else {
+            this.$message.me(data.message);
+          }
+        })
+        .fcb(() => (this.resetPayPwdLoading = false))
+        .req();
     },
     onTabChange(index) {
       if (index === "4") {
@@ -347,6 +352,10 @@ export default {
         })
         .fcb(() => (this.loading = false))
         .req();
+    },
+    handleExchange(amount) {
+      console.log(amount);
+      this.balance = amount;
     }
   }
 };

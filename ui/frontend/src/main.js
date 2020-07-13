@@ -7,6 +7,7 @@ import 'ant-design-vue/dist/antd.css'
 import Address from './components/Address'
 import ArticleList from './components/ArticleList'
 import HomeCarousel from './components/HomeCarousel'
+import PayCard from './components/PayCard'
 import ProductCard from './components/ProductCard'
 import ProductComment from './components/ProductComment'
 import UserPanelLinks from './components/UserPanelLinks'
@@ -14,6 +15,7 @@ import UserPanelLinks from './components/UserPanelLinks'
 Vue.component('address-com', Address);
 Vue.component('article-list', ArticleList);
 Vue.component('home-carousel', HomeCarousel);
+Vue.component('pay-card', PayCard);
 Vue.component('product-card', ProductCard);
 Vue.component('product-comment', ProductComment);
 Vue.component('user-panel-links', UserPanelLinks);
@@ -68,8 +70,8 @@ Vue.use(VueCookies)
 // import QS from 'qs'
 // Vue.prototype.qs = QS;
 
-Vue.prototype.apiUrl = 'http://39.96.190.31/api/';
-//Vue.prototype.apiUrl = 'http://localhost/api/';
+//Vue.prototype.apiUrl = 'http://39.96.190.31/api/';
+Vue.prototype.apiUrl = 'http://localhost/api/';
 Vue.prototype.bus = new Vue();
 Vue.prototype.$g = window.G;
 Vue.prototype.$message['me'] = (message) => { Vue.prototype.$message.error(decodeURIComponent(message)) };

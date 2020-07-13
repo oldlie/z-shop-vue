@@ -39,4 +39,11 @@ public class CardController {
                                          @SessionAttribute("uid") long uid) {
         return this.service.listMyPayCards(uid, page,size, orderBy, direct);
     }
+
+    @GetMapping(value = "/card/my-valid-cards")
+    public PageResponse<PayCard> myValidCards(@RequestParam("page") int page,
+                                              @RequestParam("size") int size,
+                                              @SessionAttribute("uid") long uid) {
+        return this.service.customerPayCards(uid, page, size);
+    }
 }

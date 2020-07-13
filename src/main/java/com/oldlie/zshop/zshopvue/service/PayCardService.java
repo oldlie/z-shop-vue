@@ -274,7 +274,6 @@ public class PayCardService {
 
     // region 个人操作自己的兑换卡
 
-
     /**
      * 当前只显示已经充值了的卡片信息
      * @param uid user id
@@ -292,7 +291,6 @@ public class PayCardService {
         response.setList(payCardPage.getContent());
         return response;
     }
-
 
     /**
      * 用户兑换一张兑换卡
@@ -320,6 +318,11 @@ public class PayCardService {
         if (now > expires) {
             response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("过期卡片。");
+            return response;
+        }
+        if (card.getIsExchanged() == 1) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("卡片已经兑换过了");
             return response;
         }
 
@@ -381,6 +384,7 @@ public class PayCardService {
     }
 
     // endregion
+
     // region 附加的记录信息
 
     /**
@@ -436,4 +440,31 @@ public class PayCardService {
     }
 
     // endregion
+
+    /**
+     * 用户获取系统分配给自己的还未使用的卡片
+     * @param uid user id
+     * @param index page index
+     * @param size page size
+     * @return Page of PayCard
+     */
+    public PageResponse<PayCard> customerPayCards(long uid, int index, int size) {
+        PageResponse<PayCard> response = new PageResponse<>();
+        Page<Object> page = this.payCardRepository
+                .findAllCustomerValidCards(uid, 0, ZsTool.pageable(index, size));
+
+        List content = page.getContent();
+        List<PayCard> payCards = new LinkedList<>();
+        content.forEach(x -> {
+            Object[] objects = (Object[]) x;
+            if (objects[0] instanceof PayCard) {
+                payCards.add((PayCard) objects[0]);
+            } else {
+                throw new RuntimeException("不是兑换卡类型");
+            }
+        });
+        response.setTotal(page.getTotalElements());
+        response.setList(payCards);
+        return response;
+    }
 }
