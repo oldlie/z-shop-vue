@@ -2,6 +2,7 @@ package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.cs.MONEY_EXCHANGE;
+import com.oldlie.zshop.zshopvue.model.cs.PAY_CARD_OPT;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
@@ -155,8 +156,8 @@ public class PayCardService {
 
         PayCardLog log = new PayCardLog();
         log.setCardId(payCard.getId());
-        log.setOptDescription("CREATE");
-        log.setOpt(1);
+        log.setOptDescription(PAY_CARD_OPT.CREATE);
+        log.setOpt(PAY_CARD_OPT.CREATE_);
         log.setOptId(uid);
         log.setOptUsername(username);
         this.payCardLogRepository.save(log);
@@ -174,8 +175,8 @@ public class PayCardService {
             log.setCardId(x.getId());
             log.setOptId(uid);
             log.setOptUsername(username);
-            log.setOpt(2);
-            log.setOptDescription("DELETE");
+            log.setOpt(PAY_CARD_OPT.DELETE_);
+            log.setOptDescription(PAY_CARD_OPT.DELETE);
             this.payCardRepository.delete(x);
         });
 
@@ -256,10 +257,10 @@ public class PayCardService {
             this.payCardLogRepository.save(
                     PayCardLog.builder()
                             .cardId(id)
-                            .optDescription("SOLD")
+                            .optDescription(PAY_CARD_OPT.SOLD)
                             .optUsername(username)
                             .optId(uid)
-                            .opt(2)
+                            .opt(PAY_CARD_OPT.SOLD_)
                             .build()
             );
         }
@@ -356,8 +357,8 @@ public class PayCardService {
                 .cardId(card.getId())
                 .optUsername(username)
                 .optId(uid)
-                .opt(2)
-                .optDescription("USER EXCHANGE")
+                .opt(PAY_CARD_OPT.USER_EXCHANGED_)
+                .optDescription(PAY_CARD_OPT.USER_EXCHANGE)
                 .build();
         // 记录卡片变更概要信息
         this.payCardLogRepository.save(log);
@@ -451,7 +452,7 @@ public class PayCardService {
     public PageResponse<PayCard> customerPayCards(long uid, int index, int size) {
         PageResponse<PayCard> response = new PageResponse<>();
         Page<Object> page = this.payCardRepository
-                .findAllCustomerValidCards(uid, 0, ZsTool.pageable(index, size));
+                .findAllCustomerValidCards(uid, 1,0, ZsTool.pageable(index, size));
 
         List content = page.getContent();
         List<PayCard> payCards = new LinkedList<>();
@@ -465,6 +466,36 @@ public class PayCardService {
         });
         response.setTotal(page.getTotalElements());
         response.setList(payCards);
+        return response;
+    }
+
+    /**
+     * 用户移除自己卡片列表中的对话卡
+     * <p>1.卡片过期了</p>
+     * <p>2.卡片送人了</p>
+     * @param uid user id
+     * @param sn card serial number
+     * @param vc verify code
+     * @return BaseResponse
+     */
+    @Transactional
+    public BaseResponse invalidCard(long uid, String username, String sn, String vc) {
+        BaseResponse response = new BaseResponse();
+        PayCard payCard = this.payCardRepository.findOneBySerialNumberAndVerifyCode(sn, vc);
+        if (payCard == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("对话卡不存在了，请刷新页面");
+            return response;
+        }
+        payCard.setIsValid(0);
+        this.payCardRepository.save(payCard);
+        this.payCardLogRepository.save(PayCardLog.builder()
+                .cardId(payCard.getId())
+                .optDescription(PAY_CARD_OPT.INVALID)
+                .opt(PAY_CARD_OPT.INVALID_)
+                .optId(uid)
+                .optUsername(username)
+                .build());
         return response;
     }
 }

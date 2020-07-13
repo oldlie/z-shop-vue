@@ -1,6 +1,7 @@
 package com.oldlie.zshop.zshopvue.controller.frontend;
 
 import com.oldlie.zshop.zshopvue.model.db.PayCard;
+import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
 import com.oldlie.zshop.zshopvue.service.PayCardService;
@@ -45,5 +46,13 @@ public class CardController {
                                               @RequestParam("size") int size,
                                               @SessionAttribute("uid") long uid) {
         return this.service.customerPayCards(uid, page, size);
+    }
+
+    @PostMapping(value = "/card/invalid")
+    public BaseResponse invalidCard(@RequestParam("sn") String sn,
+                                    @RequestParam("vc") String vc,
+                                    @SessionAttribute("uid") long uid,
+                                    @SessionAttribute("username") String username) {
+        return this.service.invalidCard(uid, username, sn, vc);
     }
 }

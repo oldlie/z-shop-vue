@@ -34,8 +34,9 @@ public interface PayCardRepository extends JpaRepository<PayCard, Long>, JpaSpec
      * @param uid customer user id
      * @return Page of Object[PayCard, UserCard]
      */
-    @Query("FROM PayCard p JOIN UserCard u on p.id=u.cardId WHERE u.uid=:uid AND p.isExchanged=:isExchanged ORDER BY p.id DESC")
+    @Query("FROM PayCard p JOIN UserCard u on p.id=u.cardId WHERE u.uid=:uid AND p.isValid=:isValid AND p.isExchanged=:isExchanged ORDER BY p.id DESC")
     Page<Object> findAllCustomerValidCards(@Param("uid")long uid,
+                                           @Param("isValid") int isValid,
                                            @Param("isExchanged") int isExchanged,
                                            Pageable pageable);
 }

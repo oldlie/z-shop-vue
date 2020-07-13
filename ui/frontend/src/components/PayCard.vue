@@ -1,5 +1,5 @@
 <template>
-  <a-span :spnning="loading">
+  <a-spin :spinning="loading">
     <a-row class="inner-row">
       <a-button icon="sync" @click="loadData">刷新卡片列表</a-button>
     </a-row>
@@ -24,8 +24,23 @@
                   </div>
                 </div>
                 <div class="inner-row">
-                  <a-button v-if="payCard.isExchanged === 0" @click="onExchange(payCard)" :loading="payCard.id === currentId">充值</a-button>
+                  <template v-if="payCard.isExchanged === 0">
+                    <a-button @click="onExchange(payCard)" :loading="payCard.id === currentId">充值</a-button>
+                    <a-divider type="vertical" />
+                    <a-popconfirm
+                      title="移除兑换卡?移除之后将不可充值"
+                      content="卡片移除之后将不能兑换，确定移除吗？"
+                      @confirm="invalid(payCard)"
+                      okText="确定"
+                      cancelText="取消"
+                    >
+                      <a href="javascript:;" style="color:#f5222d">
+                        <a-icon type="delete" />移除
+                      </a>
+                    </a-popconfirm>
+                  </template>
                   <span v-if="payCard.isExchanged === 1">已充值</span>
+                  <span v-if="payCard.isExchanged === 2">已移除</span>
                 </div>
               </div>
             </a-card>
@@ -42,7 +57,7 @@
         @change="paginationChange"
       />
     </a-row>
-  </a-span>
+  </a-spin>
 </template>
 <script>
 export default {
@@ -92,9 +107,27 @@ export default {
         .cb(data => {
           if (data.status === 0) {
             item.isExchanged = 1;
-            this.$emit('exchanged', data.item["amount"]);
+            this.$emit("exchanged", data.item["amount"]);
           } else {
             console.error("exchange card --->", data);
+            this.$message.me(data.message);
+          }
+        })
+        .fcb(() => (this.currentId = 0))
+        .req();
+    },
+    invalid (item) {
+      const url = `${this.apiUrl}/frontend/card/invalid?sn=${item.serialNumber}&vc=${item.verifyCode}`;
+      this.currentId = item.id;
+      this.$g
+        .post(url, {
+          sn: item.serialNumber,
+          vc: item.verifyCode
+        })
+        .cb(data => {
+          if (data.status === 0) {
+            item.isExchanged = 2;
+          } else {
             this.$message.me(data.message);
           }
         })
