@@ -239,31 +239,59 @@ public class PayCardService {
         BaseResponse response = new BaseResponse();
         String[] ids = idStr.split(",");
         List<UserCard> userCardList = new LinkedList<>();
+        List<PayCard> payCardList = new LinkedList<>();
+        List<PayCardLog> payCardLogList = new LinkedList<>();
         for (String _id : ids) {
             long id = Long.parseLong(_id);
-            this.payCardRepository.findById(id).ifPresent(x -> {
-                x.setCustomer(customer);
-                x.setCustomerPhone(customerPhone);
-                x.setPrice(Money.parse(amount));
-                x.setIsSoldOut(1);
-                this.payCardRepository.save(x);
-            });
+            Optional<PayCard> optional = this.payCardRepository.findById(id);
+            if (!optional.isPresent()) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("卡片不存在了，请刷新重试");
+                return response;
+            }
+            PayCard payCard = optional.get();
+
+            if (payCard.getIsValid() == 0) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("无效卡，不能分配");
+                return response;
+            }
+
+            long now = Calendar.getInstance().getTimeInMillis();
+            long expires = payCard.getLatestExchangeDate().getTime();
+            if (now > expires) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("过期卡，不能分配");
+                return response;
+            }
+            if (payCard.getIsExchanged() == 1) {
+                response.setStatus(HTTP_CODE.FAILED);
+                response.setMessage("已兑换了的卡，不能分配");
+                return response;
+            }
+
+            payCard.setCustomer(customer);
+            payCard.setCustomerPhone(customerPhone);
+            payCard.setPrice(Money.parse(amount));
+            payCard.setIsSoldOut(1);
+            payCardList.add(payCard);
             if (assign == 1) {
                 userCardList.add(UserCard.builder()
                         .uid(customerId)
                         .cardId(id)
                         .build());
             }
-            this.payCardLogRepository.save(
-                    PayCardLog.builder()
-                            .cardId(id)
-                            .optDescription(PAY_CARD_OPT.SOLD)
-                            .optUsername(username)
-                            .optId(uid)
-                            .opt(PAY_CARD_OPT.SOLD_)
-                            .build()
-            );
-        }
+            payCardLogList.add(PayCardLog.builder()
+                    .cardId(id)
+                    .optDescription(PAY_CARD_OPT.SOLD)
+                    .optUsername(username)
+                    .optId(uid)
+                    .opt(PAY_CARD_OPT.SOLD_)
+                    .build());
+       }
+
+        this.payCardRepository.saveAll(payCardList);
+        this.payCardLogRepository.saveAll(payCardLogList);
 
         if (assign == 1) {
             // 直接将卡片分配到系统内的账户

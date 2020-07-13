@@ -115,6 +115,8 @@ export default {
                 customerPhone: values["phone"],
                 price: values["price"]
               });
+            } else {
+              this.$message.me(data.message);
             }
           })
           .fcb(() => (this.submitLoading = false))
