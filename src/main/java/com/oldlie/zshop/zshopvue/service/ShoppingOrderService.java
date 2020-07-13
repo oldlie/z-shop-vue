@@ -571,7 +571,7 @@ public class ShoppingOrderService {
         order.setCancelReason(reason);
         this.repository.save(order);
 
-        Wallet wallet = this.walletRepository.findOneByUid(uid);
+        Wallet wallet = this.walletRepository.findOneByUid(order.getUid());
         if (wallet == null) {
             response.setStatus(HTTP_CODE.FAILED);
             response.setMessage("你还没有支付账户，不能取消订单，请联系客户处理");
