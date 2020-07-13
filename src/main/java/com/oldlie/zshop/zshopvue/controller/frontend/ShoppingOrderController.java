@@ -75,8 +75,9 @@ public class ShoppingOrderController {
     })
     public BaseResponse payOrder(@RequestParam("sn") String serialNumber,
                                  @RequestParam("pwd") String payPassword,
+                                 @RequestParam("addr") String address,
                                  @SessionAttribute("uid") long uid) {
-        return this.service.payOrder(uid, serialNumber, payPassword);
+        return this.service.payOrder(uid, serialNumber, payPassword, address);
     }
 
     /**

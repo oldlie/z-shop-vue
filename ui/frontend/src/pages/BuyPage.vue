@@ -64,7 +64,7 @@
             <span style="font-size:.8rem;color:rgb(136, 136, 136)">/{{balance}}</span>
           </a-col>
           <a-col :span="4">
-            <button class="fav-button active" @click="visible = true" :loading="submitLoading">
+            <button class="fav-button active" @click="openSubmitModel" :loading="submitLoading">
               <span>结算订单</span>
             </button>
           </a-col>
@@ -82,22 +82,22 @@
         <p>
           <a-row class="inner-row" :gutter="6">
             <a-col :span="2">
-              <a-input v-model="pwd1" maxLength="1" placeholder="0" />
+              <a-input v-model="pwd1" maxlength="1" placeholder="0" />
             </a-col>
             <a-col :span="2">
-              <a-input v-model="pwd2" maxLength="1" placeholder="0" />
+              <a-input v-model="pwd2" maxlength="1" placeholder="0" />
             </a-col>
             <a-col :span="2">
-              <a-input v-model="pwd3" maxLength="1" placeholder="0" />
+              <a-input v-model="pwd3" maxlength="1" placeholder="0" />
             </a-col>
             <a-col :span="2">
-              <a-input v-model="pwd4" maxLength="1" placeholder="0" />
+              <a-input v-model="pwd4" maxlength="1" placeholder="0" />
             </a-col>
             <a-col :span="2">
-              <a-input v-model="pwd5" maxLength="1" placeholder="0" />
+              <a-input v-model="pwd5" maxlength="1" placeholder="0" />
             </a-col>
             <a-col :span="2">
-              <a-input v-model="pwd6" maxLength="1" placeholder="0" />
+              <a-input v-model="pwd6" maxlength="1" placeholder="0" />
             </a-col>
           </a-row>
         </p>
@@ -147,21 +147,26 @@ export default {
     onAddrViewModelChange(model) {
       this.addrViewModel = model;
     },
-    onSubmitOrder() {
+    openSubmitModel() {
       if (!this.address) {
         this.$message.warning("请选择地址");
         return;
       }
+      this.visible = true;
+    },
+    onSubmitOrder() {
       console.log("submit order --->", this.totalPrice, this.balance);
       if (Number(this.totalPrice) > Number(this.balance)) {
         this.$message.warning("积分不够支付当前商品，请先兑换积分。");
         return;
       }
-      let pwd = this.pwd1 + this.pwd2 + this.pwd3 + this.pwd4 + this.pwd5 + this.pwd6;
+      let pwd =
+        this.pwd1 + this.pwd2 + this.pwd3 + this.pwd4 + this.pwd5 + this.pwd6;
       const url = `${this.apiUrl}/frontend/shopping-order/pay`;
       const fd = new FormData();
       fd.append("sn", this.innerSn);
       fd.append("pwd", pwd);
+      fd.append("addr", this.address.info)
       this.submitLoading = true;
       this.$g
         .post(url, fd)

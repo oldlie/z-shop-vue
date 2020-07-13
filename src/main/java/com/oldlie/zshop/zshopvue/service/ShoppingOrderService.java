@@ -224,7 +224,7 @@ public class ShoppingOrderService {
      * @return response
      */
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse payOrder(long uid, String sn, String payPassword) {
+    public BaseResponse payOrder(long uid, String sn, String payPassword, String address) {
         BaseResponse response = new BaseResponse();
 
         Optional<User> optionalUser = this.userRepository.findById(uid);
@@ -254,7 +254,7 @@ public class ShoppingOrderService {
             response.setMessage("你的订单已经不存在了");
             return response;
         }
-
+        order.setAddressInfo(address);
         Collection<ShoppingOrderItem> items = order.getItems();
         List<CommodityFormula> cfList = new LinkedList<>();
         for (ShoppingOrderItem item : items) {
@@ -551,7 +551,7 @@ public class ShoppingOrderService {
     }
 
     /**
-     * 在支付之用户后取消订单
+     * 在支付之用户后取消订单，支付之后只有管理员能取消订单
      * @param uid user id
      * @param sn serial number
      * @param reason reason
@@ -561,7 +561,12 @@ public class ShoppingOrderService {
     public BaseResponse cancel(long uid, String sn, String reason) {
         BaseResponse response = new BaseResponse();
 
-        ShoppingOrder order = this.repository.findByUidAndSerialNumber(uid, sn);
+        ShoppingOrder order = this.repository.findBySerialNumber(sn);
+        if (order == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("这个订单不存在了");
+            return response;
+        }
         order.setStatus(SHOPPING_ORDER_STATUS.CANCELED);
         order.setCancelReason(reason);
         this.repository.save(order);
@@ -581,7 +586,7 @@ public class ShoppingOrderService {
                     .money(money)
                     .balance(money)
                     .isAdd(FinancialAccount.EXPENSE)
-                    .comment("用户" + uid + " 取消订单：" + sn + "，支出：" + money.toString())
+                    .comment("管理员" + uid + " 取消订单：" + sn + "，支出：" + money.toString())
                     .build();
             this.faRepository.save(fa);
         } else {
@@ -592,7 +597,7 @@ public class ShoppingOrderService {
                     .money(money)
                     .balance(last.getBalance().minus(money))
                     .isAdd(FinancialAccount.EXPENSE)
-                    .comment("用户" + uid + " 取消订单：" + sn + "，支出：" + money.toString())
+                    .comment("管理员" + uid + " 取消订单：" + sn + "，支出：" + money.toString())
                     .build();
             this.faRepository.save(fa);
         }
