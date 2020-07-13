@@ -130,7 +130,7 @@
                           <a-tag v-if="item.status === 1" color="#87d068">正在出库</a-tag>
                           <a-tag v-if="item.status === 2" color="#2db7f5">已发货</a-tag>
                           <a-tag v-if="item.status === 8" color="#135200">已完成</a-tag>
-                          <a-tag v-if="item.status === 10">已取消</a-tag>
+                          <a-tag v-if="item.status === 10">已取消<a-divider type="vertical" />{{item.cancelReason}}</a-tag>
                         </a-col>
                       </a-row>
                       <a-row class="inner-row">

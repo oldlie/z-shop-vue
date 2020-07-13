@@ -116,6 +116,10 @@
                   :span="16"
                   v-if="so.status === 2"
                 >{{so.postCompany}},快递单号：{{so.postSerialNumber}}</a-col>
+                <a-col
+                  :span="16"
+                  v-if="so.status === 10"
+                >取消原因：{{so.cancelReason}}</a-col>
               </a-row>
 
               <a-divider />
