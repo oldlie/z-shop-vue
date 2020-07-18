@@ -80,6 +80,37 @@
                         </div>
                       </a-upload>
                     </a-form-item>
+                    <a-form-item
+                      :label-col="labelCol"
+                      :wrapper-col="wrapperCol"
+                      label="二维码"
+                      :validate-status="qrCode.status"
+                      has-feedback
+                    >
+                      <a-upload
+                        name="file"
+                        listType="picture-card"
+                        class="avatar-uploader"
+                        :showUploadList="false"
+                        :action="uploadUrl"
+                        :headers="headers"
+                        :beforeUpload="beforeQRCodeUpload"
+                        @change="handleQRCodeChange"
+                      >
+                        <img
+                          v-if="qrCode.value !== ''"
+                          :src="qrCode.value"
+                          alt="二维码"
+                          width="86px"
+                          height="86px"
+                        />
+                        <div v-else>
+                          <a-icon type="plus" />
+                          <div class="ant-upload-text">二维码</div>
+                        </div>
+                      </a-upload>
+                    </a-form-item>
+
 
                     <a-form-item :wrapper-col="{ offset: 3, sm: 12 }">
                       <a-button icon="save" :loading="saveBasicLoading" @click="saveBasicInfo">保存</a-button>
@@ -307,6 +338,7 @@ export default {
       title: { value: "", status: "", help: "" },
       introduction: { value: "", status: "", help: "" },
       thumbnail: { value: "", status: "", help: "" },
+      qrCode: { value: "", status: "", help: "" },
       saveBasicLoading: false,
       imageFileList: [],
       // endregion
@@ -397,6 +429,32 @@ export default {
         this.loading = false;
       }
     },
+    beforeQRCodeUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      if (!isJPG) {
+        this.$message.error("仅能上传JPG文件!");
+      }
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        this.$message.error("最大上传2M的文件!");
+      }
+      return isJPG && isLt2M;
+    },
+    handleQRCodeChange(info) {
+      if (info.file.status === "uploading") {
+        this.loading = true;
+        return;
+      }
+      if (info.file.status === "done") {
+        console.log("handleChange ===>", info);
+        let response = info.file.response;
+        if (!!response["data"]) {
+          this.qrCode.value = response["data"][0];
+        }
+        this.qrCode.status = "success";
+        this.loading = false;
+      }
+    },
     saveBasicInfo() {
       const url = "/backend/product";
       const params = {
@@ -404,6 +462,7 @@ export default {
         title: this.title.value,
         introduction: this.introduction.value,
         thumbnail: this.thumbnail.value,
+        qrCode: this.qrCode.value,
         status: 0
       };
       this.saveBasicLoading = true;

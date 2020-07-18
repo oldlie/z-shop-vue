@@ -144,6 +144,18 @@
                         :loading="submitting"
                       >立即购买</a-button>
                     </a-col>
+                 </a-row>
+                  <a-row v-if="!!commodity.qrCode" class="innter-row">
+                    <a-col :span="12" :style="{'padding': '10px 5px', 'text-align': 'center'}">
+                      <p>微店购买：</p>
+                     <img
+                          :src="commodity.qrCode"
+                          alt="二维码"
+                          width="192px"
+                          height="192px"
+                        /> 
+                    </a-col>
+ 
                   </a-row>
                 </a-col>
               </a-row>
@@ -232,6 +244,7 @@ export default {
             this.tags = data.item["tags"];
           } else {
             console.error("load commodity --->", data);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

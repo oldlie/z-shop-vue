@@ -165,6 +165,7 @@ public class CommodityService {
         target.setThumbnail(commodity.getThumbnail());
         target.setTitle(commodity.getTitle());
         target.setViewCount(commodity.getViewCount());
+        target.setQrCode(commodity.getQrCode());
 
         target = this.commodityRepository.save(target);
         response.setItem(target.getId());

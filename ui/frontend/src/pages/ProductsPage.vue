@@ -84,6 +84,7 @@ export default {
             this.total = item.total;
           } else {
             console.error(data);
+            this.$message.me(data.message);
           }
         })
         .fcb(() => (this.loading = false))

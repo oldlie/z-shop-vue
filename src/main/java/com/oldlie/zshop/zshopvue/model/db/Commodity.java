@@ -25,4 +25,6 @@ public class Commodity extends BaseEO {
     private int viewCount;
     @Column(columnDefinition = "tinyint COMMENT '商品状态'")
     private int status;
+    @Column(columnDefinition = "VARCHAR(1000) DEFAULT '' COMMENT '二维码，引导用户去手机端现金购买'")
+    private String qrCode;
 }
