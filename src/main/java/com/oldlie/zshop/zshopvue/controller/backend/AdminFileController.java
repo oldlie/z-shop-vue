@@ -64,16 +64,19 @@ public class AdminFileController {
 
             try {
                 mpf.transferTo(saveFile);
+                // Linux 下面需要额外设置权限
+                saveFile.setReadable(true, false);
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new AppRestException("保存上传文件到服务器时出现IO错误", HTTP_CODE.EXCEPTION);
             }
 
-            UploadFile uploadFile = new UploadFile();
-            uploadFile.setPath(path);
-            uploadFile.setName(newFileName);
+            // 先不要了吧
+            // UploadFile uploadFile = new UploadFile();
+            // uploadFile.setPath(path);
+            // uploadFile.setName(newFileName);
 
-            uploadFile = this.fileService.save(uploadFile);
+            // uploadFile = this.fileService.save(uploadFile);
 
             uploadFileList.add(fileService.getSystemProperties().getUploadFileUrl()
                     + "/"

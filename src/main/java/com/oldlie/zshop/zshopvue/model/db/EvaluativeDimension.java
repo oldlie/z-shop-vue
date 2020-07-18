@@ -1,6 +1,5 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
-import com.sun.xml.internal.ws.developer.Serialization;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -17,7 +16,6 @@ import javax.persistence.Table;
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@Serialization
 @Table(name = "t_eva_dim")
 @ToString
 public class EvaluativeDimension extends BaseEO {

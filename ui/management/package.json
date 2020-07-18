@@ -36,10 +36,13 @@
     ],
     "rules": {
       "no-console": "warn",
-      "no-unused-vars": [0, {
-        "vars": "local",
-        "args": "none" 
-      }],
+      "no-unused-vars": [
+        0,
+        {
+          "vars": "local",
+          "args": "none"
+        }
+      ],
       "no-unreachable": "warn"
     }
   },

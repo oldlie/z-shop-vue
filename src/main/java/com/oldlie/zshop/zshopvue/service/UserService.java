@@ -109,6 +109,7 @@ public class UserService implements UserDetailsService {
                 .builder()
                 .username(username)
                 .password(this.bCryptPasswordEncoder.encode(password))
+                .payPassword("888888")
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
                 .isCredentialsNonExpired(true)

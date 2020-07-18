@@ -162,7 +162,7 @@ export default {
       }
       let pwd =
         this.pwd1 + this.pwd2 + this.pwd3 + this.pwd4 + this.pwd5 + this.pwd6;
-      const url = `${this.apiUrl}/frontend/shopping-order/pay`;
+      const url = `${this.apiUrl}frontend/shopping-order/pay`;
       const fd = new FormData();
       fd.append("sn", this.innerSn);
       fd.append("pwd", pwd);
@@ -181,7 +181,7 @@ export default {
         .req();
     },
     initBuyInfo() {
-      const url = `${this.apiUrl}/frontend/buy-info/${this.innerSn}`;
+      const url = `${this.apiUrl}frontend/buy-info/${this.innerSn}`;
       this.loading = true;
       this.$g
         .get(url)
@@ -219,7 +219,7 @@ export default {
       this.addrViewModel = 0;
     },
     cancel() {
-      const url = `${this.apiUrl}/frontend/shopping-order/cancel`;
+      const url = `${this.apiUrl}frontend/shopping-order/cancel`;
       const fd = new FormData();
       fd.append("sn", this.innerSn);
       fd.append("reason", "用户取消");

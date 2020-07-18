@@ -1,6 +1,6 @@
 module.exports = {
     "publicPath":"/zshop",
-    "outputDir":"D:/projects/nginx-1.15.11/html/zshop",
+    "outputDir":"/home/oldlie/dev/env/docker/nginx/html/zshop",
     /*
     "devServer": {
         proxy: 'http://localhost:8088'
