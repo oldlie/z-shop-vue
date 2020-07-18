@@ -11,12 +11,28 @@
         <a-col :span="6" v-for="item in products" :key="item['id']">
           <a :href="`#/product/${item.id}`" target="_blank">
             <a-card hoverable class="product-card">
-              <img :alt="item['title']" :src="item['thumbnail']" slot="cover"  style="height: 238px; width: 238px;object-fit:cover"/>
+              <img
+                :alt="item['title']"
+                :src="item['thumbnail']"
+                slot="cover"
+                style="height: 238px; width: 238px;object-fit:cover"
+              />
               <a-card-meta :title="item['title']">
                 <template slot="description">{{item['introduction']}}</template>
               </a-card-meta>
             </a-card>
           </a>
+        </a-col>
+      </a-row>
+      <a-row class="inner-row">
+        <a-col :span="24">
+          <a-pagination
+            size="small"
+            :total="total"
+            :pageSize="size"
+            :current="page"
+            @change="handlePagChange"
+          ></a-pagination>
         </a-col>
       </a-row>
     </a-spin>
@@ -28,20 +44,21 @@ export default {
   data() {
     return {
       tagId: 0,
-      queryTitle: '',
+      queryTitle: "",
       loading: false,
       tagName: "全部商品",
       products: [],
       page: 1,
-      size: 10
+      size: 12,
+      total: 0
     };
   },
-  watch : {
-   $route(to, from) {
-     this.tagId = !!to.query.tagId ? to.query.tagId : 0;
-     this.queryTitle = to.query.t;
-     this.load();
-   } 
+  watch: {
+    $route(to, from) {
+      this.tagId = !!to.query.tagId ? to.query.tagId : 0;
+      this.queryTitle = to.query.t;
+      this.load();
+    }
   },
   mounted() {
     this.tagId = !!this.$route.query.tagId ? this.$route.query.tagId : 0;
@@ -54,7 +71,7 @@ export default {
       if (!!this.queryTitle) {
         url = `${this.apiUrl}/public/home/commodities/${this.page}/${this.size}/title/${this.queryTitle}`;
       } else {
-      url = `${this.apiUrl}/public/home/commodities/${this.tagId}/${this.page}/${this.size}`;
+        url = `${this.apiUrl}/public/home/commodities/${this.tagId}/${this.page}/${this.size}`;
       }
       this.loading = true;
       this.$g
@@ -64,6 +81,7 @@ export default {
             const item = data.item;
             this.tagName = item.tag.title;
             this.products = item.commodities;
+            this.total = item.total;
           } else {
             console.error(data);
           }
@@ -71,7 +89,11 @@ export default {
         .fcb(() => (this.loading = false))
         .req();
     },
-    onTabChange() {}
+    onTabChange() {},
+    handlePagChange(page) {
+      this.page = page;
+      this.load();
+    }
   }
 };
 </script>

@@ -472,7 +472,6 @@ public class CommodityService {
             );
 
             commodityList = commodityPage.getContent();
-
         }  else {
             Optional<Tag> tagOptional = this.tagRepository.findById(tagId);
             if (!tagOptional.isPresent()) {
@@ -498,12 +497,14 @@ public class CommodityService {
         CommoditiesWithTag cwt = CommoditiesWithTag.builder()
                 .tag(tag)
                 .commodities(commodityList)
+                .total(commodityPage.getTotalElements())
                 .build();
 
         response.setItem(cwt);
 
         return response;
     }
+
     // endregion
 
     /**

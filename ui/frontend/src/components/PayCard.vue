@@ -65,7 +65,7 @@ export default {
     return {
       loading: false,
       total: 0,
-      size: 10,
+      size: 12,
       page: 1,
       list: [],
       currentId: 0
@@ -97,7 +97,6 @@ export default {
     },
     onExchange(item) {
       const url = `${this.apiUrl}/frontend/card/exchange?sn=${item.serialNumber}&vc=${item.verifyCode}`;
-      this.loading = true;
       this.currentId = item.id;
       this.$g
         .post(url, {
