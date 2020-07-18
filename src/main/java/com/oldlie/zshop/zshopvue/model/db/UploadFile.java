@@ -9,6 +9,9 @@ import lombok.ToString;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+/**
+ * 这个类其实没什么必要，因为也管不了
+ */
 @Entity
 @Data
 @Table(name = "t_upload_file")

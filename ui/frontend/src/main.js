@@ -70,8 +70,8 @@ Vue.use(VueCookies)
 // import QS from 'qs'
 // Vue.prototype.qs = QS;
 
-//Vue.prototype.apiUrl = 'http://39.96.190.31/api/';
-Vue.prototype.apiUrl = 'http://localhost/api/';
+Vue.prototype.apiUrl = 'http://39.96.190.31/api/';
+//Vue.prototype.apiUrl = 'http://localhost/api/';
 Vue.prototype.bus = new Vue();
 Vue.prototype.$g = window.G;
 Vue.prototype.$message['me'] = (message) => { Vue.prototype.$message.error(decodeURIComponent(message)) };
