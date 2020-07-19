@@ -23,6 +23,10 @@ public class CommodityComment extends BaseEO {
     private long uid;
     private String nickname;
     private long cid;
+    /**
+     * 订单ID，每个订单都可以评论
+     */
+    private long oid;
     @Column(columnDefinition = "VARCHAR(1000) DEFAULT '' COMMENT '用于存储用户的打分记录，直接用json'")
     private String evaDim;
     /**
@@ -41,4 +45,6 @@ public class CommodityComment extends BaseEO {
      * 讨厌数
      */
     private long disagree;
+    @Column(columnDefinition = "TINYINT DEFAULT 0 COMMENT '评论状态，默认是0,即不展示；管理员审核之后改为1,即可以在前端展示；管理员审核不通过时设置为2'")
+    private int status;
 }

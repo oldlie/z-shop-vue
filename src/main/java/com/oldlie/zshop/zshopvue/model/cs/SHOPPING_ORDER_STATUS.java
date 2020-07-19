@@ -45,4 +45,8 @@ public class SHOPPING_ORDER_STATUS {
      * 订单取消
      */
     public final static int CANCELED = 10;
+    /**
+     * 待评价
+     */
+    public final static int WAITING_COMMENT = 11;
 }

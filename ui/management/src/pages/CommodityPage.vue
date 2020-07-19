@@ -111,7 +111,6 @@
                       </a-upload>
                     </a-form-item>
 
-
                     <a-form-item :wrapper-col="{ offset: 3, sm: 12 }">
                       <a-button icon="save" :loading="saveBasicLoading" @click="saveBasicInfo">保存</a-button>
                     </a-form-item>
@@ -275,6 +274,28 @@
                   </a-form-item>
                 </a-form>
               </a-tab-pane>
+              <a-tab-pane key="5" tab="评价维度">
+                <a-row class="inner-row">
+                  <a-col :span="16">
+                    <p>维度用于用户给商品打分，最多添加5个评价维度</p>
+                    <a-form>
+                      <a-form-item
+                        :validate-status="dimension.status"
+                        :help="dimension.help"
+                        has-feedback
+                      >
+                        <a-input placeholder="输入维度" v-model="dimension.value"></a-input>
+                      </a-form-item>
+                      <a-form-item>
+                        <a-button icon="save" :loading="submitDimLoading" @click="submitDim">保存</a-button>
+                      </a-form-item>
+                    </a-form>
+                  </a-col>
+                </a-row>
+                <a-row class="inner-row">
+                  <a-tag style="margin:5px 5px 5px 0" v-for="item in dimensions" :key="item.id" closable @close="removeDimension(item)">{{item.title}}</a-tag>
+                </a-row>
+              </a-tab-pane>
             </a-tabs>
           </div>
           <a-row class="inner-row">
@@ -367,7 +388,12 @@ export default {
       tags: [],
       // endregion
       onlineLoading: false,
-      offlineLoading: false
+      offlineLoading: false,
+      // region evaluactive dimension
+      dimension: { value: "", status: "", help: "" },
+      dimensions: [],
+      submitDimLoading: false
+      // endregion
     };
   },
   mounted() {
@@ -887,8 +913,69 @@ export default {
       } else if (index === "4") {
         this.loadTags(0);
         this.loadCommodityTags(this.id);
+      } else if (index === "5") {
+        this.loadDimensions();
       }
+    },
+    // region evaluative dimension
+    submitDim() {
+      if (this.dimension.value === "" || this.dimension.value.length > 6) {
+        this.dimension.status = "warning";
+        this.dimension.help = "请输入维度且维度不超过6个字符";
+        return;
+      }
+      const url = `/backend/dimension`;
+      this.dimension.status = "valdating";
+      this.dimension.help = "";
+      this.submitDimLoading = true;
+      const fd = new FormData();
+      fd.append("cid", this.id);
+      fd.append("title", this.dimension.value);
+      this.$h
+        .post(url, fd)
+        .cb(data => {
+          if (data.status === 0) {
+            this.$message.success("已保存");
+            this.dimension.status = "sucess";
+            this.loadDimensions();
+          } else {
+            this.$message.me(data.message);
+            this.dimension.status = "error";
+          }
+        })
+        .fcb(() => (this.submitDimLoading = false))
+        .req();
+    },
+    loadDimensions() {
+      const url = `/backend/dimensions?cid=${this.id}`;
+      this.loading = true;
+      this.$h
+        .get(url)
+        .cb(data => {
+          if (data.status === 0) {
+            this.dimensions = data.list;
+          } else {
+            this.$message.me(data.message);
+          }
+        })
+        .fcb(() => (this.loading = false))
+        .req();
+    },
+    removeDimension(item) {
+      const url = `/backend/dimension?id=${item.id}`
+      this.loading = true;
+      this.$h.delete(url)
+      .cb(data => {
+        if (data.status === 0) {
+          this.$message.success("已移除");
+        } else {
+          this.$message.me(data.message);
+        }
+      })
+      .fcb(() => this.loading = false)
+      .req();
     }
+    // endregion
   }
 };
 </script>
