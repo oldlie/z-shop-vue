@@ -23,7 +23,7 @@
           <a-tag color="#87d068">#87d068</a-tag>
           <a-tag color="#108ee9">#108ee9</a-tag>
           -->
-          <router-link :to="{ path: `/article/${item.id}`}">{{item.title}}</router-link>
+          <router-link :to="{ path: `/article/${item.id}`}" target="_blank">{{item.title}}</router-link>
         </div>
       </a-list-item-meta>
       {{item.summary}}
