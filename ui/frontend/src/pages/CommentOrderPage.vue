@@ -3,86 +3,117 @@
     :style="{ background: '#fff', padding: '24px', minHeight: '280px', 'margin': '30px 0', 'width:': '100%','text-align':'left'}"
   >
     <h1>评价商品</h1>
-    <a-form :form="form" @submit="handleSubmit">
-      <a-form-item>
-        <a-row :gutter="4">
-          <a-col :span="4">
-            <div class="fav-button active">
-              <span>全选</span>
+
+    <a-row class="inner-row" v-for="commodity in info.commodities" :key="commodity.cid">
+      <a-col :span="24">
+        <a-row class="inner-row">
+          <a-col :span="16">{{commodity.commodity}}</a-col>
+        </a-row>
+
+        <a-row class="inner-row" :gutter="6">
+          <a-col :span="4" style="text-align:right;">快速评价：</a-col>
+          <a-col :span="4" v-for="dim in commodity.dimensions" :key="dim.id">
+            <div
+              @click="quickCommentCheck(dim, false)"
+              v-if="dim['checked']"
+              class="fav-button active"
+            >
+              <span>{{dim['title']}}</span>
             </div>
-          </a-col>
-          <a-col :span="4" v-for="fav in favoriteList" :key="fav['id']">
-            <div class="fav-button">
-              <span>{{fav['text']}}({{fav['count']}})</span>
+            <div @click="quickCommentCheck(dim, true)" v-else class="fav-button">
+              <span>{{dim['title']}}</span>
             </div>
           </a-col>
         </a-row>
-      </a-form-item>
-      <a-form-item label="购物体验" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
-        <a-icon v-for="item in [1,2,3,4,5]" :key="item" type="star"/>
-      </a-form-item>
-      <a-form-item label="购物评价" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
-        <a-textarea placeholder="评价" :rows="4"/>
-      </a-form-item>
-      <a-form-item :wrapper-col="{offset: 5, span: 12}">
-        <a-upload
-          action="//jsonplaceholder.typicode.com/posts/"
-          listType="picture-card"
-          :fileList="fileList"
-          @preview="handlePreview"
-          @change="handleChange"
-        >
-          <div v-if="fileList.length < 3">
-            <a-icon type="plus"/>
-            <div class="ant-upload-text">Upload</div>
-          </div>
-        </a-upload>
-        <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-          <img alt="example" style="width: 100%" :src="previewImage">
-        </a-modal>
-      </a-form-item>
-      <a-form-item :wrapper-col="{ span: 12, offset: 5 }">
-        <a-button type="primary" html-type="submit">提交</a-button>
-      </a-form-item>
-    </a-form>
+
+        <a-row class="inner-row">
+          <a-col :span="24">
+            <a-form>
+              <a-form-item label="购物体验" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
+                <a-rate v-model="commodity['rate']" />
+              </a-form-item>
+              <a-form-item label="购物评价" :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
+                <a-textarea v-model="commodity['comment']" placeholder="评价" :rows="4" />
+              </a-form-item>
+              <a-form-item :wrapper-col="{ span: 12, offset: 5 }">
+                <a-button type="primary" @click="submit(commodity)" :loading="submitLoading">提交</a-button>
+              </a-form-item>
+            </a-form>
+          </a-col>
+        </a-row>
+      </a-col>
+    </a-row>
   </div>
 </template>
 <script>
-const favoriteList = [
-  { id: 0, text: "值得拥有", count: "37210" },
-  { id: 1, text: "手感很棒", count: "29874" },
-  { id: 2, text: "外观漂亮", count: "22858" },
-  { id: 3, text: "拍照好", count: "20008" },
-  { id: 4, text: "速度快", count: "19874" }
-];
 export default {
   name: "CommonOrderPage",
   data() {
     return {
       formLayout: "horizontal",
-      form: this.$form.createForm(this),
-      favoriteList,
-      previewVisible: false,
-      previewImage: "",
       fileList: [
         {
           uid: "-1",
           name: "xxx.png",
           status: "done",
           url:
-            "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-        }
-      ]
+            "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+        },
+      ],
+      sn: "",
+      info: {},
+      submitLoading: false,
     };
   },
+  mounted() {
+    console.log("router --->", this.$route.query.sn);
+    this.sn = this.$route.query.sn;
+    this.loadOrder();
+  },
   methods: {
-    handleSubmit(e) {
-      e.preventDefault();
-      this.form.validateFields((err, values) => {
-        if (!err) {
-          console.log("Received values of form: ", values);
+    loadOrder() {
+      const url = `${this.apiUrl}frontend/shopping-order/comment-info?sn=${this.sn}`;
+      this.$g
+        .get(url)
+        .cb((data) => {
+          console.log("data --->", data);
+          if (data.status === 0) {
+            this.info = data.item;
+          } else {
+            this.$message.me(data.message);
+          }
+        })
+        .fcb()
+        .req();
+    },
+    submit(commodity) {
+      const url = `${this.apiUrl}frontend/shopping-order/comment`;
+      let ids = "";
+      for (let i in commodity.dimensions) {
+        console.log(i);
+        let dim = commodity.dimensions[i];
+        if (dim["checked"]) {
+          ids += dim["id"] + ",";
         }
-      });
+      }
+      const fd = new FormData();
+      fd.append("cid", commodity.cid);
+      fd.append("sn", this.sn);
+      fd.append("rate", !commodity["rate"] ? commodity["rate"] : 5);
+      fd.append("ids", ids);
+      fd.append("comment", commodity["comment"]);
+      this.submitLoading = true;
+      this.$g
+        .post(url, fd)
+        .cb((data) => {
+          if (data.status === 0) {
+            this.$message.success("已保存");
+          } else {
+            this.$message.me(data.message);
+          }
+        })
+        .fcb(() => (this.submitLoading = false))
+        .req();
     },
     handleSelectChange(value) {
       console.log(value);
@@ -96,8 +127,12 @@ export default {
     },
     handleChange({ fileList }) {
       this.fileList = fileList;
-    }
-  }
+    },
+    quickCommentCheck(item, checked) {
+      item["checked"] = checked;
+      this.info = JSON.parse(JSON.stringify(this.info));
+    },
+  },
 };
 </script>
 <style scoped>

@@ -1,5 +1,6 @@
 package com.oldlie.zshop.zshopvue.service;
 
+import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_COMMENT_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
 import com.oldlie.zshop.zshopvue.model.cs.SHOPPING_ORDER_STATUS;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 
@@ -39,10 +41,16 @@ public class ShoppingOrderService {
     private AddressRepository addressRepository;
 
     @Autowired
+    private CommodityCommentRepository ccRepository;
+
+    @Autowired
     private CommodityRepository commodityRepository;
 
     @Autowired
     private CommodityFormulaRepository cfRepository;
+
+    @Autowired
+    private EvaDimRepository evaDimRepository;
 
     @Autowired
     private FinancialAccountRepository faRepository;
@@ -362,7 +370,8 @@ public class ShoppingOrderService {
             response.setMessage("你的订单已经不存在了");
             return response;
         }
-        order.setStatus(SHOPPING_ORDER_STATUS.FINISHED);
+        // 用户点击完成之后订单转为等待评价状态，前端跳转到评价页面
+        order.setStatus(SHOPPING_ORDER_STATUS.WAITING_COMMENT);
         this.repository.save(order);
         return response;
     }
@@ -385,6 +394,28 @@ public class ShoppingOrderService {
         response.setList(page.getContent());
         return response;
     }
+
+    /**
+     * 获取待支付的订单信息。默认取最后的30条信息
+     * @param uid user id
+     * @return list of shopping order
+     */
+    public ListResponse<ShoppingOrder> listForWaitingComment(long uid) {
+        ListResponse<ShoppingOrder> response = new ListResponse<>();
+        Page<ShoppingOrder> page =this.repository.findAll(
+                (root, query, criteriaBuilder) -> {
+                    Predicate predicate1 = criteriaBuilder.equal(root.get("uid"), uid);
+                    Predicate predicate2 = criteriaBuilder.equal(root.get("status"),
+                            SHOPPING_ORDER_STATUS.WAITING_COMMENT);
+                    return criteriaBuilder.and(predicate1, predicate2);
+                },
+                ZsTool.pageable(1, 30)
+        );
+        response.setList(page.getContent());
+        return response;
+    }
+
+
 
     /**
      * 获取用户的正在出库和快递中的订单列表
@@ -649,6 +680,130 @@ public class ShoppingOrderService {
                         .balance(balance.replace("CNY ", ""))
                         .build()
         );
+        return response;
+    }
+
+
+    /**
+     * 通过用户ID和订单SN获取用户当前订单的详细信息
+     * @param uid user id
+     * @param sn serial number
+     * @return detail information
+     */
+    public SimpleResponse<Map<String, Object>> orderForComment(long uid, String sn) {
+        SimpleResponse<Map<String, Object>> response = new SimpleResponse<>();
+        ShoppingOrder order = this.repository.findByUidAndSerialNumber(uid, sn);
+        if (order == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("即将评价的订单不存在了");
+            return response;
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("sn", sn);
+        Collection<ShoppingOrderItem> orderItems = order.getItems();
+        List<Map<String, Object>> list = new LinkedList<>();
+        for (ShoppingOrderItem item : orderItems) {
+            Map<String, Object> it = new HashMap<>();
+            it.put("cid", item.getCommodityId());
+            it.put("commodity", item.getCommodityTitle());
+            it.put("image", item.getCommodityImage());
+            List<EvaluativeDimension> dimensions = this.evaDimRepository.findAll(
+                    (root, criteriaQuery, cb) -> cb.equal(root.get("cid"), item.getCommodityId())
+            );
+            List<Map<String, Object>> dimList = new LinkedList<>();
+            for (EvaluativeDimension dimension : dimensions) {
+                Map<String, Object> evaDim = new HashMap<>();
+                evaDim.put("id", dimension.getId());
+                evaDim.put("title", dimension.getTitle());
+                dimList.add(evaDim);
+            }
+            it.put("dimensions",dimList);
+            list.add(it);
+        }
+        map.put("commodities", list);
+        response.setItem(map);
+        return response;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse comment(long uid, String username,
+                                long cid, String sn, int rate, String quickIds, String comment) {
+        BaseResponse response = new BaseResponse();
+
+
+
+        ShoppingOrder order = this.repository.findByUidAndSerialNumber(uid, sn);
+        if (order == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("订单不存在了，请刷新重试");
+            return response;
+        }
+
+        long count = this.ccRepository.count(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    Predicate predicate = criteriaBuilder.equal(root.get("uid"), uid);
+                    Predicate predicate1 = criteriaBuilder.equal(root.get("cid"), cid);
+                    Predicate predicate2 = criteriaBuilder.equal(root.get("oid"), order.getId());
+                    return criteriaBuilder.and(predicate, predicate1, predicate2);
+                }
+        );
+        if (count > 0) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("订单中的商品已经评价过了，请勿重复评价");
+            return response;
+        }
+
+        Commodity commodity = this.commodityRepository.findOneById(cid);
+        if (comment == null) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("订单中的商品不存在了，请刷新重试");
+            return response;
+        }
+        commodity.setSellCount(commodity.getSellCount() + 1);
+        commodity.setCommentCount(commodity.getCommentCount() + 1);
+        commodity.setCommentScore(commodity.getCommentScore() + 5 + rate);
+        this.commodityRepository.save(commodity);
+
+        StringBuilder builder = new StringBuilder(128);
+        if (StringUtils.isNotEmpty(quickIds)) {
+            List<EvaluativeDimension> dimensions = this.evaDimRepository.findAll(
+                    (root, criteriaQuery, cb) -> cb.equal(root.get("cid"), cid)
+            );
+            dimensions.forEach(x -> {
+                if (quickIds.contains(x.getId() + ",")) {
+                    x.setCount(x.getCount() + 1);
+                    builder.append(x.getTitle()).append(",");
+                }
+            });
+            this.evaDimRepository.saveAll(dimensions);
+        }
+
+        CommodityComment cc = new CommodityComment();
+        cc.setUid(uid);
+        cc.setNickname(username);
+        cc.setOid(order.getId());
+        cc.setSn(sn);
+        cc.setCid(cid);
+        cc.setEvaDim(builder.toString());
+        cc.setEvaText(comment);
+        cc.setStatus(0);
+        this.ccRepository.save(cc);
+
+        Collection<ShoppingOrderItem> items = order.getItems();
+        boolean allCommodityCommented = true;
+        for (ShoppingOrderItem item : items) {
+            if (item.getCommodityId() == cid) {
+                item.setStatus(1);
+            } else {
+                allCommodityCommented = allCommodityCommented && (item.getStatus() == 1);
+            }
+        }
+        this.itemRepository.saveAll(items);
+
+        if (allCommodityCommented) {
+            // 所有的商品都被评价了的话，那这个订单就算是被评价了
+            order.setStatus(SHOPPING_ORDER_STATUS.FINISHED);
+        }
         return response;
     }
 }

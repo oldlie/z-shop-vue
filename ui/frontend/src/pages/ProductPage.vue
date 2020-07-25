@@ -9,31 +9,17 @@
         </a-col>
         <a-col :span="24">
           <a-tabs defaultActiveKey="4" @change="onTabChange">
-            <a-tab-pane tab="概述" key="1">
+            <!--a-tab-pane tab="概述" key="1">
               <div v-html="profile.detail"></div>
-            </a-tab-pane>
-            <a-tab-pane tab="参数" key="2">
-              <a-list :dataSource="specificationData">
-                <a-list-item slot="renderItem" slot-scope="item">
-                  <a-row style="width:100%;">
-                    <a-col :span="10" style="text-align:right;">
-                      <h3>{{item.name}}</h3>
-                    </a-col>
-                    <a-col :span="2"></a-col>
-                    <a-col :span="12" style="text-align:left;">
-                      <p>{{item.text}}</p>
-                    </a-col>
-                  </a-row>
-                </a-list-item>
-              </a-list>
-            </a-tab-pane>
+            </a-tab-pane-->
+
             <!--
             <a-tab-pane tab="用户评价" key="3">
               <product-comment></product-comment>
             </a-tab-pane>
             -->
             <a-tab-pane tab="立即购买" key="4" forceRender>
-              <a-row>
+              <a-row class="inner-row">
                 <a-col :span="12">
                   <div
                     id="J_sliderView"
@@ -46,12 +32,15 @@
                       style="float: none; list-style: outside none none; width: 540px; height: 540px;object-fit:cover; z-index: 50; display: block;"
                       :src="commodity.thumbnail"
                     /-->
-                    <a-carousel arrows dots-class="slick-dots slick-thumb" 
-                    style="background: #ffffff; width: 540px; height: 540px;object-fit:cover;">
+                    <a-carousel
+                      arrows
+                      dots-class="slick-dots slick-thumb"
+                      style="background: #ffffff; width: 540px; height: 540px;object-fit:cover;"
+                    >
                       <a slot="customPaging" slot-scope="props">
                         <img :src="images[props.i]" />
                       </a>
-                      <div v-for="image in images">
+                      <div v-for="image in images" :key="image">
                         <img
                           style="float: none; list-style: outside none none; width: 460px; height: 460px;object-fit:cover; z-index: 50; display: block;"
                           :src="image"
@@ -144,21 +133,33 @@
                         :loading="submitting"
                       >立即购买</a-button>
                     </a-col>
-                 </a-row>
+                  </a-row>
                   <a-row v-if="!!commodity.qrCode" class="innter-row">
                     <a-col :span="12" :style="{'padding': '10px 5px', 'text-align': 'center'}">
                       <p>微店购买：</p>
-                     <img
-                          :src="commodity.qrCode"
-                          alt="二维码"
-                          width="192px"
-                          height="192px"
-                        /> 
+                      <img :src="commodity.qrCode" alt="二维码" width="192px" height="192px" />
                     </a-col>
- 
                   </a-row>
                 </a-col>
               </a-row>
+              <a-row class="inner-row">
+                <div v-html="profile.detail"></div>
+              </a-row>
+            </a-tab-pane>
+            <a-tab-pane tab="参数" key="2">
+              <a-list :dataSource="specificationData">
+                <a-list-item slot="renderItem" slot-scope="item">
+                  <a-row style="width:100%;">
+                    <a-col :span="10" style="text-align:right;">
+                      <h3>{{item.name}}</h3>
+                    </a-col>
+                    <a-col :span="2"></a-col>
+                    <a-col :span="12" style="text-align:left;">
+                      <p>{{item.text}}</p>
+                    </a-col>
+                  </a-row>
+                </a-list-item>
+              </a-list>
             </a-tab-pane>
           </a-tabs>
         </a-col>

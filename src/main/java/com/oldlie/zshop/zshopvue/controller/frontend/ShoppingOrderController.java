@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单处理
@@ -172,5 +173,27 @@ public class ShoppingOrderController {
                                                @PathVariable("size") int size,
                                                @SessionAttribute("uid") long uid) {
         return this.service.history(uid, page, size, "id", "desc");
+    }
+
+    @GetMapping(value = "/shopping-order/comment-info")
+    public SimpleResponse<Map<String, Object>> commentInfo(@RequestParam("sn") String sn,
+                                                           @SessionAttribute("uid") long uid) {
+        return this.service.orderForComment(uid, sn);
+    }
+
+    @PostMapping(value = "/shopping-order/comment")
+    public BaseResponse commentCommodity(@RequestParam("cid") long cid,
+                                         @RequestParam("sn") String sn,
+                                         @RequestParam(value = "rate", required = false, defaultValue = "5") int rate,
+                                         @RequestParam("ids") String ids,
+                                         @RequestParam("comment") String text,
+                                         @SessionAttribute("uid") long uid,
+                                         @SessionAttribute("username") String username) {
+        return this.service.comment(uid,username, cid, sn, rate,ids, text);
+    }
+
+    @GetMapping(value = "/shopping-order/waiting-for-comment")
+    public ListResponse<ShoppingOrder> waitingForComment(@SessionAttribute("uid") long uid) {
+        return this.service.listForWaitingComment(uid);
     }
 }

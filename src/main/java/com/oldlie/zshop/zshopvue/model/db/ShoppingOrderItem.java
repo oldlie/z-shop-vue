@@ -30,6 +30,6 @@ public class ShoppingOrderItem extends BaseEO {
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
          parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
     private Money price;
-    @Column(columnDefinition = "tinyint default 0 comment '订单中的某件商品的状态'")
+    @Column(columnDefinition = "tinyint default 0 comment '订单中的某件商品的状态,0未评论；1已评论'")
     private int status;
 }

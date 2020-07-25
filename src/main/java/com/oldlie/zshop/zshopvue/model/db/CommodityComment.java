@@ -27,6 +27,10 @@ public class CommodityComment extends BaseEO {
      * 订单ID，每个订单都可以评论
      */
     private long oid;
+    /**
+     * 订单号
+     */
+    private String sn;
     @Column(columnDefinition = "VARCHAR(1000) DEFAULT '' COMMENT '用于存储用户的打分记录，直接用json'")
     private String evaDim;
     /**
