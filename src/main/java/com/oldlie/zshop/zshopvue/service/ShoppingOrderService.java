@@ -1,9 +1,6 @@
 package com.oldlie.zshop.zshopvue.service;
 
-import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_COMMENT_STATUS;
-import com.oldlie.zshop.zshopvue.model.cs.COMMODITY_STATUS;
-import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
-import com.oldlie.zshop.zshopvue.model.cs.SHOPPING_ORDER_STATUS;
+import com.oldlie.zshop.zshopvue.model.cs.*;
 import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.*;
 import com.oldlie.zshop.zshopvue.model.front.BuyInfo;
@@ -730,7 +727,17 @@ public class ShoppingOrderService {
                                 long cid, String sn, int rate, String quickIds, String comment) {
         BaseResponse response = new BaseResponse();
 
+        if (StringUtils.isEmpty(comment) && StringUtils.isEmpty(quickIds)) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("请填写评论");
+            return response;
+        }
 
+        if (comment.length() > 140) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("评论不要超过140字符");
+            return response;
+        }
 
         ShoppingOrder order = this.repository.findByUidAndSerialNumber(uid, sn);
         if (order == null) {

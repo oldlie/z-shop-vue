@@ -24,9 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 商品相关操作服务
@@ -44,11 +42,17 @@ import java.util.Optional;
 @Service
 public class CommodityService {
 
+    @Autowired
+    private CommodityCommentRepository ccRepository;
     private CommodityRepository commodityRepository;
     private CommodityFormulaRepository commodityFormulaRepository;
     private CommodityProfileRepository commodityProfileRepository;
     private CommoditySpecificationTemplateRepository commoditySpecificationTemplateRepository;
     private CommodityTagRepository commodityTagRepository;
+
+    @Autowired
+    private EvaDimRepository evaDimRepository;
+
     private HomeCommodityTagRepository homeCommodityTagRepository;
     private TagRepository tagRepository;
 
@@ -544,6 +548,56 @@ public class CommodityService {
 
         response.setItem(info);
 
+        return response;
+    }
+
+    /**
+     * 获取
+     * @return comment information
+     */
+    public SimpleResponse<Map<String, Object>> commentInfo(long cid) {
+        SimpleResponse<Map<String, Object>> response = new SimpleResponse<>();
+        Map<String, Object> info = new HashMap<>();
+        List<EvaluativeDimension> dimensionList = this.evaDimRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("cid"), cid)
+        );
+        info.put("eva", dimensionList);
+        Page<CommodityComment> page = this.ccRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    Predicate predicate = criteriaBuilder.equal(root.get("cid"), cid);
+                    Predicate predicate1 = criteriaBuilder.equal(root.get("status"), 1);
+                    return criteriaBuilder.and(predicate, predicate1);
+                },
+                ZsTool.pageable(1, 10)
+        );
+        info.put("total", page.getTotalElements());
+        info.put("comments", page.getContent());
+        Optional<Commodity> optional = this.commodityRepository.findById(cid);
+        if (!optional.isPresent()) {
+            response.setStatus(HTTP_CODE.FAILED);
+            response.setMessage("商品不存在了，请刷新页面重试");
+            return response;
+        }
+        Commodity commodity = optional.get();
+        info.put("buyCount", commodity.getCommentCount());
+        double s = commodity.getCommentScore() * 10 / commodity.getCommentCount();
+        info.put("buyScore", Math.ceil(s));
+        response.setItem(info);
+        return response;
+    }
+
+    public PageResponse<CommodityComment> comments(long cid, int index, int size) {
+        PageResponse<CommodityComment> response = new PageResponse<>();
+        Page<CommodityComment> page = this.ccRepository.findAll(
+                (root, criteriaQuery, criteriaBuilder) -> {
+                    Predicate predicate = criteriaBuilder.equal(root.get("cid"), cid);
+                    Predicate predicate1 = criteriaBuilder.equal(root.get("status"), 1);
+                    return criteriaBuilder.and(predicate, predicate1);
+                },
+                ZsTool.pageable(index, size)
+        );
+        response.setList(page.getContent());
+        response.setTotal(page.getTotalElements());
         return response;
     }
 }

@@ -13,11 +13,6 @@
               <div v-html="profile.detail"></div>
             </a-tab-pane-->
 
-            <!--
-            <a-tab-pane tab="用户评价" key="3">
-              <product-comment></product-comment>
-            </a-tab-pane>
-            -->
             <a-tab-pane tab="立即购买" key="4" forceRender>
               <a-row class="inner-row">
                 <a-col :span="12">
@@ -161,6 +156,9 @@
                 </a-list-item>
               </a-list>
             </a-tab-pane>
+            <a-tab-pane tab="用户评价" key="3">
+              <product-comment :id="innerId"></product-comment>
+            </a-tab-pane>
           </a-tabs>
         </a-col>
       </a-row>
@@ -171,13 +169,13 @@
 const specificationData = [];
 const buttonType = {
   normal: { width: "100%", "border-radius": "0" },
-  active: { width: "100%", "border-radius": "0", "border-color": "#ff6700" }
+  active: { width: "100%", "border-radius": "0", "border-color": "#ff6700" },
 };
 
 export default {
   name: "ProductPage",
   props: {
-    id: String
+    id: String,
   },
   data() {
     return {
@@ -195,7 +193,7 @@ export default {
       address: {},
       count: 1,
       submitting: false,
-      images: []
+      images: [],
     };
   },
   mounted() {
@@ -218,7 +216,7 @@ export default {
       this.loading = true;
       this.$g
         .get(url)
-        .cb(data => {
+        .cb((data) => {
           console.log("load --->", data);
           if (data.status === 0) {
             this.commodity = data.item["commodity"];
@@ -238,7 +236,7 @@ export default {
               specList.push({
                 key: index,
                 name: item["title"],
-                text: item["content"]
+                text: item["content"],
               });
             }
             this.specificationData = specList;
@@ -270,7 +268,7 @@ export default {
       this.submitting = true;
       this.$g
         .post(url, fd)
-        .cb(data => {
+        .cb((data) => {
           if (data.status === 0) {
             this.$router.push(`/buy/${data.item}`);
           } else {
@@ -285,7 +283,7 @@ export default {
       const url = `${this.apiUrl}/frontend/default-address`;
       this.$g
         .get(url)
-        .cb(data => {
+        .cb((data) => {
           if (data.status === 0) {
             this.address = data.item;
             console.log("default address --->", this.address, data);
@@ -296,8 +294,8 @@ export default {
         })
         .fcb()
         .req();
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>

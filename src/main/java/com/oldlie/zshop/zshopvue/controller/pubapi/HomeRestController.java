@@ -1,9 +1,6 @@
 package com.oldlie.zshop.zshopvue.controller.pubapi;
 
-import com.oldlie.zshop.zshopvue.model.db.Article;
-import com.oldlie.zshop.zshopvue.model.db.Carousel;
-import com.oldlie.zshop.zshopvue.model.db.Commodity;
-import com.oldlie.zshop.zshopvue.model.db.QuickNavTag;
+import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.front.CommoditiesWithTag;
 import com.oldlie.zshop.zshopvue.model.front.CommodityInfo;
 import com.oldlie.zshop.zshopvue.model.front.HomeArticles;
@@ -20,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
+import java.util.Map;
 
 /**
  * @author oldlie
@@ -113,4 +111,15 @@ public class HomeRestController {
         return this.articleService.latestArticles();
     }
 
+    @GetMapping("/commodity/comment/info")
+    public SimpleResponse<Map<String, Object>> commentInfo(@RequestParam("cid") long cid) {
+        return this.commodityService.commentInfo(cid);
+    }
+
+    @GetMapping(value = "/commodity/comments")
+    public PageResponse<CommodityComment> comments(@RequestParam("cid") long cid,
+                                                   @RequestParam("page") int page,
+                                                   @RequestParam("size") int size) {
+        return this.commodityService.comments(cid, page, size);
+    }
 }
