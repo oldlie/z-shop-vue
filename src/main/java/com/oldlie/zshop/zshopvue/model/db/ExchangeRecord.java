@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_exchange_record")
 @ToString
-public class ExchangeRecord extends BaseEO {
+public class ExchangeRecord extends BaseEo {
     private long uid;
     /**
      * 关联ID

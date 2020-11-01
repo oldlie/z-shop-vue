@@ -17,7 +17,7 @@ import javax.persistence.UniqueConstraint;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class CommodityProfile extends BaseEO {
+public class CommodityProfile extends BaseEo {
     private Long commodityId;
     @Column(columnDefinition = "VARCHAR(4000) COMMENT 'json格式规格'")
     private String specification;

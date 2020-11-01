@@ -4,6 +4,7 @@ import com.oldlie.zshop.zshopvue.model.db.*;
 import com.oldlie.zshop.zshopvue.model.db.repository.RoleRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.UrlRoleMappingRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.UserRepository;
+import com.oldlie.zshop.zshopvue.service.init.config.InitConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,10 @@ import java.util.Arrays;
 public class InitService {
 
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private InitConfigService initConfigService;
+
     private RoleRepository roleRepository;
     private UserRepository userRepository;
     private UrlRoleMappingRepository urlRoleMappingRepository;
@@ -42,12 +47,19 @@ public class InitService {
         this.urlRoleMappingRepository = urlRoleMappingRepository;
     }
 
+    private boolean isInit = false;
+
     public void init() {
+        if (isInit) {
+            return;
+        }
         this.initUsers();
         this.initUrlRoleMapping();
+        this.initConfigService.init();
+        this.isInit = true;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = { RuntimeException.class, Exception.class})
     private void initUsers() {
         Role role = this.roleRepository.findFirstByName("ADMIN");
         if (role == null) {

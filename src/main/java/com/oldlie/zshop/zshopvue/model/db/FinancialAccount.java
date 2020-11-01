@@ -20,7 +20,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_financial_account")
 @ToString
-public class FinancialAccount extends BaseEO {
+public class FinancialAccount extends BaseEo {
     /**
      * 触发操作的用户ID
      */

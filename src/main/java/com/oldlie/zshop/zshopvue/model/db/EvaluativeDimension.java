@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_eva_dim")
 @ToString
-public class EvaluativeDimension extends BaseEO {
+public class EvaluativeDimension extends BaseEo {
     /**
      * 商品ID
      */

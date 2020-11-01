@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_article_tag")
 @ToString
-public class ArticleTag extends BaseEO {
+public class ArticleTag extends BaseEo {
     private Long articleId;
     private Long tagId;
 }

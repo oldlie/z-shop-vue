@@ -21,7 +21,7 @@ import javax.persistence.UniqueConstraint;
 @NoArgsConstructor
 @Table(name = "t_wallet", uniqueConstraints = { @UniqueConstraint(columnNames = "uid")})
 @ToString
-public class Wallet extends BaseEO {
+public class Wallet extends BaseEo {
     private long uid;
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",
             parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})

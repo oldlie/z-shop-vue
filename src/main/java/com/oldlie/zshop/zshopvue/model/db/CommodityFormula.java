@@ -19,7 +19,7 @@ import java.io.Serializable;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommodityFormula extends BaseEO implements Serializable {
+public class CommodityFormula extends BaseEo implements Serializable {
     private Long commodityId;
     private String title;
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",

@@ -5,7 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * 仅用于存储商品概览信息，商品详细信息尽量存在 commodity profile 里
@@ -15,7 +14,7 @@ import java.util.List;
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class Commodity extends BaseEO {
+public class Commodity extends BaseEo {
     private String title;
     @Column(columnDefinition = "VARCHAR(255) COMMENT '商品简介'")
     private String introduction;

@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Table(name = "t_article")
 @ToString
 @NoArgsConstructor
-public class Article extends BaseEO {
+public class Article extends BaseEo {
     private String title;
     private String summary;
     private String imageUrl;

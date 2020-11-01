@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_shopping_order_serial")
 @ToString
-public class ShoppingOrderSerial extends BaseEO {
+public class ShoppingOrderSerial extends BaseEo {
     private int year;
     private int month;
     private int date;

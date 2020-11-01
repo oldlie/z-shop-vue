@@ -2,12 +2,10 @@ package com.oldlie.zshop.zshopvue.model.db;
 
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 @AllArgsConstructor
 @Builder
@@ -17,7 +15,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Table(name = "t_carousel")
 @ToString
-public class Carousel extends BaseEO {
+public class Carousel extends BaseEo {
     @NotEmpty
     @Length(max = 32, message = "标题最多包含32字符")
     private String title;

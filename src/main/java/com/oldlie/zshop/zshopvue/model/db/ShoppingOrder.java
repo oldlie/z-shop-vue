@@ -18,7 +18,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @Table(name = "t_shopping_order", uniqueConstraints = { @UniqueConstraint(columnNames = "serialNumber") })
 @ToString
-public class ShoppingOrder extends BaseEO {
+public class ShoppingOrder extends BaseEo {
     private Long uid;
     private String serialNumber;
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount",

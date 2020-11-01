@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_shopping_order_item")
 @ToString
-public class ShoppingOrderItem extends BaseEO {
+public class ShoppingOrderItem extends BaseEo {
     private Long shoppingOrderId;
     private Long commodityId;
     private String commodityTitle;

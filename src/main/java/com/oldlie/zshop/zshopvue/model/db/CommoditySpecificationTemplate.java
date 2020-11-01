@@ -12,7 +12,7 @@ import java.io.Serializable;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommoditySpecificationTemplate extends BaseEO implements Serializable {
+public class CommoditySpecificationTemplate extends BaseEo implements Serializable {
     private String title;
     @Column(columnDefinition = "VARCHAR(4000) COMMENT '规格模板内容'")
     private String template;

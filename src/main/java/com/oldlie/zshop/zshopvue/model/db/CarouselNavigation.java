@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Table(name = "t_carousel_nav")
 @ToString
-public class CarouselNavigation extends BaseEO {
+public class CarouselNavigation extends BaseEo {
     @NotNull
     @OneToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(name = "tag_id")

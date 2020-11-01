@@ -20,7 +20,7 @@ import javax.persistence.UniqueConstraint;
 @Table(name = "t_home_tag",
         uniqueConstraints = @UniqueConstraint(columnNames = { "tagId" }))
 @ToString
-public class HomeTag extends BaseEO {
+public class HomeTag extends BaseEo {
     private long tagId;
     private int sequence;
     @Column(columnDefinition = "INT DEFAULT 0 COMMENT 'tag类别'")

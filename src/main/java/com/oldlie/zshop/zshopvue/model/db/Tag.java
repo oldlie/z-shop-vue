@@ -15,7 +15,7 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @Table(name = "t_tag")
 @ToString
-public class Tag extends BaseEO {
+public class Tag extends BaseEo {
     @NotEmpty
     private String title;
     private int category;

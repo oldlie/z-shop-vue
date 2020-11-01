@@ -3,7 +3,6 @@ package com.oldlie.zshop.zshopvue.model.db;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @AllArgsConstructor
 @Builder
@@ -17,7 +16,7 @@ import java.util.List;
 //        pkJoinColumns = { @PrimaryKeyJoinColumn(name = "tag_id") }
 //)
 @ToString
-public class CommodityTag extends BaseEO {
+public class CommodityTag extends BaseEo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

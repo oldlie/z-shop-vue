@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class UploadFile extends BaseEO {
+public class UploadFile extends BaseEo {
     private String path;
     private String name;
     private int fileType;

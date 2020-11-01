@@ -2,7 +2,6 @@ package com.oldlie.zshop.zshopvue.model.db;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
 import org.joda.money.Money;
 
@@ -22,7 +21,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Table(name = "t_pay_card")
 @ToString
-public class PayCard extends BaseEO {
+public class PayCard extends BaseEo {
 
     @Column(columnDefinition = "varchar(255) comment '卡片序列号，尾号避免4'")
     private String serialNumber;

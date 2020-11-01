@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_address")
 @ToString
-public class Address extends BaseEO {
+public class Address extends BaseEo {
 
     private Long uid;
     @Column(columnDefinition = "tinyint default 0 comment '是否是默认地址'")

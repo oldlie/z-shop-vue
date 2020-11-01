@@ -6,7 +6,6 @@ import org.joda.money.Money;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * @author DELL
@@ -19,7 +18,7 @@ import javax.persistence.UniqueConstraint;
 @NoArgsConstructor
 @Table(name = "t_shopping_cart")
 @ToString
-public class ShoppingCart extends BaseEO {
+public class ShoppingCart extends BaseEo {
     private Long uid;
     private Long commodityId;
     private String commoditySummary;

@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_user_card")
 @ToString
-public class UserCard extends BaseEO{
+public class UserCard extends BaseEo {
     private long uid;
     private long cardId;
 }

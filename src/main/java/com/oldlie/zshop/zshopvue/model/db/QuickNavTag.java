@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "t_quick_nav_tag")
 @ToString
-public class QuickNavTag extends BaseEO implements Serializable {
+public class QuickNavTag extends BaseEo implements Serializable {
     private long tagId;
     private String tagTitle;
     private int sequence;

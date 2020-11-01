@@ -11,11 +11,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * @author oldlie
+ */
 @MappedSuperclass
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseEO {
+public class BaseEo {
+    public static final String ID = "id";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;

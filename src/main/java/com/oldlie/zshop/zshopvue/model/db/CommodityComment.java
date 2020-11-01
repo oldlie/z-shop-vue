@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_commodity_comment")
 @ToString
-public class CommodityComment extends BaseEO {
+public class CommodityComment extends BaseEo {
     private long uid;
     private String nickname;
     private long cid;

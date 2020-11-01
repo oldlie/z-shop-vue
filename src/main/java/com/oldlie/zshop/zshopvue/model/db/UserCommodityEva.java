@@ -16,7 +16,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "t_user_commodity_eva")
 @ToString
-public class UserCommodityEva extends BaseEO {
+public class UserCommodityEva extends BaseEo {
     private long uid;
     /**
      * 商品ID

@@ -5,18 +5,19 @@ import lombok.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+/**
+ * @author oldlie
+ * @date 2020/11/1
+ */
 @AllArgsConstructor
-@Builder
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@Table(name = "t_pay_card_log")
+@Table(name = "t_role_permission")
 @ToString
-public class PayCardLog extends BaseEo {
-    private Long optId;
-    private String optUsername;
-    private String optDescription;
-    private int opt;
-    private long cardId;
+public class RolePermission extends BaseEo {
+    private long rid;
+    private long pid;
+    private String role;
 }
