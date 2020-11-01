@@ -19,13 +19,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @author oldlie
+ */
 @SpringBootApplication
 @EnableTransactionManagement
 @EnableSwagger2
-public class ZShopVueApplication implements ApplicationListener<ContextRefreshedEvent> {
+public class ZshopVueApplication implements ApplicationListener<ContextRefreshedEvent> {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ZShopVueApplication.class, args);
+		SpringApplication.run(ZshopVueApplication.class, args);
 	}
 
 	@Override
