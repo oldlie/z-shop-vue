@@ -1,8 +1,6 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import javax.persistence.Column;
@@ -18,10 +16,11 @@ import javax.persistence.UniqueConstraint;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = false)
-@NoRepositoryBean
+@NoArgsConstructor
 @Table(name = "t_permission", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "c_key" })
 })
+@ToString
 public class Permission extends BaseEo implements KeyEntity{
     @Column(name = "c_pid")
     private long parentId;

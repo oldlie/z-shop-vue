@@ -5,6 +5,7 @@ import com.oldlie.zshop.zshopvue.model.db.repository.RoleRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.UrlRoleMappingRepository;
 import com.oldlie.zshop.zshopvue.model.db.repository.UserRepository;
 import com.oldlie.zshop.zshopvue.service.init.config.InitConfigService;
+import com.oldlie.zshop.zshopvue.service.init.permission.InitPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ public class InitService {
 
     @Autowired
     private InitConfigService initConfigService;
+    @Autowired
+    private InitPermissionService initPermissionService;
 
     private RoleRepository roleRepository;
     private UserRepository userRepository;
@@ -56,6 +59,7 @@ public class InitService {
         this.initUsers();
         this.initUrlRoleMapping();
         this.initConfigService.init();
+        this.initPermissionService.init();
         this.isInit = true;
     }
 

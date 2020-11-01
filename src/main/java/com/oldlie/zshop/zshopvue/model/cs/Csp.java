@@ -7,5 +7,5 @@ package com.oldlie.zshop.zshopvue.model.cs;
  * Constants String Pool
  */
 public class Csp {
-
+    public static final String MODULE = "MODULE";
 }

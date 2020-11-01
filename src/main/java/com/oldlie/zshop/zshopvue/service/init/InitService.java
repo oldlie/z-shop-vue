@@ -11,12 +11,13 @@ import com.oldlie.zshop.zshopvue.model.db.specification.KeyValueSpecification;
 
 import java.util.Optional;
 
-public abstract class InitService<E extends KeyEntity, I extends InitBase<E>, ID, R extends BaseRepository<E, ID>>{
+public abstract class InitService<E extends KeyEntity, I extends InitBase<E>, ID, R extends BaseRepository<E, ID>> {
 
     protected R repository;
 
     /**
      * Init Config, permission or others
+     *
      * @param init item
      * @return init link
      */
@@ -28,13 +29,13 @@ public abstract class InitService<E extends KeyEntity, I extends InitBase<E>, ID
                 }
             }
         }
-       E entity = init.getEntity();
-       Optional<E> optional =
-               this.repository.findOne(KeyValueSpecification.getInstance(KeyEntity.KEY, entity.getKey()));
-       if (!optional.isPresent()) {
-           this.repository.save(entity);
-       }
-       return this;
+        E entity = init.getEntity();
+        Optional<E> optional =
+                this.repository.findOne(KeyValueSpecification.getInstance(KeyEntity.KEY, entity.getKey()));
+        if (!optional.isPresent()) {
+            this.repository.save(entity);
+        }
+        return this;
     }
 
     /**
