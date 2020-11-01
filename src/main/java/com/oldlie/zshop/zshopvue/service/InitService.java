@@ -1,17 +1,23 @@
 package com.oldlie.zshop.zshopvue.service;
 
 import com.oldlie.zshop.zshopvue.model.db.*;
-import com.oldlie.zshop.zshopvue.model.db.repository.RoleRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.UrlRoleMappingRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.UserRepository;
+import com.oldlie.zshop.zshopvue.model.db.repository.*;
+import com.oldlie.zshop.zshopvue.model.db.specification.KeyValueSpecification;
+import com.oldlie.zshop.zshopvue.service.init.InitBase;
 import com.oldlie.zshop.zshopvue.service.init.config.InitConfigService;
+import com.oldlie.zshop.zshopvue.service.init.permission.BackendPermission;
+import com.oldlie.zshop.zshopvue.service.init.permission.FrontendPermission;
 import com.oldlie.zshop.zshopvue.service.init.permission.InitPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.Predicate;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 2019/04/11
@@ -29,7 +35,11 @@ public class InitService {
     @Autowired
     private InitPermissionService initPermissionService;
 
+    @Autowired
+    private PermissionRepository permissionRepository;
     private RoleRepository roleRepository;
+    @Autowired
+    private RolePermissionRepository rolePermissionRepository;
     private UserRepository userRepository;
     private UrlRoleMappingRepository urlRoleMappingRepository;
 
@@ -56,10 +66,11 @@ public class InitService {
         if (isInit) {
             return;
         }
-        this.initUsers();
-        this.initUrlRoleMapping();
         this.initConfigService.init();
         this.initPermissionService.init();
+        this.initUsers();
+        this.initAdminPermission();
+        this.initUserPermission();
         this.isInit = true;
     }
 
@@ -91,16 +102,46 @@ public class InitService {
         }
     }
 
-    private void initUrlRoleMapping() {
-        if (this.urlRoleMappingRepository.count() > 0){
-            return;
+    private void initAdminPermission() {
+        List<InitBase<Permission>> list = new LinkedList<>();
+        list.add(new BackendPermission());
+        list.add(new FrontendPermission());
+
+        this.initPermission("ADMIN", list);
+    }
+
+    private void initUserPermission() {
+        List<InitBase<Permission>> list = new LinkedList<>();
+        list.add(new FrontendPermission());
+        this.initPermission("USER", list);
+    }
+
+    private void initPermission(String roleName, List<InitBase<Permission>> list) {
+        Role role = this.roleRepository.findFirstByName(roleName);
+        if (role == null) {
+            throw new RuntimeException(roleName + " ROLE is null");
         }
-        this.urlRoleMappingRepository.saveAll(
-                Arrays.asList(
-                        UrlRoleMapping.builder().url("/backend/**").role("ADMIN").build(),
-                        UrlRoleMapping.builder().url("/front/**").role("ADMIN").build(),
-                        UrlRoleMapping.builder().url("/front/**").role("USER").build()
-                )
-        );
+
+        list.forEach(x -> {
+            Optional<Permission> optional = this.permissionRepository
+                    .findOne(KeyValueSpecification.getInstance(KeyEntity.KEY, x.getEntity().getKey()));
+            if (!optional.isPresent()) {
+                throw new RuntimeException("backend permission is not initialized");
+            }
+            Permission permission = optional.get();
+            Optional<RolePermission> optional1 = this.rolePermissionRepository
+                    .findOne((root, criteriaQuery, criteriaBuilder) -> {
+                        Predicate predicate = criteriaBuilder.equal(root.get(RolePermission.RID), role.getId());
+                        Predicate predicate1 = criteriaBuilder.equal(root.get(RolePermission.PID), permission.getId());
+                        return criteriaBuilder.and(predicate, predicate1);
+                    });
+            if (!optional1.isPresent()) {
+                RolePermission rolePermission = new RolePermission();
+                rolePermission.setPid(permission.getId());
+                rolePermission.setRid(role.getId());
+                rolePermission.setRole(role.getName());
+                this.rolePermissionRepository.save(rolePermission);
+            }
+        });
     }
 }

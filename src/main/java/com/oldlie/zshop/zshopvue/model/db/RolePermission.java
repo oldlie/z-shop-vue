@@ -17,6 +17,11 @@ import javax.persistence.Table;
 @Table(name = "t_role_permission")
 @ToString
 public class RolePermission extends BaseEo {
+
+    public final static String RID = "rid";
+    public final static String PID = "pid";
+    public final static String ROLE = "role";
+
     private long rid;
     private long pid;
     private String role;
