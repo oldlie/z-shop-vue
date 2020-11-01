@@ -126,7 +126,7 @@ public class InitService {
             Optional<Permission> optional = this.permissionRepository
                     .findOne(KeyValueSpecification.getInstance(KeyEntity.KEY, x.getEntity().getKey()));
             if (!optional.isPresent()) {
-                throw new RuntimeException("backend permission is not initialized");
+                throw new RuntimeException(x.getEntity().getKey() + "is not initialized");
             }
             Permission permission = optional.get();
             Optional<RolePermission> optional1 = this.rolePermissionRepository
