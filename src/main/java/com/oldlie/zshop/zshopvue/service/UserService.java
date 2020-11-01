@@ -1,12 +1,10 @@
 package com.oldlie.zshop.zshopvue.service;
 
+import com.oldlie.zshop.zshopvue.model.cs.Csp;
 import com.oldlie.zshop.zshopvue.model.cs.HTTP_CODE;
-import com.oldlie.zshop.zshopvue.model.db.Role;
-import com.oldlie.zshop.zshopvue.model.db.UrlRoleMapping;
-import com.oldlie.zshop.zshopvue.model.db.repository.RoleRepository;
-import com.oldlie.zshop.zshopvue.model.db.repository.UrlRoleMappingRepository;
-import com.oldlie.zshop.zshopvue.model.db.User;
-import com.oldlie.zshop.zshopvue.model.db.repository.UserRepository;
+import com.oldlie.zshop.zshopvue.model.db.*;
+import com.oldlie.zshop.zshopvue.model.db.repository.*;
+import com.oldlie.zshop.zshopvue.model.db.specification.KeyValueSpecification;
 import com.oldlie.zshop.zshopvue.model.response.BaseResponse;
 import com.oldlie.zshop.zshopvue.model.response.PageResponse;
 import com.oldlie.zshop.zshopvue.model.response.SimpleResponse;
@@ -31,7 +29,11 @@ import java.util.regex.Pattern;
 public class UserService implements UserDetailsService {
 
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private PermissionRepository permissionRepository;
     private RoleRepository roleRepository;
+    @Autowired
+    private RolePermissionRepository rolePermissionRepository;
     private UserRepository userRepository;
     private UrlRoleMappingRepository urlRoleMappingRepository;
 
@@ -55,7 +57,7 @@ public class UserService implements UserDetailsService {
         return this.userRepository.findFirstByUsername(username);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = { RuntimeException.class, Exception.class})
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         UserDetails details = this.userRepository.findFirstByUsername(s);
@@ -68,16 +70,22 @@ public class UserService implements UserDetailsService {
     private Map<String, String> urlRoleMap = null;
 
     public Map<String, String> loadUrlMap() {
-        urlRoleMap = new HashMap<>();
-        List<UrlRoleMapping> list = this.urlRoleMappingRepository.findAll();
-        list.forEach(x -> {
-            if (urlRoleMap.keySet().contains(x.getUrl())) {
-                String value = urlRoleMap.get(x.getUrl()) + "," + x.getRole();
-                urlRoleMap.put(x.getUrl(), value);
-            } else {
-                urlRoleMap.put(x.getUrl(), x.getRole());
+        urlRoleMap = new HashMap<>(Csp.CAPACITY_32);
+
+        List<Permission> permissions = this.permissionRepository.findAll();
+        permissions.forEach(p -> {
+            List<RolePermission> rolePermissions = this.rolePermissionRepository
+                    .findAll(KeyValueSpecification.getInstance(RolePermission.PID, p.getId()));
+            if (StringUtils.isNotEmpty(p.getUrl()) && rolePermissions.size() > 0) {
+                StringBuilder builder = new StringBuilder(Csp.CAPACITY_32);
+                builder.append(rolePermissions.get(0));
+                for (int i = 1; i < rolePermissions.size(); i++) {
+                    builder.append(",").append(rolePermissions.get(i));
+                }
+                urlRoleMap.put(p.getUrl(), builder.toString());
             }
         });
+
         return urlRoleMap;
     }
 
