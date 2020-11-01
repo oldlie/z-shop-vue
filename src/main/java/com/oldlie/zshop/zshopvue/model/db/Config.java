@@ -18,7 +18,7 @@ import javax.persistence.UniqueConstraint;
 @NoArgsConstructor
 @Table(name = "t_config", uniqueConstraints = @UniqueConstraint(columnNames = { "c_key" }))
 @ToString
-public class Config extends BaseEo {
+public class Config extends BaseEo implements KeyEntity {
     @Column(name = "c_key")
     private String key;
     @Column(name = "c_value")

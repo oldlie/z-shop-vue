@@ -22,7 +22,7 @@ import javax.persistence.UniqueConstraint;
 @Table(name = "t_permission", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "c_key" })
 })
-public class Permission extends BaseEo {
+public class Permission extends BaseEo implements KeyEntity{
     @Column(name = "c_pid")
     private long parentId;
     @Column(name = "c_key")

@@ -5,13 +5,13 @@ package com.oldlie.zshop.zshopvue.service.init;
  * @date 2020/11/1
  */
 
-import com.oldlie.zshop.zshopvue.model.db.BaseEo;
-import com.oldlie.zshop.zshopvue.model.db.IdSpecification;
+import com.oldlie.zshop.zshopvue.model.db.KeyEntity;
 import com.oldlie.zshop.zshopvue.model.db.repository.BaseRepository;
+import com.oldlie.zshop.zshopvue.model.db.specification.KeyValueSpecification;
 
 import java.util.Optional;
 
-public abstract class InitService<E extends BaseEo, I extends Init<E>, ID, R extends BaseRepository<E, ID>>{
+public abstract class InitService<E extends KeyEntity, I extends InitBase<E>, ID, R extends BaseRepository<E, ID>>{
 
     protected R repository;
 
@@ -21,8 +21,16 @@ public abstract class InitService<E extends BaseEo, I extends Init<E>, ID, R ext
      * @return init link
      */
     public InitService<E, I, ID, R> init(I init) {
+        if (this.repository == null) {
+            synchronized (this) {
+                if (this.repository == null) {
+                    this.setRepository();
+                }
+            }
+        }
        E entity = init.getEntity();
-       Optional<E> optional = this.repository.findOne(IdSpecification.getInstance(entity.getId()));
+       Optional<E> optional =
+               this.repository.findOne(KeyValueSpecification.getInstance(KeyEntity.KEY, entity.getKey()));
        if (!optional.isPresent()) {
            this.repository.save(entity);
        }

@@ -1,5 +1,6 @@
-package com.oldlie.zshop.zshopvue.model.db;
+package com.oldlie.zshop.zshopvue.model.db.specification;
 
+import com.oldlie.zshop.zshopvue.model.db.BaseEo;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;

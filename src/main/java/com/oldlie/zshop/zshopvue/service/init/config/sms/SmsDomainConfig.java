@@ -1,15 +1,16 @@
-package com.oldlie.zshop.zshopvue.service.init.config;
+package com.oldlie.zshop.zshopvue.service.init.config.sms;
 
 import com.oldlie.zshop.zshopvue.model.db.Config;
-import com.oldlie.zshop.zshopvue.service.init.Init;
+import com.oldlie.zshop.zshopvue.service.init.InitBase;
+import com.oldlie.zshop.zshopvue.service.init.config.ConfigGroup;
 
 /**
  * @author oldlie
  * @date 2020/11/1
  */
-public class SmsDomainConfig implements Init<Config> {
+public class SmsDomainConfig extends InitBase<Config> {
 
-    private Config config;
+    private final Config config;
     @Override
     public Config getEntity() {
         return this.config;
