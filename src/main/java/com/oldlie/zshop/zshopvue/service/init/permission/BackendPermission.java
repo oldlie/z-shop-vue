@@ -24,6 +24,7 @@ public class BackendPermission extends InitBase<Permission> {
         this.permission.setKey(Csp.MODULE + "1");
         this.permission.setType(PermissionType.URL.getCode());
         this.permission.setUrl("/backend/**");
+        this.permission.setAction(Csp.PERMISSION_ACTION_ALL);
         this.permission.setTitle("后台API URL");
         this.permission.setComment("前期处理的比较粗狂，后台API的URL都打包进来了");
     }

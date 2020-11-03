@@ -24,6 +24,7 @@ public class FrontendPermission extends InitBase<Permission> {
         this.permission.setKey(Csp.MODULE + "2");
         this.permission.setType(PermissionType.URL.getCode());
         this.permission.setUrl("/frontend/**");
+        this.permission.setAction(Csp.PERMISSION_ACTION_ALL);
         this.permission.setTitle("前端API URL");
         this.permission.setComment("前期处理的比较粗狂，前端API的URL都打包进来了");
     }

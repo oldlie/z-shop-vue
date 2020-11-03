@@ -1,7 +1,6 @@
 package com.oldlie.zshop.zshopvue.model.db;
 
 import lombok.*;
-import org.springframework.data.repository.NoRepositoryBean;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,6 +29,8 @@ public class Permission extends BaseEo implements KeyEntity{
     private int type;
     @Column(name = "c_url")
     private String url;
+    @Column(name = "c_action", columnDefinition = "varchar(255) default '*' comment '*,post,get,delete,put'")
+    private String action;
     @Column(name = "t_title")
     private String title;
     @Column(name = "t_comment")

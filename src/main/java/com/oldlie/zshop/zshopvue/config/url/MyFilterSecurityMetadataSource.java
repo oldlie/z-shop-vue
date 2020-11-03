@@ -37,33 +37,16 @@ public class MyFilterSecurityMetadataSource implements FilterInvocationSecurityM
         this.requestMap = map;
     }
 
-    private void initRequestMap() {
-
-    }
-
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         FilterInvocation fi = (FilterInvocation) object;
         HttpServletRequest request = fi.getRequest();
-        String url = fi.getRequestUrl();
-        String httpMethod = fi.getRequest().getMethod();
 
         // Lookup your database (or other source) using this information and populate the
         // list of attributes (这里初始话你的权限数据)
-        Map<RequestMatcher, Collection<ConfigAttribute>> map = new HashMap<>();
-        Map<String, String> _map = userService.loadUrlMap();
-        for (String key : _map.keySet()) {
-            AntPathRequestMatcher matcher = new AntPathRequestMatcher(key);
-            String[] roles = _map.get(key).split(",");
-            ArrayList<ConfigAttribute> configs = new ArrayList<>();
-            for (String role : roles) {
-                configs.add(new SecurityConfig(role));
-            }
-            map.put(matcher, configs);
-        }
 
         //遍历我们初始化的权限数据，找到对应的url对应的权限
-        for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : map
+        for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : this.requestMap
                 .entrySet()) {
             if (entry.getKey().matches(request)) {
                 return entry.getValue();

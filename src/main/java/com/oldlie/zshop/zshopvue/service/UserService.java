@@ -78,9 +78,9 @@ public class UserService implements UserDetailsService {
                     .findAll(KeyValueSpecification.getInstance(RolePermission.PID, p.getId()));
             if (StringUtils.isNotEmpty(p.getUrl()) && rolePermissions.size() > 0) {
                 StringBuilder builder = new StringBuilder(Csp.CAPACITY_32);
-                builder.append(rolePermissions.get(0));
+                builder.append(rolePermissions.get(0).getRole());
                 for (int i = 1; i < rolePermissions.size(); i++) {
-                    builder.append(",").append(rolePermissions.get(i));
+                    builder.append(",").append(rolePermissions.get(i).getRole());
                 }
                 urlRoleMap.put(p.getUrl(), builder.toString());
             }
