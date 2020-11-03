@@ -73,11 +73,17 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         String token = request.getHeader("Authorization");
         if (token != null) {
             // parse the token.
-            String subject = Jwts.parser()
-                    .setSigningKey("z-ship-vue")
-                    .parseClaimsJws(token.replace("ZShop ", ""))
-                    .getBody()
-                    .getSubject();
+            String subject = null;
+
+            try {
+                subject = Jwts.parser()
+                        .setSigningKey("z-ship-vue")
+                        .parseClaimsJws(token.replace("ZShop ", ""))
+                        .getBody()
+                        .getSubject();
+            } catch (Exception e) {
+                return null;
+            }
 
             if (subject != null) {
                 String[] tmp = subject.split("@");
