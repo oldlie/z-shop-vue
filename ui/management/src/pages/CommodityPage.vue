@@ -925,7 +925,7 @@ export default {
         return;
       }
       const url = `/backend/dimension`;
-      this.dimension.status = "valdating";
+      this.dimension.status = "validating";
       this.dimension.help = "";
       this.submitDimLoading = true;
       const fd = new FormData();
@@ -936,7 +936,7 @@ export default {
         .cb(data => {
           if (data.status === 0) {
             this.$message.success("已保存");
-            this.dimension.status = "sucess";
+            this.dimension.status = "success";
             this.loadDimensions();
           } else {
             this.$message.me(data.message);

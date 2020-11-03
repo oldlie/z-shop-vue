@@ -3,6 +3,7 @@ package com.oldlie.zshop.zshopvue.utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +66,9 @@ public class ObjectCopy<T> {
             Field[] fields = clazz.getDeclaredFields();
             if (fields != null && fields.length > 0) {
                 for(Field field : fields) {
+                    if (Modifier.isStatic(field.getModifiers())) {
+                        continue;
+                    }
                     if (ignore != null && ignore.size() > 0 && ignore.contains(field.getName())) {
                         continue;
                     }
